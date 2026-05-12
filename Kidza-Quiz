@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kidza Staff Quiz</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --red:#e53935;
+  --red-dark:#b71c1c;
+  --red-light:#ffebee;
+  --white:#ffffff;
+  --bg:#fdf5f5;
+  --card:#ffffff;
+  --text:#1a1a1a;
+  --muted:#7b8a99;
+  --border:#f0d4d4;
+  --success:#1b8c5e;
+  --success-bg:#e6f9f1;
+  --warn:#e07b00;
+  --warn-bg:#fff4e0;
+  --radius:16px;
+  --shadow:0 4px 24px rgba(229,57,53,0.10);
+}
+
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── SCREENS ── */
+.screen{display:none;animation:fadeIn .35s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HEADER ── */
+.brand-header{
+  background:var(--red);
+  padding:0;
+  border-radius:0 0 28px 28px;
+  overflow:hidden;
+  box-shadow:0 4px 20px rgba(229,57,53,0.30);
+  margin-bottom:1.5rem;
+}
+.brand-header img{width:100%;height:140px;object-fit:cover;display:block;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:1.5rem;
+  box-shadow:var(--shadow);
+  border:1.5px solid var(--border);
+  margin:0 1rem 1rem;
+}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 28px;border-radius:50px;font-family:'Nunito',sans-serif;
+  font-size:15px;font-weight:700;cursor:pointer;border:none;
+  transition:all .2s;text-decoration:none;
+}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-primary:hover{background:var(--red-dark);transform:translateY(-1px);}
+.btn-outline{background:#fff;color:var(--red);border:2px solid var(--red);}
+.btn-outline:hover{background:var(--red-light);}
+.btn-sm{padding:8px 18px;font-size:13px;}
+.btn-danger{background:#b71c1c;color:#fff;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-full{width:100%;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* ── INPUTS ── */
+input[type=text],input[type=number],input[type=password],textarea,select{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);
+  border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;
+  background:#fff;color:var(--text);outline:none;transition:border .2s;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--red);}
+label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-green{background:var(--success-bg);color:var(--success);}
+.badge-warn{background:var(--warn-bg);color:var(--warn);}
+
+/* ── TIMER ── */
+.timer-ring{
+  width:70px;height:70px;position:relative;flex-shrink:0;
+}
+.timer-ring svg{transform:rotate(-90deg);}
+.timer-ring .bg{stroke:#f5c6c6;stroke-width:5;fill:none;}
+.timer-ring .prog{stroke:var(--red);stroke-width:5;fill:none;stroke-linecap:round;transition:stroke-dashoffset .9s linear;}
+.timer-label{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:var(--red);line-height:1;
+}
+.timer-label small{font-size:9px;font-weight:600;color:var(--muted);}
+.timer-warn .prog{stroke:#e07b00;}
+.timer-warn .timer-label{color:#e07b00;}
+.timer-danger .prog{stroke:#b71c1c;}
+.timer-danger .timer-label{color:#b71c1c;animation:pulse .6s infinite alternate;}
+@keyframes pulse{to{transform:scale(1.08);}}
+
+/* ── QUIZ OPTION ── */
+.option{
+  display:flex;align-items:center;gap:12px;padding:13px 16px;
+  border-radius:12px;border:2px solid var(--border);margin-bottom:10px;
+  cursor:pointer;transition:all .2s;background:#fff;font-weight:600;
+}
+.option:hover{border-color:var(--red);background:var(--red-light);}
+.option.selected{border-color:var(--red);background:var(--red-light);}
+.option.correct{border-color:var(--success);background:var(--success-bg);}
+.option.wrong{border-color:#c0392b;background:#fde8e8;}
+.option-dot{
+  width:22px;height:22px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-size:11px;font-weight:800;transition:all .2s;
+}
+.option.selected .option-dot{border-color:var(--red);background:var(--red);color:#fff;}
+.option.correct .option-dot{border-color:var(--success);background:var(--success);color:#fff;}
+.option.wrong .option-dot{border-color:#c0392b;background:#c0392b;color:#fff;}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{height:6px;background:#f5c6c6;border-radius:50px;overflow:hidden;margin-bottom:1rem;}
+.progress-fill{height:100%;background:var(--red);border-radius:50px;transition:width .4s ease;}
+
+/* ── SCORE CIRCLE ── */
+.score-circle{
+  width:140px;height:140px;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  margin:0 auto 1.5rem;font-weight:800;
+  border:6px solid var(--red);background:var(--red-light);
+}
+.score-circle .num{font-size:42px;color:var(--red);line-height:1;}
+.score-circle .denom{font-size:14px;color:var(--muted);}
+
+/* ── ADMIN TABLE ── */
+.results-table{width:100%;border-collapse:collapse;font-size:13px;}
+.results-table th{
+  background:var(--red);color:#fff;padding:10px 12px;
+  text-align:left;font-weight:700;
+}
+.results-table td{padding:10px 12px;border-bottom:1px solid var(--border);}
+.results-table tr:nth-child(even) td{background:#fdf0f0;}
+.results-table tr:hover td{background:var(--red-light);}
+
+/* ── ADMIN Q EDITOR ── */
+.q-card{
+  background:#fff;border-radius:12px;padding:1.2rem;
+  border:1.5px solid var(--border);margin-bottom:1rem;
+  position:relative;
+}
+.q-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.option-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.option-row input{flex:1;}
+.correct-radio{cursor:pointer;accent-color:var(--success);width:18px;height:18px;flex-shrink:0;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:#f5e0e0;border-radius:12px;padding:4px;margin-bottom:1.2rem;}
+.tab{flex:1;text-align:center;padding:9px;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;color:var(--muted);}
+.tab.active{background:var(--red);color:#fff;box-shadow:0 2px 8px rgba(229,57,53,.3);}
+
+/* ── MISC ── */
+.page-title{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;margin-bottom:.3rem;}
+.subtitle{font-size:13px;color:var(--muted);margin-bottom:1.2rem;}
+.divider{height:1px;background:var(--border);margin:1rem 0;}
+.row{display:flex;gap:12px;align-items:flex-start;}
+.col{flex:1;}
+.text-center{text-align:center;}
+.mt1{margin-top:.5rem;}
+.mt2{margin-top:1rem;}
+.mb1{margin-bottom:.5rem;}
+.emoji-big{font-size:48px;display:block;margin-bottom:.5rem;}
+.highlight-box{background:var(--red-light);border-left:4px solid var(--red);border-radius:0 10px 10px 0;padding:12px 14px;margin:1rem 0;font-size:13px;}
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:1rem 0;}
+.stat{background:var(--red-light);border-radius:12px;padding:12px;text-align:center;}
+.stat .val{font-size:22px;font-weight:800;color:var(--red);}
+.stat .lbl{font-size:11px;color:var(--muted);font-weight:600;}
+.q-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;}
+.name-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--red-light);color:var(--red-dark);
+  border-radius:50px;padding:6px 16px;font-weight:700;font-size:13px;margin-bottom:1rem;
+}
+
+/* ── MODAL OVERLAY (no fixed!) ── */
+.modal-wrap{
+  min-height:100vh;background:rgba(0,0,0,.55);
+  display:none;align-items:center;justify-content:center;padding:1rem;
+}
+.modal-wrap.open{display:flex;}
+.modal{background:#fff;border-radius:20px;padding:2rem;max-width:360px;width:100%;text-align:center;}
+.modal h3{font-size:20px;font-weight:800;margin-bottom:.5rem;}
+.modal p{font-size:14px;color:var(--muted);margin-bottom:1.5rem;}
+
+/* ── SCROLLABLE ADMIN ── */
+.scroll-area{max-height:420px;overflow-y:auto;padding-right:4px;}
+.scroll-area::-webkit-scrollbar{width:4px;}
+.scroll-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1 — LANDING / STAFF LOGIN
+══════════════════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="brand-header">
+    <img id="header-img" src="/mnt/user-data/uploads/WhatsApp_Image_2026-04-13_at_4_41_24_PM.jpeg" alt="Kidza - The Baby Shop"/>
+  </div>
+
+  <div class="card">
+    <div class="text-center mb1">
+      <div class="page-title">Staff Knowledge Quiz</div>
+      <div class="subtitle">Enter your name to begin</div>
+    </div>
+    <div class="mb1">
+      <label>Your Full Name</label>
+      <input type="text" id="staff-name" placeholder="e.g. Priya Sharma" autocomplete="off"/>
+    </div>
+    <div class="mt2">
+      <button class="btn btn-primary btn-full" onclick="startQuiz()">
+        ▶ Start Quiz
+      </button>
+    </div>
+    <div class="divider"></div>
+    <div class="text-center">
+      <button class="btn btn-outline btn-sm" onclick="showAdminLogin()">🔐 Admin Login</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:0;">
+    <div style="font-size:13px;color:var(--muted);display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <span id="info-q-count"></span>
+      <span>⏱ Timer: <b id="info-timer"></b></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 — QUIZ
+══════════════════════════════════════════ -->
+<div id="screen-quiz" class="screen">
+  <div class="brand-header">
+    <img src="/mnt/user-data/uploads/WhatsApp_Image_2026-04-13_at_4_41_24_PM.jpeg" alt="Kidza"/>
+  </div>
+
+  <div style="padding:0 1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+      <div>
+        <div class="name-badge">👤 <span id="quiz-staff-name"></span></div>
+      </div>
+      <div class="timer-ring" id="timer-ring">
+        <svg width="70" height="70" viewBox="0 0 70 70">
+          <circle class="bg" cx="35" cy="35" r="30"/>
+          <circle class="prog" id="timer-arc" cx="35" cy="35" r="30"
+            stroke-dasharray="188.5" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-label">
+          <span id="timer-display">--</span>
+          <small>sec</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1rem;display:flex;justify-content:space-between;">
+      <span id="q-counter">Question 1 of 10</span>
+      <span id="q-score-live">Score: 0</span>
+    </div>
+  </div>
+
+  <div class="card" style="min-height:360px;">
+    <div style="font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.6rem;" id="q-category">General</div>
+    <div style="font-size:17px;font-weight:700;line-height:1.5;margin-bottom:1.4rem;" id="q-text">Loading...</div>
+    <div id="options-wrap"></div>
+    <div class="q-nav">
+      <div style="font-size:13px;color:var(--muted);" id="q-feedback"></div>
+      <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3 — RESULTS
+══════════════════════════════════════════ -->
+<div id="screen-result" class="screen">
+  <div class="brand-header">
+    <img src="/mnt/user-data/uploads/WhatsApp_Image_2026-04-13_at_4_41_24_PM.jpeg" alt="Kidza"/>
+  </div>
+
+  <div class="card text-center">
+    <span class="emoji-big" id="result-emoji">🎉</span>
+    <div class="page-title" id="result-title">Great Job!</div>
+    <div class="subtitle" id="result-subtitle">You've completed the quiz</div>
+
+    <div class="score-circle">
+      <div class="num" id="result-score">0</div>
+      <div class="denom" id="result-denom">out of 0</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="val" id="res-pct">0%</div><div class="lbl">Score</div></div>
+      <div class="stat"><div class="val" id="res-correct">0</div><div class="lbl">Correct</div></div>
+      <div class="stat"><div class="val" id="res-wrong">0</div><div class="lbl">Wrong</div></div>
+    </div>
+
+    <div class="highlight-box" id="result-message"></div>
+  </div>
+
+  <div class="card">
+    <div class="page-title" style="font-size:16px;margin-bottom:1rem;">📋 Answer Review</div>
+    <div id="review-list"></div>
+  </div>
+
+  <div style="padding:0 1rem;display:flex;gap:10px;">
+    <button class="btn btn-outline btn-full" onclick="showScreen('screen-landing')">↩ Take Again</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4 — ADMIN LOGIN
+══════════════════════════════════════════ -->
+<div id="screen-admin-login" class="screen">
+  <div class="brand-header">
+    <img src="/mnt/user-data/uploads/WhatsApp_Image_2026-04-13_at_4_41_24_PM.jpeg" alt="Kidza"/>
+  </div>
+  <div class="card" style="max-width:380px;margin:0 auto;">
+    <div class="text-center mb1">
+      <div style="font-size:36px;margin-bottom:.5rem;">🔐</div>
+      <div class="page-title">Admin Access</div>
+      <div class="subtitle">Enter the admin password</div>
+    </div>
+    <div class="mb1">
+      <label>Password</label>
+      <input type="password" id="admin-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')adminLogin()"/>
+    </div>
+    <div class="mt2">
+      <button class="btn btn-primary btn-full" onclick="adminLogin()">Login →</button>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-outline btn-sm btn-full" onclick="showScreen('screen-landing')">← Back</button>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:.5rem;">Default password: <b>kidza2024</b> (change in admin settings)</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 5 — ADMIN PANEL
+══════════════════════════════════════════ -->
+<div id="screen-admin" class="screen">
+  <div class="brand-header">
+    <img src="/mnt/user-data/uploads/WhatsApp_Image_2026-04-13_at_4_41_24_PM.jpeg" alt="Kidza"/>
+  </div>
+
+  <div style="padding:0 1rem 1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div class="page-title">Admin Panel</div>
+      <button class="btn btn-outline btn-sm" onclick="showScreen('screen-landing')">← Exit</button>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="adminTab(this,'tab-results')">📊 Results</div>
+      <div class="tab" onclick="adminTab(this,'tab-questions')">✏️ Questions</div>
+      <div class="tab" onclick="adminTab(this,'tab-settings')">⚙️ Settings</div>
+    </div>
+
+    <!-- RESULTS TAB -->
+    <div id="tab-results">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
+        <div style="font-size:14px;font-weight:700;">Staff Results (<span id="result-count">0</span>)</div>
+        <button class="btn btn-danger btn-sm" onclick="clearResults()">🗑 Clear All</button>
+      </div>
+      <div class="scroll-area">
+        <div style="overflow-x:auto;">
+          <table class="results-table" id="results-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Score</th>
+                <th>%</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="no-results" style="text-align:center;padding:2rem;color:var(--muted);font-size:14px;">No quiz attempts yet.</div>
+    </div>
+
+    <!-- QUESTIONS TAB -->
+    <div id="tab-questions" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
+        <div style="font-size:14px;font-weight:700;">Questions (<span id="q-total-count">0</span>)</div>
+        <button class="btn btn-primary btn-sm" onclick="addQuestion()">+ Add</button>
+      </div>
+      <div class="scroll-area" id="questions-editor"></div>
+      <button class="btn btn-success btn-full mt2" onclick="saveQuestions()">💾 Save All Questions</button>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div id="tab-settings" style="display:none;">
+      <div class="q-card">
+        <div class="page-title" style="font-size:16px;margin-bottom:1rem;">⚙️ Quiz Settings</div>
+
+        <div class="mb1">
+          <label>Timer per question (seconds)</label>
+          <input type="number" id="set-timer" min="5" max="300" value="30"/>
+        </div>
+        <div class="mb1">
+          <label>Pass Mark (%)</label>
+          <input type="number" id="set-passmark" min="1" max="100" value="60"/>
+        </div>
+        <div class="mb1">
+          <label>Admin Password</label>
+          <input type="password" id="set-password" placeholder="New password"/>
+        </div>
+        <button class="btn btn-primary btn-full mt2" onclick="saveSettings()">💾 Save Settings</button>
+      </div>
+
+      <div class="q-card mt2">
+        <div style="font-size:14px;font-weight:700;margin-bottom:.8rem;">📤 Export Results (CSV)</div>
+        <button class="btn btn-outline btn-full" onclick="exportCSV()">⬇ Download CSV</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL (no fixed positioning)
+══════════════════════════════════════════ -->
+<div class="modal-wrap" id="modal-wrap">
+  <div class="modal">
+    <div style="font-size:36px;margin-bottom:.5rem;" id="modal-icon">⚠️</div>
+    <h3 id="modal-title">Confirm</h3>
+    <p id="modal-msg">Are you sure?</p>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline btn-full" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger btn-full" id="modal-confirm-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA STORE
+// ══════════════════════════════════════════
+
+const STORAGE_KEY = 'kidza_quiz';
+
+let data = {
+  settings: {
+    timerSeconds: 30,
+    passMarkPct: 60,
+    adminPassword: 'kidza2024'
+  },
+  questions: [
+    {
+      id:1, category:'Products',
+      text:'What is the age range for the Kidza newborn starter kit?',
+      options:['0–3 months','3–6 months','6–12 months','0–6 months'],
+      correct:0
+    },
+    {
+      id:2, category:'Safety',
+      text:'Which certification should all baby products sold at Kidza carry?',
+      options:['ISO 9001','BIS Hallmark','IS 9030','CE Mark'],
+      correct:2
+    },
+    {
+      id:3, category:'Customer Service',
+      text:'What is the Kidza return policy period?',
+      options:['7 days','14 days','30 days','No returns'],
+      correct:2
+    },
+    {
+      id:4, category:'Products',
+      text:'Which baby formula brand is exclusively stocked at Kidza?',
+      options:['Similac','Aptamil','Kidza Nourish','Nan'],
+      correct:2
+    },
+    {
+      id:5, category:'Store Policy',
+      text:'What discount do loyalty card members receive?',
+      options:['5%','10%','15%','20%'],
+      correct:1
+    }
+  ],
+  results: []
+};
+
+// Load from localStorage
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) data = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+loadData();
+
+// ══════════════════════════════════════════
+// QUIZ STATE
+// ══════════════════════════════════════════
+
+let state = {
+  staffName: '',
+  currentQ: 0,
+  score: 0,
+  answers: [],
+  timerInterval: null,
+  timeLeft: 0,
+  totalTime: 0,
+  answered: false
+};
+
+// ══════════════════════════════════════════
+// SCREENS
+// ══════════════════════════════════════════
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function updateLandingInfo() {
+  document.getElementById('info-q-count').textContent = '📝 ' + data.questions.length + ' questions';
+  document.getElementById('info-timer').textContent = data.settings.timerSeconds + 's per question';
+}
+
+updateLandingInfo();
+
+// ══════════════════════════════════════════
+// START QUIZ
+// ══════════════════════════════════════════
+
+function startQuiz() {
+  const name = document.getElementById('staff-name').value.trim();
+  if (!name) { alert('Please enter your name first!'); return; }
+  if (data.questions.length === 0) { alert('No questions available. Ask admin to add questions.'); return; }
+
+  state.staffName = name;
+  state.currentQ = 0;
+  state.score = 0;
+  state.answers = [];
+  state.answered = false;
+
+  document.getElementById('quiz-staff-name').textContent = name;
+  showScreen('screen-quiz');
+  loadQuestion();
+}
+
+// ══════════════════════════════════════════
+// QUESTION LOADER
+// ══════════════════════════════════════════
+
+function loadQuestion() {
+  const q = data.questions[state.currentQ];
+  const total = data.questions.length;
+  state.answered = false;
+
+  // Progress
+  document.getElementById('progress-fill').style.width = ((state.currentQ / total) * 100) + '%';
+  document.getElementById('q-counter').textContent = 'Question ' + (state.currentQ+1) + ' of ' + total;
+  document.getElementById('q-score-live').textContent = 'Score: ' + state.score;
+  document.getElementById('q-category').textContent = q.category || 'General';
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('q-feedback').textContent = '';
+  document.getElementById('next-btn').disabled = true;
+
+  // Options
+  const wrap = document.getElementById('options-wrap');
+  wrap.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<div class="option-dot">${String.fromCharCode(65+i)}</div><span>${opt}</span>`;
+    div.onclick = () => selectOption(i, div, q.correct);
+    wrap.appendChild(div);
+  });
+
+  // Timer
+  startTimer();
+}
+
+// ══════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════
+
+function startTimer() {
+  clearInterval(state.timerInterval);
+  state.timeLeft = data.settings.timerSeconds;
+  state.totalTime = data.settings.timerSeconds;
+  updateTimerUI();
+
+  state.timerInterval = setInterval(() => {
+    state.timeLeft--;
+    updateTimerUI();
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timerInterval);
+      if (!state.answered) timeUp();
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const t = state.timeLeft;
+  const total = state.totalTime;
+  const pct = t / total;
+  const circumference = 188.5;
+  const offset = circumference * (1 - pct);
+
+  document.getElementById('timer-display').textContent = t;
+  document.getElementById('timer-arc').style.strokeDashoffset = offset;
+
+  const ring = document.getElementById('timer-ring');
+  ring.className = 'timer-ring';
+  if (pct <= 0.25) ring.classList.add('timer-danger');
+  else if (pct <= 0.5) ring.classList.add('timer-warn');
+}
+
+function timeUp() {
+  if (state.answered) return;
+  state.answered = true;
+  state.answers.push({ q: state.currentQ, selected: -1, correct: data.questions[state.currentQ].correct });
+  document.getElementById('q-feedback').textContent = '⏰ Time\'s up!';
+  document.getElementById('q-feedback').style.color = '#c0392b';
+  revealAnswer(null, data.questions[state.currentQ].correct);
+  document.getElementById('next-btn').disabled = false;
+}
+
+// ══════════════════════════════════════════
+// OPTION SELECTION
+// ══════════════════════════════════════════
+
+function selectOption(index, el, correctIndex) {
+  if (state.answered) return;
+  state.answered = true;
+  clearInterval(state.timerInterval);
+
+  const isCorrect = index === correctIndex;
+  if (isCorrect) state.score++;
+
+  state.answers.push({ q: state.currentQ, selected: index, correct: correctIndex });
+
+  const fb = document.getElementById('q-feedback');
+  if (isCorrect) {
+    fb.textContent = '✅ Correct!';
+    fb.style.color = 'var(--success)';
+  } else {
+    fb.textContent = '❌ Wrong!';
+    fb.style.color = 'var(--red)';
+  }
+
+  document.getElementById('q-score-live').textContent = 'Score: ' + state.score;
+  revealAnswer(index, correctIndex);
+  document.getElementById('next-btn').disabled = false;
+}
+
+function revealAnswer(selected, correct) {
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((opt, i) => {
+    opt.onclick = null;
+    if (i === correct) opt.classList.add('correct');
+    else if (i === selected && i !== correct) opt.classList.add('wrong');
+    if (i === selected) opt.classList.add('selected');
+    // update dot
+    const dot = opt.querySelector('.option-dot');
+    if (i === correct) dot.textContent = '✓';
+    else if (i === selected && i !== correct) dot.textContent = '✗';
+  });
+}
+
+// ══════════════════════════════════════════
+// NEXT / FINISH
+// ══════════════════════════════════════════
+
+function nextQuestion() {
+  state.currentQ++;
+  if (state.currentQ >= data.questions.length) {
+    finishQuiz();
+  } else {
+    loadQuestion();
+  }
+}
+
+function finishQuiz() {
+  clearInterval(state.timerInterval);
+  const total = data.questions.length;
+  const pct = Math.round((state.score / total) * 100);
+  const passed = pct >= data.settings.passMarkPct;
+
+  // Save result
+  const result = {
+    name: state.staffName,
+    score: state.score,
+    total: total,
+    pct: pct,
+    passed: passed,
+    date: new Date().toLocaleString('en-IN', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
+  };
+  data.results.unshift(result);
+  saveData();
+
+  // Update result screen
+  document.getElementById('result-score').textContent = state.score;
+  document.getElementById('result-denom').textContent = 'out of ' + total;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-correct').textContent = state.score;
+  document.getElementById('res-wrong').textContent = total - state.score;
+
+  if (pct >= 90) {
+    document.getElementById('result-emoji').textContent = '🏆';
+    document.getElementById('result-title').textContent = 'Outstanding!';
+    document.getElementById('result-message').textContent = 'Excellent work! You have mastered this material.';
+  } else if (passed) {
+    document.getElementById('result-emoji').textContent = '🎉';
+    document.getElementById('result-title').textContent = 'Well Done!';
+    document.getElementById('result-message').textContent = 'You passed! Keep up the great work.';
+  } else {
+    document.getElementById('result-emoji').textContent = '📚';
+    document.getElementById('result-title').textContent = 'Keep Practicing';
+    document.getElementById('result-message').textContent = 'You scored ' + pct + '%. Pass mark is ' + data.settings.passMarkPct + '%. Review the answers below and try again!';
+  }
+
+  // Review
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  state.answers.forEach((ans, i) => {
+    const q = data.questions[ans.q];
+    const correct = ans.selected === ans.correct;
+    const div = document.createElement('div');
+    div.style.cssText = 'border-radius:10px;padding:12px;margin-bottom:10px;border-left:4px solid ' +
+      (correct ? 'var(--success)' : 'var(--red)') + ';background:' +
+      (correct ? 'var(--success-bg)' : '#fff0f0') + ';';
+    div.innerHTML = `
+      <div style="font-size:12px;font-weight:700;color:${correct?'var(--success)':'var(--red)'};margin-bottom:4px;">
+        ${correct ? '✅ Correct' : '❌ Wrong'} — Q${i+1}
+      </div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px;">${q.text}</div>
+      ${!correct && ans.selected >= 0 ? `<div style="font-size:12px;color:var(--red);">Your answer: ${q.options[ans.selected]}</div>` : ''}
+      ${!correct ? `<div style="font-size:12px;color:var(--success);">Correct answer: ${q.options[ans.correct]}</div>` : ''}
+    `;
+    reviewList.appendChild(div);
+  });
+
+  showScreen('screen-result');
+}
+
+// ══════════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════════
+
+function showAdminLogin() {
+  document.getElementById('admin-pass').value = '';
+  showScreen('screen-admin-login');
+}
+
+function adminLogin() {
+  const pass = document.getElementById('admin-pass').value;
+  if (pass === data.settings.adminPassword) {
+    showScreen('screen-admin');
+    renderAdmin();
+  } else {
+    alert('Incorrect password!');
+  }
+}
+
+function adminTab(el, tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-results','tab-questions','tab-settings'].forEach(id => {
+    document.getElementById(id).style.display = id === tabId ? 'block' : 'none';
+  });
+  if (tabId === 'tab-questions') renderQEditor();
+  if (tabId === 'tab-settings') {
+    document.getElementById('set-timer').value = data.settings.timerSeconds;
+    document.getElementById('set-passmark').value = data.settings.passMarkPct;
+  }
+}
+
+function renderAdmin() {
+  renderResults();
+  renderQEditor();
+}
+
+// ── RESULTS TABLE ──
+function renderResults() {
+  const tbody = document.getElementById('results-tbody');
+  const noRes = document.getElementById('no-results');
+  document.getElementById('result-count').textContent = data.results.length;
+
+  if (data.results.length === 0) {
+    tbody.innerHTML = '';
+    noRes.style.display = 'block';
+    document.getElementById('results-table').style.display = 'none';
+    return;
+  }
+  noRes.style.display = 'none';
+  document.getElementById('results-table').style.display = 'table';
+
+  tbody.innerHTML = data.results.map((r, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><b>${r.name}</b></td>
+      <td>${r.score}/${r.total}</td>
+      <td><b>${r.pct}%</b></td>
+      <td><span class="badge ${r.passed ? 'badge-green' : 'badge-red'}">${r.passed ? 'Pass' : 'Fail'}</span></td>
+      <td style="font-size:11px;">${r.date}</td>
+    </tr>
+  `).join('');
+}
+
+// ── QUESTION EDITOR ──
+function renderQEditor() {
+  const container = document.getElementById('questions-editor');
+  document.getElementById('q-total-count').textContent = data.questions.length;
+  container.innerHTML = '';
+  data.questions.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML = `
+      <div class="q-card-head">
+        <span class="badge badge-red">Q${qi+1}</span>
+        <button class="btn btn-danger btn-sm" onclick="removeQuestion(${qi})">✕ Delete</button>
+      </div>
+      <div class="mb1">
+        <label>Category</label>
+        <input type="text" value="${q.category||''}" onchange="data.questions[${qi}].category=this.value" placeholder="e.g. Products"/>
+      </div>
+      <div class="mb1">
+        <label>Question</label>
+        <textarea rows="2" style="resize:vertical;" onchange="data.questions[${qi}].text=this.value">${q.text}</textarea>
+      </div>
+      <label>Options — <span style="color:var(--success);">✓ click green dot for correct answer</span></label>
+      <div style="margin-top:6px;" id="opts-${qi}">
+        ${q.options.map((opt,oi) => `
+          <div class="option-row">
+            <input type="radio" class="correct-radio" name="correct-${qi}" ${oi===q.correct?'checked':''} title="Mark as correct" onchange="data.questions[${qi}].correct=${oi}"/>
+            <input type="text" value="${opt}" onchange="data.questions[${qi}].options[${oi}]=this.value" placeholder="Option ${String.fromCharCode(65+oi)}"/>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function addQuestion() {
+  data.questions.push({
+    id: Date.now(),
+    category: 'General',
+    text: 'New question?',
+    options: ['Option A','Option B','Option C','Option D'],
+    correct: 0
+  });
+  renderQEditor();
+  document.getElementById('questions-editor').lastElementChild.scrollIntoView({behavior:'smooth'});
+}
+
+function removeQuestion(index) {
+  data.questions.splice(index,1);
+  renderQEditor();
+}
+
+function saveQuestions() {
+  saveData();
+  updateLandingInfo();
+  renderQEditor();
+  alert('✅ Questions saved successfully!');
+}
+
+// ── SETTINGS ──
+function saveSettings() {
+  const t = parseInt(document.getElementById('set-timer').value);
+  const p = parseInt(document.getElementById('set-passmark').value);
+  const pw = document.getElementById('set-password').value.trim();
+  if (t < 5 || t > 300) { alert('Timer must be 5–300 seconds'); return; }
+  if (p < 1 || p > 100) { alert('Pass mark must be 1–100%'); return; }
+  data.settings.timerSeconds = t;
+  data.settings.passMarkPct = p;
+  if (pw) data.settings.adminPassword = pw;
+  saveData();
+  updateLandingInfo();
+  alert('✅ Settings saved!');
+}
+
+// ── CSV EXPORT ──
+function exportCSV() {
+  if (data.results.length === 0) { alert('No results to export.'); return; }
+  const rows = [['#','Name','Score','Total','Percentage','Status','Date']];
+  data.results.forEach((r,i) => rows.push([i+1, r.name, r.score, r.total, r.pct+'%', r.passed?'Pass':'Fail', r.date]));
+  const csv = rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'kidza_quiz_results.csv';
+  a.click();
+}
+
+// ── CLEAR RESULTS ──
+function clearResults() {
+  showModal('🗑️','Clear All Results','This will permanently delete all staff quiz results. This cannot be undone.', () => {
+    data.results = [];
+    saveData();
+    renderResults();
+    closeModal();
+  });
+}
+
+// ══════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════
+
+function showModal(icon, title, msg, onConfirm) {
+  document.getElementById('modal-icon').textContent = icon;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal-confirm-btn').onclick = onConfirm;
+  document.getElementById('modal-wrap').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-wrap').classList.remove('open');
+}
+</script>
+</body>
+</html>
