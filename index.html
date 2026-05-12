@@ -230,7 +230,10 @@ label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bot
     </div>
     <div class="divider"></div>
     <div class="text-center">
-      <button class="btn btn-outline btn-sm" onclick="showAdminLogin()">🔐 Admin Login</button>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+  <button class="btn btn-outline btn-sm" onclick="showLeaderboard()">🏆 Leaderboard</button>
+  <button class="btn btn-outline btn-sm" onclick="showAdminLogin()">🔐 Admin Login</button>
+</div>
     </div>
   </div>
 
@@ -323,6 +326,28 @@ label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bot
 
   <div style="padding:0 1rem;display:flex;gap:10px;">
     <button class="btn btn-outline btn-full" onclick="showScreen('screen-landing')">↩ Take Again</button>
+  </div>
+</div>
+
+  <!-- ══════════════════════════════════════════
+     SCREEN — LEADERBOARD
+══════════════════════════════════════════ -->
+<div id="screen-leaderboard" class="screen">
+  <div class="brand-header">
+    <img src="/mnt/user-data/uploads/WhatsApp_Image_2026-04-13_at_4_41_24_PM.jpeg" alt="Kidza"/>
+  </div>
+
+  <div class="card">
+    <div class="page-title">🏆 Staff Leaderboard</div>
+    <div class="subtitle">Top Quiz Performers</div>
+
+    <div id="leaderboard-list"></div>
+
+    <div class="mt2">
+      <button class="btn btn-outline btn-full" onclick="showScreen('screen-landing')">
+        ← Back
+      </button>
+    </div>
   </div>
 </div>
 
@@ -451,6 +476,48 @@ label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bot
   </div>
 </div>
 
+  <div id="congrats-popup" style="
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+">
+  <div style="
+    background:#fff;
+    padding:2rem;
+    border-radius:24px;
+    text-align:center;
+    width:90%;
+    max-width:340px;
+    animation:pop .4s ease;
+  ">
+    <div style="font-size:64px;">🎉</div>
+    <div style="
+      font-size:24px;
+      font-weight:800;
+      margin:.5rem 0;
+      color:var(--red);
+    ">
+      Congratulations!
+    </div>
+
+    <div id="popup-text" style="
+      font-size:15px;
+      color:var(--muted);
+      margin-bottom:1.5rem;
+    ">
+      Great Job!
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="closeCongrats()">
+      Awesome 🚀
+    </button>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════
 // DATA STORE
@@ -512,6 +579,11 @@ function saveData() {
 }
 
 loadData();
+  function getAttempts(name){
+  return data.results.filter(r =>
+    r.name.toLowerCase() === name.toLowerCase()
+  ).length;
+}
 
 // ══════════════════════════════════════════
 // QUIZ STATE
@@ -553,6 +625,13 @@ function startQuiz() {
   const name = document.getElementById('staff-name').value.trim();
   if (!name) { alert('Please enter your name first!'); return; }
   if (data.questions.length === 0) { alert('No questions available. Ask admin to add questions.'); return; }
+  const attempts = getAttempts(name);
+
+  if(attempts >= 2){
+  alert('❌ Only 2 attempts allowed for each staff member.');
+  return;
+}
+
 
   state.staffName = name;
   state.currentQ = 0;
@@ -760,6 +839,12 @@ function finishQuiz() {
   });
 
   showScreen('screen-result');
+
+if(passed){
+  showCongrats('You passed the Kidza Staff Quiz!');
+}else{
+  showCongrats('Quiz completed! Try again for a higher score!');
+}
 }
 
 // ══════════════════════════════════════════
@@ -801,6 +886,69 @@ function renderAdmin() {
 
 // ── RESULTS TABLE ──
 function renderResults() {
+  function showLeaderboard(){
+
+  const wrap = document.getElementById('leaderboard-list');
+
+  if(data.results.length === 0){
+    wrap.innerHTML = `
+      <div style="text-align:center;color:var(--muted);padding:2rem;">
+        No results yet.
+      </div>
+    `;
+  }else{
+
+    const sorted = [...data.results]
+      .sort((a,b)=>b.pct-a.pct)
+      .slice(0,10);
+
+    wrap.innerHTML = sorted.map((r,i)=>`
+      <div style="
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:14px;
+        margin-bottom:10px;
+        border-radius:12px;
+        background:${i===0?'#fff4d6':'#fff'};
+        border:1px solid var(--border);
+      ">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="
+            width:36px;
+            height:36px;
+            border-radius:50%;
+            background:var(--red);
+            color:#fff;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:800;
+          ">
+            ${i+1}
+          </div>
+
+          <div>
+            <div style="font-weight:800;">${r.name}</div>
+            <div style="font-size:12px;color:var(--muted);">
+              ${r.score}/${r.total}
+            </div>
+          </div>
+        </div>
+
+        <div style="
+          font-size:20px;
+          font-weight:800;
+          color:var(--red);
+        ">
+          ${r.pct}%
+        </div>
+      </div>
+    `).join('');
+  }
+
+  showScreen('screen-leaderboard');
+}
   const tbody = document.getElementById('results-tbody');
   const noRes = document.getElementById('no-results');
   document.getElementById('result-count').textContent = data.results.length;
@@ -935,8 +1083,18 @@ function showModal(icon, title, msg, onConfirm) {
 }
 
 function closeModal() {
+  function showCongrats(msg){
+  document.getElementById('popup-text').textContent = msg;
+  document.getElementById('congrats-popup').style.display = 'flex';
+}
+
+function closeCongrats(){
+  document.getElementById('congrats-popup').style.display = 'none';
+}
   document.getElementById('modal-wrap').classList.remove('open');
 }
 </script>
 </body>
 </html>
+
+
