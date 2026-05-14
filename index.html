@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Kidza Staff Quiz</title>
+<title>Kidza LMS</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -27,24 +27,6 @@ body{font-family:'Nunito',sans-serif;background:#faf7f7;color:var(--text);min-he
 .brand-logo-placeholder{width:100%;height:160px;background:linear-gradient(135deg,#e53935 0%,#b71c1c 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
 .brand-logo-placeholder span{font-family:'Poppins',sans-serif;font-size:36px;font-weight:800;color:#fff;letter-spacing:2px;text-shadow:0 2px 12px rgba(0,0,0,.3);}
 .brand-logo-placeholder small{color:rgba(255,255,255,.7);font-size:13px;letter-spacing:4px;text-transform:uppercase;}
-
-  .lms-text{
-    color:#ffffff;
-    font-size:18px;
-    font-weight:700;
-    letter-spacing:1px;
-
-    background:rgba(0,0,0,0.35);
-
-    padding:8px 18px;
-    border-radius:20px;
-
-    margin-top:10px;
-
-    text-align:center;
-
-    text-shadow:0 2px 4px rgba(0,0,0,.4);
-}
 
 /* ── CARD ── */
 .card{background:#fff;margin:0 14px 16px;padding:20px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);}
@@ -244,123 +226,40 @@ input[type=file]{padding:8px;}
 <body>
 
 <!-- ══════════════ LOGIN SCREEN ══════════════ -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<style>
-
-.brand-logo-placeholder{
-    text-align: center;
-    padding: 10px 0;
-}
-
-.brand-logo{
-    width: 100%;
-    border-radius: 18px;
-    display: block;
-}
-
-.lms-text{
-    display: block;
-    margin-top: 14px;
-
-    color: #ffffff;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-align: center;
-
-    background-color: #1e3a8a; /* blue background */
-    
-    padding: 10px 20px;
-    border-radius: 12px;
-
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-}
-</style>
-</head>
-
-<body>
-
 <div class="screen active" id="login-screen">
-
   <div class="brand-header">
-    
     <div class="brand-logo-placeholder">
-      
-      <img src="Banner.jpeg" alt="Kidza Logo" class="brand-logo">
-
-      <p class="lms-text">
-        Learning Management System
-      </p>
-
+      <span>KIDZA</span>
+      <small>LEARNING MANAGEMENT SYSTEM</small>
     </div>
-
   </div>
-
   <div class="card">
-
     <div class="center mb2">
       <div class="page-title">Welcome Back 👋</div>
-      <div class="subtitle">
-        Sign in to access your training
-      </div>
+      <div class="subtitle">Sign in to access your training</div>
     </div>
-
     <div class="mb2">
       <label>Username</label>
-      <input 
-        type="text" 
-        id="login-username" 
-        placeholder="Enter your username" 
-        autocomplete="username">
+      <input type="text" id="login-username" placeholder="Enter your username" autocomplete="username">
     </div>
-
     <div class="mb1">
       <label>Password</label>
-      <input 
-        type="password" 
-        id="login-password" 
-        placeholder="Enter your password" 
-        autocomplete="current-password">
+      <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password">
     </div>
-
     <div id="login-error" class="alert alert-danger hidden"></div>
-
     <div class="mt2">
-      <button 
-        class="btn btn-primary btn-full" 
-        onclick="doLogin()">
-        🔐 Sign In
-      </button>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">🔐 Sign In</button>
     </div>
-
   </div>
-
-  <p class="center muted" style="font-size:12px;padding-bottom:16px;">
-    Contact admin if you forgot your credentials
-  </p>
-
+  <p class="center muted" style="font-size:12px;padding-bottom:16px;">Contact admin if you forgot your credentials</p>
 </div>
-
-</body>
-</html>
 
 <!-- ══════════════ HOME / DASHBOARD ══════════════ -->
 <div class="screen" id="home-screen">
   <div class="brand-header">
     <div class="brand-logo-placeholder">
-    <img src="Banner.jpeg" alt="Kidza Logo" class="brand-logo">
-    
-    <p class="lms-text">Learning Management System</p>
-</div>
+      <span>KIDZA</span>
+      <small>LEARNING MANAGEMENT SYSTEM</small>
     </div>
   </div>
 
@@ -424,9 +323,7 @@ input[type=file]{padding:8px;}
 <!-- ══════════════ INSTRUCTIONS ══════════════ -->
 <div class="screen" id="instructions-screen">
   <div class="brand-header">
-    <div class="brand-logo-placeholder">
-    <img src="Banner.jpeg" alt="Kidza Logo" class="brand-logo">
-    <p class="lms-text">Learning Management System</p>
+    <div class="brand-logo-placeholder"><span>KIDZA</span><small>Quiz Instructions</small></div>
   </div>
   <div class="card">
     <div class="center mb2">
@@ -643,22 +540,8 @@ const SK = 'kidza_v4';
 let DB = {
   users: [
     { id:'u0', name:'Admin User', username:'admin', password:'kidza2024', role:'admin' },
-    { id:'u1', name:'Rajagopal', username:'rajagopal', password:'pass123', role:'SM' },
-    { id:'u2', name:'Christy', username:'christy', password:'pass123', role:'CRO' },
-    { id:'u3', name:'Yuvarajan', username:'yuvarajan', password:'pass123', role:'CRO' },
-    { id:'u4', name:'Saranya', username:'saranya', password:'pass123', role:'CRO' },
-    { id:'u5', name:'Veeraiah', username:'veeraiah', password:'pass123', role:'SM' },
-    { id:'u6', name:'Philip Arun', username:'philiparun', password:'pass123', role:'TL' },
-    { id:'u7', name:'Dhananjeyan', username:'dhananjeyan', password:'pass123', role:'TL' },
-    { id:'u8', name:'Kaviya', username:'kaviya', password:'pass123', role:'CRO' },
-    { id:'u9', name:'Malathi', username:'malathi', password:'pass123', role:'CRO' },
-    { id:'u10', name:'Tharik', username:'tharik', password:'pass123', role:'CRO' },
-    { id:'u11', name:'Priya Dharsini', username:'priyadharsini', password:'pass123', role:'CRO' },
-    { id:'u12', name:'Prasanth', username:'prasanth', password:'pass123', role:'SM' },
-    { id:'u13', name:'Swathi', username:'swathi', password:'pass123', role:'CRO' },
-    { id:'u14', name:'Prabha', username:'prabha', password:'pass123', role:'CRO' },
-    { id:'u14', name:'surya', username:'8098493506', password:'123456', role:'CRO' },
-    
+    { id:'u1', name:'Priya Sharma', username:'priya', password:'pass123', role:'staff' },
+    { id:'u2', name:'Rahul Verma', username:'rahul', password:'pass123', role:'staff' }
   ],
   courses: [
     {
