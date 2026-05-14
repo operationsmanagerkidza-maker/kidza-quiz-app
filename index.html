@@ -1,969 +1,1335 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Kidza Staff Quiz</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;}
 :root{
-    --red:#e53935;
-    --red-dark:#b71c1c;
-    --light:#fff5f5;
-    --white:#ffffff;
-    --border:#f1d6d6;
-    --text:#1a1a1a;
-    --muted:#777;
-    --success:#198754;
-    --danger:#dc3545;
-    --radius:18px;
+  --red:#e53935;--red2:#c62828;--red3:#ff6b6b;--red-dark:#b71c1c;
+  --light:#fff5f5;--white:#fff;--border:#f0d6d6;--text:#1a1a1a;
+  --muted:#888;--success:#16a34a;--danger:#dc2626;--warn:#f59e0b;
+  --info:#0ea5e9;--radius:18px;--shadow:0 8px 32px rgba(229,57,53,.10);
 }
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:#faf7f7;color:var(--text);min-height:100vh;overflow-x:hidden;}
+.screen{display:none;}
+.screen.active{display:block;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-body{
-    font-family:'Nunito',sans-serif;
-    background:#faf7f7;
-    color:var(--text);
-}
+/* ── HEADER ── */
+.brand-header{background:var(--red);border-radius:0 0 28px 28px;margin-bottom:20px;overflow:hidden;position:relative;}
+.brand-header::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.18)0%,transparent 60%);}
+.brand-header img{width:100%;height:160px;object-fit:cover;display:block;}
+.brand-logo-placeholder{width:100%;height:160px;background:linear-gradient(135deg,#e53935 0%,#b71c1c 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+.brand-logo-placeholder span{font-family:'Poppins',sans-serif;font-size:36px;font-weight:800;color:#fff;letter-spacing:2px;text-shadow:0 2px 12px rgba(0,0,0,.3);}
+.brand-logo-placeholder small{color:rgba(255,255,255,.7);font-size:13px;letter-spacing:4px;text-transform:uppercase;}
 
-.screen{
-    display:none;
-}
+/* ── CARD ── */
+.card{background:#fff;margin:0 14px 16px;padding:20px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);}
+.card-red{background:linear-gradient(135deg,var(--red) 0%,var(--red2) 100%);color:#fff;border:none;}
+.card-red .muted{color:rgba(255,255,255,.7);}
 
-.screen.active{
-    display:block;
-}
+/* ── TYPOGRAPHY ── */
+.page-title{font-size:22px;font-weight:800;margin-bottom:6px;font-family:'Poppins',sans-serif;}
+.subtitle{color:var(--muted);font-size:13px;}
+label{display:block;margin-bottom:5px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
 
-.brand-header{
-    background:var(--red);
-    overflow:hidden;
-    border-radius:0 0 28px 28px;
-    margin-bottom:20px;
-}
+/* ── INPUTS ── */
+input,select{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);outline:none;font-size:15px;font-family:'Nunito',sans-serif;background:#fff;transition:.2s;}
+input:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(229,57,53,.1);}
+textarea{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);outline:none;font-size:14px;font-family:'Nunito',sans-serif;resize:vertical;min-height:80px;}
+textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(229,57,53,.1);}
 
-.brand-header img{
-    width:100%;
-    height:160px;
-    object-fit:cover;
-    display:block;
-}
+/* ── BUTTONS ── */
+.btn{border:none;padding:12px 18px;border-radius:50px;cursor:pointer;font-weight:700;font-size:14px;font-family:'Nunito',sans-serif;transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+.btn:hover{transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn-primary{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;box-shadow:0 4px 16px rgba(229,57,53,.3);}
+.btn-outline{background:#fff;border:2px solid var(--red);color:var(--red);}
+.btn-success{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;box-shadow:0 4px 16px rgba(22,163,74,.3);}
+.btn-danger{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;}
+.btn-warn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;}
+.btn-info{background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;}
+.btn-full{width:100%;}
+.btn-sm{padding:8px 14px;font-size:12px;}
+.row{display:flex;gap:10px;}
+.row-wrap{display:flex;gap:10px;flex-wrap:wrap;}
 
-.card{
-    background:#fff;
-    margin:0 16px 18px;
-    padding:22px;
-    border-radius:var(--radius);
-    border:1px solid var(--border);
-    box-shadow:0 4px 18px rgba(0,0,0,.05);
-}
+/* ── BADGES ── */
+.badge{padding:4px 10px;border-radius:50px;font-size:11px;font-weight:800;letter-spacing:.3px;display:inline-block;}
+.pass{background:#dcfce7;color:var(--success);}
+.fail{background:#fee2e2;color:var(--danger);}
+.badge-red{background:#fee2e2;color:var(--red);}
+.badge-blue{background:#e0f2fe;color:#0284c7;}
+.badge-warn{background:#fef9c3;color:#b45309;}
 
-.page-title{
-    font-size:24px;
-    font-weight:800;
-    margin-bottom:8px;
-    font-family:'Poppins',sans-serif;
-}
+/* ── OPTIONS ── */
+.option{border:2px solid var(--border);padding:14px 16px;border-radius:14px;margin-bottom:10px;cursor:pointer;transition:.2s;font-weight:600;display:flex;align-items:center;gap:12px;}
+.option-letter{width:30px;height:30px;border-radius:50%;background:var(--light);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--red);flex-shrink:0;}
+.option:hover{border-color:var(--red);background:var(--light);}
+.option.selected{background:var(--light);border-color:var(--red);}
+.option.selected .option-letter{background:var(--red);color:#fff;}
+.option.correct{background:#f0fdf4;border-color:var(--success);}
+.option.correct .option-letter{background:var(--success);color:#fff;}
+.option.wrong{background:#fef2f2;border-color:var(--danger);}
+.option.wrong .option-letter{background:var(--danger);color:#fff;}
 
-.subtitle{
-    color:var(--muted);
-    font-size:14px;
-}
+/* ── PROGRESS ── */
+.progress{height:8px;background:#f3d7d7;border-radius:50px;overflow:hidden;margin-bottom:16px;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--red3),var(--red));transition:.4s;border-radius:50px;}
 
-label{
-    display:block;
-    margin-bottom:6px;
-    font-size:13px;
-    font-weight:700;
-    color:var(--muted);
-}
+/* ── TIMER ── */
+.timer{background:var(--light);color:var(--red);padding:9px 16px;border-radius:50px;font-weight:800;font-size:17px;display:flex;align-items:center;gap:5px;border:2px solid var(--border);}
+.timer.urgent{background:#fee2e2;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 
-input{
-    width:100%;
-    padding:13px;
-    border-radius:12px;
-    border:1px solid var(--border);
-    outline:none;
-    font-size:15px;
-}
+/* ── SCORE CIRCLE ── */
+.score-circle{width:140px;height:140px;border-radius:50%;border:6px solid var(--red);margin:16px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--light);position:relative;}
+.score-circle h1{color:var(--red);font-size:44px;font-family:'Poppins',sans-serif;line-height:1;}
+.score-circle small{color:var(--muted);font-size:13px;}
 
-input:focus{
-    border-color:var(--red);
-}
+/* ── REVIEW ── */
+.review-item{padding:14px;border-radius:12px;margin-bottom:10px;}
+.review-correct{background:#f0fdf4;border-left:4px solid var(--success);}
+.review-wrong{background:#fef2f2;border-left:4px solid var(--danger);}
+.review-skipped{background:#fefce8;border-left:4px solid var(--warn);}
 
-.btn{
-    border:none;
-    padding:13px 20px;
-    border-radius:50px;
-    cursor:pointer;
-    font-weight:700;
-    font-size:15px;
-    transition:.2s;
-}
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;min-width:400px;}
+th{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;padding:11px 12px;text-align:left;font-size:13px;font-weight:700;}
+th:first-child{border-radius:12px 0 0 0;}
+th:last-child{border-radius:0 12px 0 0;}
+td{padding:11px 12px;border-bottom:1px solid #f5e6e6;font-size:13px;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fff8f8;}
 
-.btn:hover{
-    transform:translateY(-1px);
-}
+/* ── TABS ── */
+.tabs{display:flex;gap:0;background:#f5e8e8;border-radius:14px;padding:4px;margin-bottom:18px;}
+.tab-btn{flex:1;padding:9px;border:none;background:transparent;border-radius:10px;cursor:pointer;font-weight:700;font-size:13px;font-family:'Nunito',sans-serif;color:var(--muted);transition:.2s;}
+.tab-btn.active{background:#fff;color:var(--red);box-shadow:0 2px 8px rgba(0,0,0,.1);}
 
-.btn-primary{
-    background:var(--red);
-    color:#fff;
-}
+/* ── MATERIAL CARD ── */
+.material-item{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;border:2px solid var(--border);margin-bottom:10px;cursor:pointer;transition:.2s;background:#fff;}
+.material-item:hover{border-color:var(--red);background:var(--light);}
+.material-item.completed{border-color:#86efac;background:#f0fdf4;pointer-events:none;}
+.material-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.icon-video{background:#fee2e2;}
+.icon-ppt{background:#fff7ed;}
+.icon-pdf{background:#eff6ff;}
+.icon-gif{background:#fdf4ff;}
+.material-info{flex:1;}
+.material-title{font-weight:700;font-size:14px;margin-bottom:2px;}
+.material-sub{font-size:12px;color:var(--muted);}
+.material-status{font-size:12px;font-weight:700;}
 
-.btn-outline{
-    background:#fff;
-    border:2px solid var(--red);
-    color:var(--red);
-}
+/* ── VIDEO ── */
+.video-wrap{position:relative;width:100%;border-radius:14px;overflow:hidden;background:#000;margin-bottom:12px;}
+.video-wrap video{width:100%;max-height:280px;display:block;}
 
-.btn-full{
-    width:100%;
-}
+/* ── PPT VIEWER ── */
+.ppt-viewer{width:100%;min-height:220px;border-radius:14px;overflow:hidden;border:2px solid var(--border);background:#f9f9f9;}
+.ppt-viewer iframe{width:100%;height:320px;border:none;}
+.ppt-upload-area{min-height:120px;border:2px dashed var(--border);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:#fff8f8;transition:.2s;}
+.ppt-upload-area:hover{border-color:var(--red);background:var(--light);}
 
-.row{
-    display:flex;
-    gap:10px;
-}
+/* ── INSTRUCTIONS ── */
+.instruction-item{display:flex;gap:12px;padding:12px;border-radius:12px;background:var(--light);margin-bottom:10px;align-items:flex-start;}
+.instruction-num{width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;margin-top:1px;}
 
-.option{
-    border:2px solid var(--border);
-    padding:14px;
-    border-radius:14px;
-    margin-bottom:12px;
-    cursor:pointer;
-    transition:.2s;
-    font-weight:700;
-}
+/* ── NOTIFICATION DOT ── */
+.notif-dot{width:8px;height:8px;background:var(--warn);border-radius:50%;display:inline-block;margin-left:4px;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-.option:hover{
-    border-color:var(--red);
-    background:var(--light);
-}
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;}
+.stat-num{font-size:28px;font-weight:800;font-family:'Poppins',sans-serif;color:var(--red);}
+.stat-label{font-size:12px;color:var(--muted);font-weight:600;}
 
-.option.selected{
-    background:var(--light);
-    border-color:var(--red);
-}
+/* ── CONFETTI / CONGRATS ── */
+.congrats-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;animation:fadeIn .3s ease;}
+.congrats-box{background:#fff;border-radius:28px;padding:32px 24px;text-align:center;max-width:320px;width:90%;position:relative;overflow:hidden;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall 2.5s ease-in forwards;}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(400px) rotate(720deg);opacity:0}}
+.congrats-emoji{font-size:64px;display:block;animation:bounce .6s ease infinite alternate;}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
 
-.option.correct{
-    background:#e8fff1;
-    border-color:var(--success);
-}
+/* ── LEADERBOARD RANKS ── */
+.lb-item{display:flex;align-items:center;gap:12px;padding:13px;border-radius:14px;margin-bottom:8px;background:#fff;border:1.5px solid var(--border);}
+.lb-rank{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;}
+.rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 2px 8px rgba(251,191,36,.4);}
+.rank-2{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff;}
+.rank-3{background:linear-gradient(135deg,#cd7f32,#a16207);color:#fff;}
+.rank-other{background:var(--light);color:var(--red);}
+.lb-info{flex:1;}
+.lb-name{font-weight:800;font-size:15px;}
+.lb-sub{font-size:12px;color:var(--muted);}
+.lb-score{font-size:22px;font-weight:900;color:var(--red);font-family:'Poppins',sans-serif;}
 
-.option.wrong{
-    background:#fff0f0;
-    border-color:var(--danger);
-}
+/* ── ADMIN QUESTION BUILDER ── */
+.q-builder{background:#fff8f8;border-radius:14px;padding:16px;margin-bottom:14px;border:1.5px solid var(--border);}
+.q-builder-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.opt-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.opt-row input{flex:1;}
+.correct-radio{width:20px;height:20px;cursor:pointer;flex-shrink:0;}
 
-.progress{
-    height:8px;
-    background:#f3d7d7;
-    border-radius:50px;
-    overflow:hidden;
-    margin-bottom:18px;
-}
+/* ── CHART CONTAINERS ── */
+.chart-wrap{position:relative;width:100%;height:200px;}
 
-.progress-fill{
-    height:100%;
-    width:0%;
-    background:var(--red);
-    transition:.3s;
-}
+/* ── SECTION HEADER ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 
-.timer{
-    background:var(--light);
-    color:var(--red);
-    padding:10px 18px;
-    border-radius:50px;
-    font-weight:800;
-    font-size:18px;
-}
+/* ── NOTIFICATION BANNER ── */
+.notif-banner{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fcd34d;border-radius:14px;padding:14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start;}
+.notif-banner-icon{font-size:22px;flex-shrink:0;}
 
-.question{
-    font-size:20px;
-    font-weight:800;
-    margin-bottom:20px;
-    line-height:1.5;
-}
+/* ── ATTEMPT INDICATOR ── */
+.attempt-bar{display:flex;gap:6px;align-items:center;}
+.attempt-pip{width:14px;height:14px;border-radius:50%;background:var(--border);}
+.attempt-pip.used{background:var(--red);}
 
-.score-circle{
-    width:150px;
-    height:150px;
-    border-radius:50%;
-    border:6px solid var(--red);
-    margin:20px auto;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    background:var(--light);
-}
-
-.score-circle h1{
-    color:var(--red);
-    font-size:48px;
-}
-
-.review-item{
-    padding:14px;
-    border-radius:12px;
-    margin-bottom:10px;
-}
-
-.review-correct{
-    background:#e8fff1;
-    border-left:4px solid var(--success);
-}
-
-.review-wrong{
-    background:#fff0f0;
-    border-left:4px solid var(--danger);
-}
-
-.table-wrap{
-    overflow:auto;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th{
-    background:var(--red);
-    color:#fff;
-    padding:12px;
-    text-align:left;
-}
-
-td{
-    padding:12px;
-    border-bottom:1px solid #eee;
-}
-
-.badge{
-    padding:5px 10px;
-    border-radius:50px;
-    font-size:12px;
-    font-weight:700;
-}
-
-.pass{
-    background:#e8fff1;
-    color:var(--success);
-}
-
-.fail{
-    background:#fff0f0;
-    color:var(--danger);
-}
-
-.hidden{
-    display:none;
-}
-
-.center{
-    text-align:center;
-}
-
-.mb1{
-    margin-bottom:12px;
-}
-
-.mb2{
-    margin-bottom:20px;
-}
-
-.mt2{
-    margin-top:20px;
-}
-
+/* ── MISC ── */
+.hidden{display:none!important;}
+.center{text-align:center;}
+.mb1{margin-bottom:10px;}
+.mb2{margin-bottom:18px;}
+.mt1{margin-top:10px;}
+.mt2{margin-top:18px;}
+.muted{color:var(--muted);}
+.text-red{color:var(--red);}
+.text-success{color:var(--success);}
+.sep{border:none;border-top:1px solid var(--border);margin:14px 0;}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--light);border:1.5px solid var(--border);padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;color:var(--red);}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-end;justify-content:center;}
+.modal-box{background:#fff;border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-box-center{border-radius:24px;max-height:85vh;margin:0 12px;}
+.close-btn{position:absolute;top:16px;right:16px;background:var(--light);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
+.back-bar{display:flex;align-items:center;gap:10px;padding:12px 14px 0;}
+.back-bar button{background:none;border:none;cursor:pointer;font-size:22px;color:var(--red);}
+.back-bar span{font-weight:700;font-size:15px;}
+.alert{padding:12px 14px;border-radius:12px;font-size:13px;font-weight:600;margin-bottom:12px;}
+.alert-danger{background:#fef2f2;color:var(--danger);border:1px solid #fecaca;}
+.alert-success{background:#f0fdf4;color:var(--success);border:1px solid #bbf7d0;}
+.alert-warn{background:#fffbeb;color:#92400e;border:1px solid #fde68a;}
+input[type=file]{padding:8px;}
+.user-row{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;border:1.5px solid var(--border);margin-bottom:8px;background:#fff;}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:16px;flex-shrink:0;}
 </style>
 </head>
-
 <body>
 
-<!-- LANDING -->
-
-<div class="screen active" id="landing-screen">
-
-    <div class="brand-header">
-        <img src="Banner.jpeg" alt="Kidza Banner">
+<!-- ══════════════ LOGIN SCREEN ══════════════ -->
+<div class="screen active" id="login-screen">
+  <div class="brand-header">
+    <div class="brand-logo-placeholder">
+      <span>KIDZA</span>
+      <small>Staff Training Portal</small>
     </div>
-
-    <div class="card">
-
-        <div class="center mb2">
-            <div class="page-title">Kidza Staff Quiz</div>
-            <div class="subtitle">Training & Knowledge Assessment</div>
-        </div>
-
-        <div class="mb2">
-            <label>Staff Name</label>
-            <input type="text" id="staff-name" placeholder="Enter your name">
-        </div>
-
-        <button class="btn btn-primary btn-full" onclick="startQuiz()">
-            ▶ Start Quiz
-        </button>
-
-        <div class="mt2 row">
-            <button class="btn btn-outline btn-full" onclick="showLeaderboard()">
-                🏆 Leaderboard
-            </button>
-
-            <button class="btn btn-outline btn-full" onclick="showAdminLogin()">
-                🔐 Admin
-            </button>
-        </div>
-
+  </div>
+  <div class="card">
+    <div class="center mb2">
+      <div class="page-title">Welcome Back 👋</div>
+      <div class="subtitle">Sign in to access your training</div>
     </div>
-
+    <div class="mb2">
+      <label>Username</label>
+      <input type="text" id="login-username" placeholder="Enter your username" autocomplete="username">
+    </div>
+    <div class="mb1">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password">
+    </div>
+    <div id="login-error" class="alert alert-danger hidden"></div>
+    <div class="mt2">
+      <button class="btn btn-primary btn-full" onclick="doLogin()">🔐 Sign In</button>
+    </div>
+  </div>
+  <p class="center muted" style="font-size:12px;padding-bottom:16px;">Contact admin if you forgot your credentials</p>
 </div>
 
-<!-- QUIZ -->
+<!-- ══════════════ HOME / DASHBOARD ══════════════ -->
+<div class="screen" id="home-screen">
+  <div class="brand-header">
+    <div class="brand-logo-placeholder">
+      <span>KIDZA</span>
+      <small>Staff Training Portal</small>
+    </div>
+  </div>
 
+  <div id="notif-banner-container"></div>
+
+  <div class="card">
+    <div class="row" style="align-items:center;justify-content:space-between;">
+      <div>
+        <div class="page-title" id="home-greeting"></div>
+        <div class="subtitle" id="home-role"></div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+    <hr class="sep">
+    <div class="stat-grid" id="user-stats-grid"></div>
+  </div>
+
+  <div class="card" id="assigned-courses-card">
+    <div class="section-header">
+      <div class="page-title" style="font-size:17px;">📚 My Courses</div>
+    </div>
+    <div id="assigned-courses-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button class="btn btn-outline btn-full" onclick="showLeaderboardUser()">🏆 Leaderboard</button>
+      <button class="btn btn-outline btn-full" id="admin-btn" onclick="goAdminPanel()" style="display:none">🔐 Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ COURSE DETAIL ══════════════ -->
+<div class="screen" id="course-screen">
+  <div class="back-bar">
+    <button onclick="showScreen('home-screen')">←</button>
+    <span id="course-title-bar">Course</span>
+  </div>
+  <div style="height:10px;"></div>
+  <div class="card" id="course-detail-card">
+    <div class="page-title mb1" id="course-name-display"></div>
+    <div class="subtitle mb2" id="course-desc-display"></div>
+    <div id="course-materials-list"></div>
+    <div id="course-start-quiz-area" class="mt2"></div>
+  </div>
+</div>
+
+<!-- ══════════════ MATERIAL VIEWER ══════════════ -->
+<div class="screen" id="material-screen">
+  <div class="back-bar">
+    <button onclick="backFromMaterial()">←</button>
+    <span id="material-title-bar">Material</span>
+  </div>
+  <div style="height:10px;"></div>
+  <div class="card">
+    <div id="material-viewer-content"></div>
+    <div class="mt2" id="material-complete-area"></div>
+  </div>
+</div>
+
+<!-- ══════════════ INSTRUCTIONS ══════════════ -->
+<div class="screen" id="instructions-screen">
+  <div class="brand-header">
+    <div class="brand-logo-placeholder"><span>KIDZA</span><small>Quiz Instructions</small></div>
+  </div>
+  <div class="card">
+    <div class="center mb2">
+      <div style="font-size:48px;">📋</div>
+      <div class="page-title mt1" id="inst-quiz-name">Quiz Instructions</div>
+      <div class="subtitle" id="inst-attempt-info"></div>
+    </div>
+    <div id="instructions-list"></div>
+    <div id="inst-attempt-warning" class="hidden"></div>
+    <button class="btn btn-primary btn-full mt2" id="begin-quiz-btn" onclick="beginQuiz()">▶ Begin Quiz</button>
+    <button class="btn btn-outline btn-full mt1" onclick="showScreen('course-screen')">← Back to Course</button>
+  </div>
+</div>
+
+<!-- ══════════════ QUIZ ══════════════ -->
 <div class="screen" id="quiz-screen">
-
-    <div class="brand-header">
-        <img src="Banner.jpeg" alt="Kidza Banner">
+  <div class="brand-header">
+    <div class="brand-logo-placeholder"><span>KIDZA</span><small>Quiz</small></div>
+  </div>
+  <div class="card">
+    <div class="row mb2" style="justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:12px;color:var(--muted);">Staff</div>
+        <div style="font-weight:800;font-size:16px;" id="quiz-staff-name"></div>
+      </div>
+      <div class="timer" id="quiz-timer">⏱ <span id="timer-val">30</span>s</div>
     </div>
-
-    <div class="card">
-
-        <div class="row mb2" style="justify-content:space-between;align-items:center;">
-            <div>
-                <div style="font-size:14px;color:var(--muted);">
-                    Staff
-                </div>
-
-                <div style="font-weight:800;font-size:18px;" id="staff-display">
-                </div>
-            </div>
-
-            <div class="timer">
-                ⏱ <span id="timer">30</span>
-            </div>
-        </div>
-
-        <div class="progress">
-            <div class="progress-fill" id="progress-fill"></div>
-        </div>
-
-        <div class="mb2">
-            <b id="question-count"></b>
-        </div>
-
-        <div class="question" id="question-text">
-        </div>
-
-        <div id="options-container">
-        </div>
-
-        <button class="btn btn-primary btn-full mt2 hidden" id="next-btn" onclick="nextQuestion()">
-            Next Question →
-        </button>
-
+    <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="row mb1" style="justify-content:space-between;align-items:center;">
+      <b id="question-count" style="font-size:14px;"></b>
+      <div class="attempt-bar" id="attempt-bar"></div>
     </div>
-
+    <div class="question" id="question-text" style="font-size:18px;font-weight:800;margin-bottom:18px;line-height:1.5;"></div>
+    <div id="options-container"></div>
+    <button class="btn btn-primary btn-full mt2 hidden" id="next-btn" onclick="nextQuestion()">Next →</button>
+  </div>
 </div>
 
-<!-- RESULT -->
-
+<!-- ══════════════ RESULT ══════════════ -->
 <div class="screen" id="result-screen">
-
-    <div class="brand-header">
-        <img src="Banner.jpeg" alt="Kidza Banner">
+  <div class="brand-header">
+    <div class="brand-logo-placeholder"><span>KIDZA</span><small>Results</small></div>
+  </div>
+  <div class="card center">
+    <div class="page-title mb1" id="result-heading">Quiz Completed!</div>
+    <div class="score-circle">
+      <h1 id="final-score">0</h1>
+      <small id="total-score">/ 0</small>
     </div>
-
-    <div class="card center">
-
-        <div style="font-size:60px;">
-            🎉
-        </div>
-
-        <div class="page-title">
-            Quiz Completed
-        </div>
-
-        <div class="score-circle">
-            <h1 id="final-score">0</h1>
-            <small id="total-score">/ 0</small>
-        </div>
-
-        <div class="mb2">
-            Percentage:
-            <b id="percentage"></b>
-        </div>
-
-        <div id="pass-status"></div>
-
-    </div>
-
-    <div class="card">
-
-        <div class="page-title" style="font-size:18px;">
-            Answer Review
-        </div>
-
-        <div id="review-container"></div>
-
-    </div>
-
-    <div class="card">
-        <button class="btn btn-primary btn-full" onclick="goHome()">
-            ↩ Back to Home
-        </button>
-    </div>
-
+    <div class="mb1">Percentage: <b id="percentage" class="text-red"></b></div>
+    <div class="mb2" id="pass-status"></div>
+    <div id="attempt-remaining-note" style="font-size:13px;color:var(--muted);"></div>
+  </div>
+  <div class="card">
+    <div class="page-title mb2" style="font-size:17px;">📝 Answer Review</div>
+    <div id="review-container"></div>
+  </div>
+  <div class="card">
+    <button class="btn btn-primary btn-full" onclick="showScreen('home-screen')">↩ Back to Home</button>
+  </div>
 </div>
 
-<!-- LEADERBOARD -->
-
-<div class="screen" id="leaderboard-screen">
-
-    <div class="brand-header">
-        <img src="Banner.jpeg" alt="Kidza Banner">
-    </div>
-
-    <div class="card">
-
-        <div class="page-title">
-            🏆 Leaderboard
-        </div>
-
-        <div id="leaderboard-list"></div>
-
-        <div class="mt2">
-            <button class="btn btn-outline btn-full" onclick="goHome()">
-                ← Back
-            </button>
-        </div>
-
-    </div>
-
+<!-- ══════════════ LEADERBOARD (User) ══════════════ -->
+<div class="screen" id="leaderboard-user-screen">
+  <div class="back-bar">
+    <button onclick="showScreen('home-screen')">←</button>
+    <span>🏆 Leaderboard</span>
+  </div>
+  <div style="height:10px;"></div>
+  <div class="card">
+    <div id="leaderboard-user-list"></div>
+  </div>
 </div>
 
-<!-- ADMIN LOGIN -->
-
-<div class="screen" id="admin-login-screen">
-
-    <div class="brand-header">
-        <img src="Banner.jpeg" alt="Kidza Banner">
-    </div>
-
-    <div class="card">
-
-        <div class="page-title">
-            🔐 Admin Login
-        </div>
-
-        <div class="mb2">
-            <label>Password</label>
-            <input type="password" id="admin-password">
-        </div>
-
-        <button class="btn btn-primary btn-full" onclick="adminLogin()">
-            Login
-        </button>
-
-        <div class="mt2">
-            <button class="btn btn-outline btn-full" onclick="goHome()">
-                ← Back
-            </button>
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ADMIN PANEL -->
-
+<!-- ══════════════════════════════════════════ -->
+<!--              ADMIN PANEL                  -->
+<!-- ══════════════════════════════════════════ -->
 <div class="screen" id="admin-screen">
-
-    <div class="brand-header">
-        <img src="Banner.jpeg" alt="Kidza Banner">
+  <div class="brand-header">
+    <div class="brand-logo-placeholder"><span>KIDZA</span><small>Admin Panel</small></div>
+  </div>
+  <div class="card">
+    <div class="row" style="align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="page-title" style="font-size:18px;">Admin Panel</div>
+      <button class="btn btn-outline btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+    <div class="tabs" id="admin-tabs">
+      <button class="tab-btn active" onclick="switchAdminTab('overview')">📊 Overview</button>
+      <button class="tab-btn" onclick="switchAdminTab('courses')">📚 Courses</button>
+      <button class="tab-btn" onclick="switchAdminTab('users')">👥 Users</button>
+      <button class="tab-btn" onclick="switchAdminTab('results')">📋 Results</button>
     </div>
 
-    <div class="card">
-
-        <div class="row mb2">
-
-            <button class="btn btn-primary btn-full" onclick="showResults()">
-                📊 Results
-            </button>
-
-            <button class="btn btn-outline btn-full" onclick="exportCSV()">
-                ⬇ Export
-            </button>
-
-        </div>
-
-        <div class="table-wrap">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Score</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-
-                <tbody id="results-table"></tbody>
-
-            </table>
-
-        </div>
-
-        <div class="mt2">
-            <button class="btn btn-outline btn-full" onclick="goHome()">
-                ← Logout
-            </button>
-        </div>
-
+    <!-- OVERVIEW TAB -->
+    <div id="admin-tab-overview">
+      <div class="stat-grid mb2" id="admin-stat-grid"></div>
+      <div class="mb2">
+        <div style="font-weight:700;margin-bottom:10px;font-size:14px;">📈 Score Distribution</div>
+        <div class="chart-wrap"><canvas id="chart-score"></canvas></div>
+      </div>
+      <div class="mb2">
+        <div style="font-weight:700;margin-bottom:10px;font-size:14px;">✅ Pass / Fail Ratio</div>
+        <div class="chart-wrap" style="height:180px;"><canvas id="chart-passfail"></canvas></div>
+      </div>
+      <div>
+        <div style="font-weight:700;margin-bottom:10px;font-size:14px;">📚 Course Completion %</div>
+        <div class="chart-wrap"><canvas id="chart-completion"></canvas></div>
+      </div>
     </div>
 
+    <!-- COURSES TAB -->
+    <div id="admin-tab-courses" class="hidden">
+      <button class="btn btn-primary btn-full mb2" onclick="openNewCourseModal()">+ New Course</button>
+      <div id="admin-courses-list"></div>
+    </div>
+
+    <!-- USERS TAB -->
+    <div id="admin-tab-users" class="hidden">
+      <button class="btn btn-primary btn-full mb2" onclick="openNewUserModal()">+ New User</button>
+      <div id="admin-users-list"></div>
+    </div>
+
+    <!-- RESULTS TAB -->
+    <div id="admin-tab-results" class="hidden">
+      <div class="row mb2">
+        <button class="btn btn-success btn-full btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+        <select id="filter-course" onchange="renderAdminResults()" style="font-size:13px;padding:8px 10px;">
+          <option value="">All Courses</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Course</th><th>Score</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="results-table"></tbody>
+        </table>
+      </div>
+      <div class="mt2">
+        <div style="font-weight:700;margin-bottom:10px;font-size:14px;">🏆 Leaderboard</div>
+        <div id="admin-leaderboard-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODALS ══════════════ -->
+
+<!-- New / Edit Course Modal -->
+<div class="modal hidden" id="course-modal">
+  <div class="modal-box">
+    <h3 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:16px;" id="course-modal-title">New Course</h3>
+    <div class="mb1"><label>Course Name</label><input type="text" id="cm-name" placeholder="e.g. Product Knowledge"></div>
+    <div class="mb1"><label>Description</label><textarea id="cm-desc" placeholder="Brief description..."></textarea></div>
+    <div class="mb1"><label>Pass Percentage (%)</label><input type="number" id="cm-pass" value="60" min="1" max="100"></div>
+    <div class="mb1"><label>Time Per Question (seconds)</label><input type="number" id="cm-timer" value="30" min="5" max="300"></div>
+    <hr class="sep">
+    <div style="font-weight:700;margin-bottom:10px;">📎 Course Materials</div>
+    <div id="cm-materials-list"></div>
+    <button class="btn btn-outline btn-full btn-sm mb2" onclick="addMaterialField()">+ Add Material</button>
+    <hr class="sep">
+    <div style="font-weight:700;margin-bottom:10px;">❓ Quiz Questions</div>
+    <div id="cm-questions-list"></div>
+    <button class="btn btn-outline btn-full btn-sm mb2" onclick="addQuestionField()">+ Add Question</button>
+    <hr class="sep">
+    <div style="font-weight:700;margin-bottom:10px;">👥 Assign to Users</div>
+    <div id="cm-assign-list"></div>
+    <hr class="sep">
+    <div class="row mt2">
+      <button class="btn btn-primary btn-full" onclick="saveCourse()">💾 Save Course</button>
+      <button class="btn btn-outline btn-full" onclick="closeCourseModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- New / Edit User Modal -->
+<div class="modal hidden" id="user-modal">
+  <div class="modal-box">
+    <h3 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:16px;" id="user-modal-title">New User</h3>
+    <div class="mb1"><label>Full Name</label><input type="text" id="um-name" placeholder="Full Name"></div>
+    <div class="mb1"><label>Username</label><input type="text" id="um-username" placeholder="login username"></div>
+    <div class="mb1"><label>Password</label><input type="password" id="um-password" placeholder="password"></div>
+    <div class="mb1"><label>Role</label>
+      <select id="um-role"><option value="staff">Staff</option><option value="admin">Admin</option></select>
+    </div>
+    <div id="um-error" class="alert alert-danger hidden"></div>
+    <div class="row mt2">
+      <button class="btn btn-primary btn-full" onclick="saveUser()">💾 Save User</button>
+      <button class="btn btn-outline btn-full" onclick="closeUserModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Congrats overlay -->
+<div id="congrats-overlay" class="hidden">
+  <div class="congrats-overlay">
+    <div class="congrats-box" id="congrats-box">
+      <span class="congrats-emoji" id="congrats-emoji">🎉</span>
+      <div style="font-size:22px;font-weight:900;font-family:'Poppins',sans-serif;margin:12px 0 6px;" id="congrats-title">Congratulations!</div>
+      <div style="color:var(--muted);font-size:14px;margin-bottom:16px;" id="congrats-msg"></div>
+      <div class="score-circle" style="width:110px;height:110px;border-width:4px;margin:0 auto 16px;">
+        <h1 style="font-size:36px;" id="congrats-score">0</h1>
+        <small id="congrats-total">/ 0</small>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="closeCongratsAndShowResult()">View Details →</button>
+    </div>
+  </div>
 </div>
 
 <script>
+// ═══════════════════════════════════════════════
+//  DATA STORE
+// ═══════════════════════════════════════════════
+const SK = 'kidza_v4';
 
-const STORAGE_KEY = 'kidza_quiz_data';
-
-let data = {
-    adminPassword:'hja98948',
-    timer:30,
-
-    questions:[
-        {
-            question:'What is the Kidza return policy?',
-            options:['7 Days','14 Days','30 Days','No Return'],
-            answer:2
-        },
-
-        {
-            question:'Which certification is required for baby products?',
-            options:['ISO','ISI','BIS','FDA'],
-            answer:2
-        },
-
-        {
-            question:'Which age group uses newborn diapers?',
-            options:['0-3 Months','1-2 Years','3-5 Years','5+ Years'],
-            answer:0
-        }
-    ],
-
-    results:[]
-};
-
-function saveData(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-function loadData(){
-
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-    if(saved){
-        data = JSON.parse(saved);
+let DB = {
+  users: [
+    { id:'u0', name:'Admin User', username:'admin', password:'kidza2024', role:'admin' },
+    { id:'u1', name:'Priya Sharma', username:'priya', password:'pass123', role:'staff' },
+    { id:'u2', name:'Rahul Verma', username:'rahul', password:'pass123', role:'staff' }
+  ],
+  courses: [
+    {
+      id:'c1',
+      name:'Product Knowledge',
+      desc:'Learn about Kidza products, categories, and certifications.',
+      passPercent:60,
+      timer:30,
+      assignedUsers:['u1','u2'],
+      materials:[
+        { id:'m1', type:'video', title:'Product Overview Video', url:'', embedUrl:'' },
+        { id:'m2', type:'pdf', title:'Product Catalogue PDF', url:'' }
+      ],
+      questions:[
+        { id:'q1', question:'What is the Kidza return policy?', options:['7 Days','14 Days','30 Days','No Return'], answer:2 },
+        { id:'q2', question:'Which certification is required for baby products?', options:['ISO','ISI','BIS','FDA'], answer:2 },
+        { id:'q3', question:'Which age group uses newborn diapers?', options:['0-3 Months','1-2 Years','3-5 Years','5+ Years'], answer:0 }
+      ]
     }
-}
-
-loadData();
-
-let state = {
-    current:0,
-    score:0,
-    answers:[],
-    timer:null,
-    timeLeft:30,
-    name:''
+  ],
+  results: [],
+  materialProgress: {},  // uid_cid_mid : boolean
+  quizAttempts: {}       // uid_cid : [{score,total,pct,passed,date,answers}]
 };
 
+function saveDB(){ try{ localStorage.setItem(SK,JSON.stringify(DB)); }catch(e){} }
+function loadDB(){
+  try{
+    const s = localStorage.getItem(SK);
+    if(s){ const d=JSON.parse(s); DB=Object.assign(DB,d); }
+  }catch(e){}
+}
+loadDB();
+
+// ═══════════════════════════════════════════════
+//  SESSION
+// ═══════════════════════════════════════════════
+let CUR = { user:null };
+
+// ═══════════════════════════════════════════════
+//  QUIZ STATE
+// ═══════════════════════════════════════════════
+let QS = { courseId:null, current:0, score:0, answers:[], timerInterval:null, timeLeft:30 };
+
+// ═══════════════════════════════════════════════
+//  UTIL
+// ═══════════════════════════════════════════════
+function uid(){ return 'id'+Date.now()+Math.random().toString(36).slice(2,6); }
 function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function $(id){ return document.getElementById(id); }
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-    document.querySelectorAll('.screen').forEach(screen=>{
-        screen.classList.remove('active');
-    });
-
-    document.getElementById(id).classList.add('active');
-
-    window.scrollTo(0,0);
+// ═══════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════
+function doLogin(){
+  const un = $('login-username').value.trim().toLowerCase();
+  const pw = $('login-password').value;
+  const user = DB.users.find(u=>u.username.toLowerCase()===un && u.password===pw);
+  if(!user){ $('login-error').textContent='Invalid username or password.'; $('login-error').classList.remove('hidden'); return; }
+  $('login-error').classList.add('hidden');
+  CUR.user = user;
+  if(user.role==='admin') goAdminPanel(); else goHome();
+}
+function doLogout(){
+  CUR.user=null;
+  $('login-username').value='';
+  $('login-password').value='';
+  showScreen('login-screen');
 }
 
-function startQuiz(){
+// ═══════════════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════════════
+function goHome(){
+  const u = CUR.user;
+  $('home-greeting').textContent='Hello, '+u.name.split(' ')[0]+' 👋';
+  $('home-role').textContent=u.role==='admin'?'Administrator':'Staff Member';
+  $('admin-btn').style.display = u.role==='admin'?'':'none';
 
-    const name = document.getElementById('staff-name').value.trim();
+  // Stats
+  const myAttempts = Object.entries(DB.quizAttempts)
+    .filter(([k])=>k.startsWith(u.id+'_'))
+    .flatMap(([,v])=>v);
+  const myCourses = DB.courses.filter(c=>c.assignedUsers&&c.assignedUsers.includes(u.id));
+  const completed = myCourses.filter(c=>allMaterialsDone(u.id,c.id)).length;
+  const best = myAttempts.length ? Math.max(...myAttempts.map(a=>a.pct)) : 0;
+  $('user-stats-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${myCourses.length}</div><div class="stat-label">Assigned Courses</div></div>
+    <div class="stat-card"><div class="stat-num">${completed}</div><div class="stat-label">Completed</div></div>
+    <div class="stat-card"><div class="stat-num">${myAttempts.length}</div><div class="stat-label">Quiz Attempts</div></div>
+    <div class="stat-card"><div class="stat-num">${best}%</div><div class="stat-label">Best Score</div></div>
+  `;
 
-    if(!name){
-        alert('Please enter your name');
-        return;
+  // Notifications
+  const notifs = [];
+  myCourses.forEach(c=>{
+    const key=u.id+'_'+c.id;
+    const att=DB.quizAttempts[key]||[];
+    if(att.length===0) notifs.push(`New test assigned: <b>${escHtml(c.name)}</b>`);
+    else if(att.length===1) notifs.push(`You have 1 remaining attempt for <b>${escHtml(c.name)}</b>`);
+  });
+  $('notif-banner-container').innerHTML = notifs.map(n=>`
+    <div class="notif-banner" style="margin:0 14px 12px;">
+      <div class="notif-banner-icon">🔔</div>
+      <div><div style="font-weight:700;font-size:13px;">Notification</div><div style="font-size:13px;">${n}</div></div>
+    </div>`).join('');
+
+  // Courses
+  if(myCourses.length===0){
+    $('assigned-courses-list').innerHTML='<p class="muted center" style="padding:16px;">No courses assigned yet.</p>';
+  } else {
+    $('assigned-courses-list').innerHTML = myCourses.map(c=>{
+      const key=u.id+'_'+c.id;
+      const att=DB.quizAttempts[key]||[];
+      const bestAtt = att.length?Math.max(...att.map(a=>a.pct)):null;
+      const matDone = allMaterialsDone(u.id,c.id);
+      const locked = !matDone && att.length<2;
+      return `<div class="material-item" onclick="openCourse('${c.id}')">
+        <div class="material-icon icon-video">📚</div>
+        <div class="material-info">
+          <div class="material-title">${escHtml(c.name)}</div>
+          <div class="material-sub">${c.questions.length} questions · ${att.length}/2 attempts used${bestAtt!==null?' · Best: '+bestAtt+'%':''}</div>
+        </div>
+        <div>${att.length>=2?'<span class="badge fail">Done</span>':matDone?'<span class="badge pass">Ready</span>':'<span class="badge badge-warn">Materials</span>'}</div>
+      </div>`;
+    }).join('');
+  }
+  showScreen('home-screen');
+}
+
+function allMaterialsDone(uid, cid){
+  const c = DB.courses.find(x=>x.id===cid);
+  if(!c||!c.materials||c.materials.length===0) return true;
+  return c.materials.every(m=>DB.materialProgress[uid+'_'+cid+'_'+m.id]);
+}
+
+// ═══════════════════════════════════════════════
+//  COURSE DETAIL
+// ═══════════════════════════════════════════════
+let currentCourseId = null;
+function openCourse(cid){
+  currentCourseId=cid;
+  const c = DB.courses.find(x=>x.id===cid);
+  const u = CUR.user;
+  $('course-title-bar').textContent=c.name;
+  $('course-name-display').textContent=c.name;
+  $('course-desc-display').textContent=c.desc;
+
+  // Materials
+  const mats = c.materials||[];
+  if(mats.length===0){
+    $('course-materials-list').innerHTML='<p class="muted">No materials for this course.</p>';
+  } else {
+    $('course-materials-list').innerHTML=mats.map(m=>{
+      const done=DB.materialProgress[u.id+'_'+cid+'_'+m.id];
+      const icon={video:'🎬',ppt:'📊',pdf:'📄',gif:'🖼️',image:'🖼️'}[m.type]||'📎';
+      const iconClass='icon-'+(m.type==='pdf'?'pdf':m.type==='ppt'?'ppt':m.type==='gif'||m.type==='image'?'gif':'video');
+      return `<div class="material-item${done?' completed':''}" onclick="${done?'':' viewMaterial(\''+cid+'\',\''+m.id+'\')'}" >
+        <div class="material-icon ${iconClass}">${icon}</div>
+        <div class="material-info">
+          <div class="material-title">${escHtml(m.title)}</div>
+          <div class="material-sub">${m.type.toUpperCase()}</div>
+        </div>
+        <div class="material-status">${done?'<span class="badge pass">✓ Done</span>':'<span class="badge badge-red">View</span>'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Quiz area
+  const key=u.id+'_'+c.id;
+  const att=DB.quizAttempts[key]||[];
+  const matDone=allMaterialsDone(u.id,cid);
+  let quizHtml='';
+  if(att.length>=2){
+    const best=Math.max(...att.map(a=>a.pct));
+    quizHtml=`<div class="alert alert-warn">You have used both attempts. Best score: <b>${best}%</b></div>`;
+  } else if(!matDone){
+    quizHtml=`<div class="alert alert-warn">⚠️ Please view and complete all materials before taking the quiz.</div>`;
+  } else {
+    quizHtml=`<button class="btn btn-primary btn-full" onclick="openInstructions('${cid}')">▶ Take Quiz (Attempt ${att.length+1}/2)</button>`;
+  }
+  $('course-start-quiz-area').innerHTML=quizHtml;
+  showScreen('course-screen');
+}
+
+// ═══════════════════════════════════════════════
+//  MATERIAL VIEWER
+// ═══════════════════════════════════════════════
+let viewingMaterial={cid:null,mid:null};
+function viewMaterial(cid,mid){
+  viewingMaterial={cid,mid};
+  const c=DB.courses.find(x=>x.id===cid);
+  const m=c.materials.find(x=>x.id===mid);
+  $('material-title-bar').textContent=m.title;
+
+  let html='<div class="page-title mb1">'+escHtml(m.title)+'</div>';
+  const url=m.url||m.embedUrl||'';
+
+  if(m.type==='video'){
+    // Try to detect youtube/vimeo and embed, otherwise use <video>
+    if(url.includes('youtube.com')||url.includes('youtu.be')){
+      const vid=url.includes('youtu.be')?url.split('/').pop():new URLSearchParams(url.split('?')[1]).get('v');
+      html+=`<div class="video-wrap"><iframe width="100%" height="240" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen style="border-radius:14px;"></iframe></div>`;
+    } else if(url.includes('vimeo.com')){
+      const vid=url.split('/').pop();
+      html+=`<div class="video-wrap"><iframe width="100%" height="240" src="https://player.vimeo.com/video/${vid}" frameborder="0" allowfullscreen style="border-radius:14px;"></iframe></div>`;
+    } else if(url){
+      html+=`<div class="video-wrap"><video controls playsinline src="${url}"><p>Video cannot be displayed.</p></video></div>`;
+    } else {
+      html+=`<div class="ppt-upload-area"><span style="font-size:36px;">🎬</span><span class="muted">No video URL set. Admin should add a video URL.</span></div>`;
     }
+  } else if(m.type==='ppt'){
+    if(url){
+      // Use Google Docs viewer for PPT
+      const viewUrl = url.startsWith('http') ? 'https://docs.google.com/gviewer?embedded=true&url='+encodeURIComponent(url) : url;
+      html+=`<div class="ppt-viewer"><iframe src="${viewUrl}" style="width:100%;height:320px;border:none;border-radius:14px;"></iframe></div>
+      <p class="muted" style="font-size:12px;margin-top:6px;text-align:center;">💡 PPT rendered inline. No external app needed.</p>`;
+    } else {
+      html+=`<div class="ppt-upload-area"><span style="font-size:36px;">📊</span><span class="muted">No PPT URL set. Admin should add a URL.</span></div>`;
+    }
+  } else if(m.type==='pdf'){
+    if(url){
+      html+=`<div class="ppt-viewer"><iframe src="${url}" style="width:100%;height:400px;border:none;border-radius:14px;"></iframe></div>`;
+    } else {
+      html+=`<div class="ppt-upload-area"><span style="font-size:36px;">📄</span><span class="muted">No PDF URL set.</span></div>`;
+    }
+  } else if(m.type==='gif'||m.type==='image'){
+    if(url){
+      html+=`<img src="${url}" style="width:100%;border-radius:14px;margin-bottom:12px;" alt="${escHtml(m.title)}">`;
+    } else {
+      html+=`<div class="ppt-upload-area"><span style="font-size:36px;">🖼️</span><span class="muted">No image URL set.</span></div>`;
+    }
+  }
 
-    state.name = name;
-    state.current = 0;
-    state.score = 0;
-    state.answers = [];
+  $('material-viewer-content').innerHTML=html;
 
-    document.getElementById('staff-display').textContent = name;
+  const done=DB.materialProgress[CUR.user.id+'_'+cid+'_'+mid];
+  if(done){
+    $('material-complete-area').innerHTML=`<div class="alert alert-success">✅ You have already marked this material as complete.</div>`;
+  } else {
+    $('material-complete-area').innerHTML=`
+      <div class="alert alert-warn" style="margin-bottom:10px;">⚠️ Once you mark as complete, you cannot re-view this material.</div>
+      <button class="btn btn-success btn-full" onclick="markMaterialDone()">✅ Mark as Completed</button>`;
+  }
+  showScreen('material-screen');
+}
 
-    showScreen('quiz-screen');
+function markMaterialDone(){
+  if(!confirm('Are you sure? You will not be able to re-view this material after marking it complete.')) return;
+  const {cid,mid}=viewingMaterial;
+  DB.materialProgress[CUR.user.id+'_'+cid+'_'+mid]=true;
+  saveDB();
+  $('material-complete-area').innerHTML=`<div class="alert alert-success">✅ Marked as complete!</div>`;
+  setTimeout(()=>{ openCourse(cid); },900);
+}
 
-    loadQuestion();
+function backFromMaterial(){
+  if(currentCourseId) openCourse(currentCourseId); else showScreen('home-screen');
+}
+
+// ═══════════════════════════════════════════════
+//  INSTRUCTIONS
+// ═══════════════════════════════════════════════
+let pendingQuizCourseId=null;
+function openInstructions(cid){
+  pendingQuizCourseId=cid;
+  const c=DB.courses.find(x=>x.id===cid);
+  const key=CUR.user.id+'_'+c.id;
+  const att=DB.quizAttempts[key]||[];
+  $('inst-quiz-name').textContent=c.name+' — Quiz';
+  $('inst-attempt-info').textContent=`Attempt ${att.length+1} of 2`;
+
+  const instructions=[
+    `This quiz contains <b>${c.questions.length} questions</b>.`,
+    `You have <b>${c.timer} seconds</b> per question. The timer starts automatically.`,
+    `Each question has one correct answer. Select carefully — you cannot change your answer.`,
+    `Answers are revealed <b>only after all questions</b> are attempted.`,
+    `<b>Passing score: ${c.passPercent}%</b> or above.`,
+    `You have <b>2 attempts total</b>. Your highest score will be recorded.`,
+    `Do not close or refresh the page during the quiz.`
+  ];
+  $('instructions-list').innerHTML=instructions.map((t,i)=>`
+    <div class="instruction-item">
+      <div class="instruction-num">${i+1}</div>
+      <div style="font-size:14px;">${t}</div>
+    </div>`).join('');
+
+  if(att.length===1){
+    $('inst-attempt-warning').innerHTML=`<div class="alert alert-warn">⚠️ This is your <b>final attempt</b>. Your best score will be kept.</div>`;
+    $('inst-attempt-warning').classList.remove('hidden');
+  } else {
+    $('inst-attempt-warning').classList.add('hidden');
+  }
+  showScreen('instructions-screen');
+}
+
+// ═══════════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════════
+function beginQuiz(){
+  const c=DB.courses.find(x=>x.id===pendingQuizCourseId);
+  QS={courseId:pendingQuizCourseId, current:0, score:0, answers:[], timerInterval:null, timeLeft:c.timer};
+  $('quiz-staff-name').textContent=CUR.user.name;
+  // Attempt pips
+  const key=CUR.user.id+'_'+c.id;
+  const att=DB.quizAttempts[key]||[];
+  $('attempt-bar').innerHTML=[0,1].map(i=>`<div class="attempt-pip${i<att.length?' used':''}"></div>`).join('')+`<span style="font-size:11px;color:var(--muted);margin-left:4px;">Attempt ${att.length+1}</span>`;
+  showScreen('quiz-screen');
+  loadQuestion();
 }
 
 function loadQuestion(){
-
-    clearInterval(state.timer);
-
-    const q = data.questions[state.current];
-
-    document.getElementById('question-count').textContent =
-        `Question ${state.current + 1} of ${data.questions.length}`;
-
-    document.getElementById('question-text').textContent =
-        q.question;
-
-    const progress =
-        ((state.current) / data.questions.length) * 100;
-
-    document.getElementById('progress-fill').style.width =
-        progress + '%';
-
-    const container =
-        document.getElementById('options-container');
-
-    container.innerHTML = '';
-
-    q.options.forEach((opt,index)=>{
-
-        const div = document.createElement('div');
-
-        div.className = 'option';
-
-        div.innerHTML = opt;
-
-        div.onclick = ()=>selectOption(index);
-
-        container.appendChild(div);
-    });
-
-    document.getElementById('next-btn').classList.add('hidden');
-
-    startTimer();
+  clearInterval(QS.timerInterval);
+  const c=DB.courses.find(x=>x.id===QS.courseId);
+  const q=c.questions[QS.current];
+  const pct=(QS.current/c.questions.length)*100;
+  $('progress-fill').style.width=pct+'%';
+  $('question-count').textContent=`Q ${QS.current+1} / ${c.questions.length}`;
+  $('question-text').textContent=q.question;
+  const letters=['A','B','C','D','E'];
+  $('options-container').innerHTML=q.options.map((opt,i)=>`
+    <div class="option" id="opt-${i}" onclick="selectOption(${i})">
+      <div class="option-letter">${letters[i]}</div>
+      <div>${escHtml(opt)}</div>
+    </div>`).join('');
+  $('next-btn').classList.add('hidden');
+  startTimer(c.timer);
 }
 
-function startTimer(){
-
-    state.timeLeft = data.timer;
-
-    document.getElementById('timer').textContent =
-        state.timeLeft;
-
-    state.timer = setInterval(()=>{
-
-        state.timeLeft--;
-
-        document.getElementById('timer').textContent =
-            state.timeLeft;
-
-        if(state.timeLeft <= 0){
-
-            clearInterval(state.timer);
-
-            autoNext();
-        }
-
-    },1000);
+function startTimer(sec){
+  QS.timeLeft=sec;
+  updateTimerUI();
+  QS.timerInterval=setInterval(()=>{
+    QS.timeLeft--;
+    updateTimerUI();
+    if(QS.timeLeft<=0){ clearInterval(QS.timerInterval); autoNext(); }
+  },1000);
 }
 
-function selectOption(index){
+function updateTimerUI(){
+  $('timer-val').textContent=QS.timeLeft;
+  const t=$('quiz-timer');
+  if(QS.timeLeft<=10) t.classList.add('urgent'); else t.classList.remove('urgent');
+}
 
-    clearInterval(state.timer);
-
-    const q = data.questions[state.current];
-
-    const options =
-        document.querySelectorAll('.option');
-
-    options.forEach(opt=>{
-        opt.style.pointerEvents = 'none';
-    });
-
-    if(index === q.answer){
-
-        state.score++;
-
-        options[index].classList.add('correct');
-
-    }else{
-
-        options[index].classList.add('wrong');
-
-        options[q.answer].classList.add('correct');
-    }
-
-    state.answers.push({
-        question:q.question,
-        selected:index,
-        correct:q.answer
-    });
-
-    document.getElementById('next-btn')
-        .classList.remove('hidden');
+function selectOption(idx){
+  clearInterval(QS.timerInterval);
+  const c=DB.courses.find(x=>x.id===QS.courseId);
+  const q=c.questions[QS.current];
+  document.querySelectorAll('.option').forEach(o=>o.style.pointerEvents='none');
+  // No immediate feedback — just mark selection
+  document.getElementById('opt-'+idx).classList.add('selected');
+  QS.answers.push({question:q.question,selected:idx,correct:q.answer,options:q.options});
+  $('next-btn').classList.remove('hidden');
 }
 
 function autoNext(){
-
-    state.answers.push({
-        question:data.questions[state.current].question,
-        selected:-1,
-        correct:data.questions[state.current].answer
-    });
-
-    nextQuestion();
+  const c=DB.courses.find(x=>x.id===QS.courseId);
+  const q=c.questions[QS.current];
+  QS.answers.push({question:q.question,selected:-1,correct:q.answer,options:q.options});
+  nextQuestion();
 }
 
 function nextQuestion(){
-
-    state.current++;
-
-    if(state.current >= data.questions.length){
-
-        finishQuiz();
-
-    }else{
-
-        loadQuestion();
-    }
+  const c=DB.courses.find(x=>x.id===QS.courseId);
+  QS.current++;
+  if(QS.current>=c.questions.length) finishQuiz(); else loadQuestion();
 }
 
 function finishQuiz(){
+  clearInterval(QS.timerInterval);
+  const c=DB.courses.find(x=>x.id===QS.courseId);
+  // Calculate score NOW (after all answered)
+  let score=0;
+  QS.answers.forEach(a=>{ if(a.selected===a.correct) score++; });
+  QS.score=score;
+  const total=c.questions.length;
+  const pct=Math.round((score/total)*100);
+  const passed=pct>=c.passPercent;
 
-    const total = data.questions.length;
+  // Save attempt
+  const key=CUR.user.id+'_'+c.id;
+  if(!DB.quizAttempts[key]) DB.quizAttempts[key]=[];
+  DB.quizAttempts[key].push({score,total,pct,passed,date:new Date().toLocaleString(),answers:QS.answers});
 
-    const pct =
-        Math.round((state.score / total) * 100);
+  // Save to results
+  const att=DB.quizAttempts[key];
+  const best=Math.max(...att.map(a=>a.pct));
+  DB.results.push({uid:CUR.user.id,name:CUR.user.name,courseId:c.id,courseName:c.name,score,total,pct,passed,date:new Date().toLocaleString(),attempt:att.length});
+  saveDB();
 
-    const passed = pct >= 60;
+  // Result screen
+  $('final-score').textContent=score;
+  $('total-score').textContent='/ '+total;
+  $('percentage').textContent=pct+'%';
+  $('pass-status').innerHTML=passed?'<span class="badge pass" style="font-size:14px;padding:7px 18px;">✅ PASSED</span>':'<span class="badge fail" style="font-size:14px;padding:7px 18px;">❌ FAILED</span>';
+  const rem=2-att.length;
+  $('attempt-remaining-note').textContent=rem>0?`${rem} attempt(s) remaining. Best score: ${best}%`:'No attempts remaining. Final score: '+best+'%';
+  $('result-heading').textContent=passed?'Quiz Completed! 🎉':'Quiz Completed';
 
-    data.results.unshift({
-        name:state.name,
-        score:state.score,
-        total:total,
-        pct:pct,
-        passed:passed,
-        date:new Date().toLocaleString()
-    });
+  // Review (show correct answers now)
+  const letters=['A','B','C','D','E'];
+  $('review-container').innerHTML=QS.answers.map((ans,i)=>{
+    const correct=ans.selected===ans.correct;
+    const cls=ans.selected===-1?'review-skipped':correct?'review-correct':'review-wrong';
+    const icon=ans.selected===-1?'⏭️':correct?'✅':'❌';
+    return `<div class="review-item ${cls}">
+      <b>${icon} Q${i+1}.</b> ${escHtml(ans.question)}<br><br>
+      <span style="font-size:13px;">Your answer: <b>${ans.selected>=0?letters[ans.selected]+'. '+escHtml(ans.options[ans.selected]):'Not answered'}</b></span><br>
+      <span style="font-size:13px;">Correct: <b style="color:var(--success)">${letters[ans.correct]}. ${escHtml(ans.options[ans.correct])}</b></span>
+    </div>`;
+  }).join('');
 
-    saveData();
-
-    document.getElementById('final-score').textContent =
-        state.score;
-
-    document.getElementById('total-score').textContent =
-        '/ ' + total;
-
-    document.getElementById('percentage').textContent =
-        pct + '%';
-
-    document.getElementById('pass-status').innerHTML =
-        passed
-        ? '<span class="badge pass">PASSED</span>'
-        : '<span class="badge fail">FAILED</span>';
-
-    renderReview();
-
-    showScreen('result-screen');
+  if(passed) showCongratsOverlay(score,total,pct);
+  else showScreen('result-screen');
 }
 
-function renderReview(){
-
-    const wrap =
-        document.getElementById('review-container');
-
-    wrap.innerHTML = '';
-
-    state.answers.forEach((ans,index)=>{
-
-        const q = data.questions[index];
-
-        const correct =
-            ans.selected === ans.correct;
-
-        const div =
-            document.createElement('div');
-
-        div.className =
-            correct
-            ? 'review-item review-correct'
-            : 'review-item review-wrong';
-
-        div.innerHTML = `
-            <b>Q${index+1}.</b>
-            ${q.question}
-            <br><br>
-
-            Your Answer:
-            ${
-                ans.selected >= 0
-                ? q.options[ans.selected]
-                : 'Not Answered'
-            }
-
-            <br>
-
-            Correct Answer:
-            ${q.options[ans.correct]}
-        `;
-
-        wrap.appendChild(div);
-    });
+// ═══════════════════════════════════════════════
+//  CONGRATS OVERLAY
+// ═══════════════════════════════════════════════
+function showCongratsOverlay(score,total,pct){
+  $('congrats-score').textContent=score;
+  $('congrats-total').textContent='/ '+total;
+  $('congrats-msg').textContent='You scored '+pct+'% — Keep it up!';
+  $('congrats-emoji').textContent=pct>=90?'🏆':pct>=75?'🎉':'🌟';
+  $('congrats-title').textContent=pct>=90?'Outstanding!':pct>=75?'Excellent Work!':'Well Done!';
+  // Confetti
+  const box=$('congrats-box');
+  for(let i=0;i<28;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}%;background:${['#e53935','#fbbf24','#34d399','#60a5fa','#f472b6'][i%5]};animation-delay:${Math.random()*1.2}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p);
+  }
+  $('congrats-overlay').classList.remove('hidden');
+  showScreen('result-screen');
+}
+function closeCongratsAndShowResult(){
+  $('congrats-overlay').classList.add('hidden');
 }
 
-function showLeaderboard(){
-
-    const wrap =
-        document.getElementById('leaderboard-list');
-
-    if(data.results.length === 0){
-
-        wrap.innerHTML =
-            '<p>No results yet</p>';
-
-    }else{
-
-        const sorted =
-            [...data.results]
-            .sort((a,b)=>b.pct-a.pct);
-
-        wrap.innerHTML = sorted.map((r,i)=>`
-
-            <div class="card">
-
-                <div class="row"
-                     style="justify-content:space-between;align-items:center;">
-
-                    <div>
-                        <b>#${i+1} ${r.name}</b>
-                        <div class="subtitle">
-                            ${r.score}/${r.total}
-                        </div>
-                    </div>
-
-                    <div style="font-size:24px;font-weight:800;color:var(--red);">
-                        ${r.pct}%
-                    </div>
-
-                </div>
-
-            </div>
-
-        `).join('');
-    }
-
-    showScreen('leaderboard-screen');
+// ═══════════════════════════════════════════════
+//  LEADERBOARD (User)
+// ═══════════════════════════════════════════════
+function showLeaderboardUser(){
+  renderLeaderboard('leaderboard-user-list');
+  showScreen('leaderboard-user-screen');
+}
+function renderLeaderboard(containerId){
+  const scores={};
+  Object.entries(DB.quizAttempts).forEach(([k,atts])=>{
+    const uid=k.split('_')[0];
+    const user=DB.users.find(u=>u.id===uid);
+    if(!user) return;
+    const best=Math.max(...atts.map(a=>a.pct));
+    if(!scores[uid]||scores[uid].pct<best) scores[uid]={name:user.name,pct:best,score:atts.find(a=>a.pct===best).score,total:atts.find(a=>a.pct===best).total};
+  });
+  const sorted=Object.values(scores).sort((a,b)=>b.pct-a.pct);
+  if(sorted.length===0){ $(containerId).innerHTML='<p class="muted center" style="padding:16px;">No results yet.</p>'; return; }
+  const rankClass=(i)=>i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
+  const rankIcon=(i)=>i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+  $(containerId).innerHTML=sorted.map((r,i)=>`
+    <div class="lb-item">
+      <div class="lb-rank ${rankClass(i)}">${rankIcon(i)}</div>
+      <div class="lb-info">
+        <div class="lb-name">${escHtml(r.name)}</div>
+        <div class="lb-sub">${r.score}/${r.total}</div>
+      </div>
+      <div class="lb-score">${r.pct}%</div>
+    </div>`).join('');
 }
 
-function showAdminLogin(){
-    showScreen('admin-login-screen');
+// ═══════════════════════════════════════════════
+//  ADMIN PANEL
+// ═══════════════════════════════════════════════
+function goAdminPanel(){
+  switchAdminTab('overview');
+  showScreen('admin-screen');
+}
+function switchAdminTab(tab){
+  ['overview','courses','users','results'].forEach(t=>{
+    $('admin-tab-'+t).classList.toggle('hidden',t!==tab);
+  });
+  document.querySelectorAll('#admin-tabs .tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['overview','courses','users','results'][i]===tab);
+  });
+  if(tab==='overview') renderAdminOverview();
+  if(tab==='courses') renderAdminCourses();
+  if(tab==='users') renderAdminUsers();
+  if(tab==='results') renderAdminResults();
 }
 
-function adminLogin(){
+// ─── OVERVIEW CHARTS ───
+function renderAdminOverview(){
+  const allAttempts=Object.values(DB.quizAttempts).flat();
+  const passed=allAttempts.filter(a=>a.passed).length;
+  const failed=allAttempts.length-passed;
+  const avgScore=allAttempts.length?Math.round(allAttempts.reduce((s,a)=>s+a.pct,0)/allAttempts.length):0;
 
-    const pass =
-        document.getElementById('admin-password').value;
+  $('admin-stat-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${DB.users.filter(u=>u.role==='staff').length}</div><div class="stat-label">Staff</div></div>
+    <div class="stat-card"><div class="stat-num">${DB.courses.length}</div><div class="stat-label">Courses</div></div>
+    <div class="stat-card"><div class="stat-num">${allAttempts.length}</div><div class="stat-label">Attempts</div></div>
+    <div class="stat-card"><div class="stat-num">${avgScore}%</div><div class="stat-label">Avg Score</div></div>
+  `;
 
-    if(pass === data.adminPassword){
+  // Score distribution bar chart
+  const buckets=[0,0,0,0,0]; // 0-20,21-40,41-60,61-80,81-100
+  allAttempts.forEach(a=>{ buckets[Math.min(4,Math.floor(a.pct/20))]++; });
+  renderChart('chart-score','bar',{
+    labels:['0-20%','21-40%','41-60%','61-80%','81-100%'],
+    datasets:[{label:'Attempts',data:buckets,backgroundColor:['#ef4444','#f97316','#eab308','#22c55e','#16a34a'],borderRadius:8,borderSkipped:false}]
+  },{plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1},grid:{color:'#f5e6e6'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
 
-        showResults();
+  // Pass/Fail donut
+  renderChart('chart-passfail','doughnut',{
+    labels:['Passed','Failed'],
+    datasets:[{data:[passed,failed],backgroundColor:['#16a34a','#dc2626'],hoverOffset:4,borderWidth:0}]
+  },{plugins:{legend:{position:'bottom'}},responsive:true,maintainAspectRatio:false,cutout:'60%'});
 
-        showScreen('admin-screen');
-
-    }else{
-
-        alert('Wrong password');
-    }
+  // Completion bar per course
+  const compLabels=DB.courses.map(c=>c.name.length>18?c.name.slice(0,18)+'…':c.name);
+  const compData=DB.courses.map(c=>{
+    const assigned=(c.assignedUsers||[]).length;
+    if(!assigned) return 0;
+    const done=(c.assignedUsers||[]).filter(uid=>allMaterialsDone(uid,c.id)).length;
+    return Math.round((done/assigned)*100);
+  });
+  renderChart('chart-completion','bar',{
+    labels:compLabels,
+    datasets:[{label:'Completion %',data:compData,backgroundColor:'#e53935',borderRadius:8,borderSkipped:false}]
+  },{plugins:{legend:{display:false}},scales:{y:{max:100,ticks:{callback:v=>v+'%'},grid:{color:'#f5e6e6'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
 }
 
-function showResults(){
+const chartInstances={};
+function renderChart(id,type,data,options){
+  if(chartInstances[id]) chartInstances[id].destroy();
+  const ctx=$(id).getContext('2d');
+  chartInstances[id]=new Chart(ctx,{type,data,options});
+}
 
-    const table =
-        document.getElementById('results-table');
+// ─── COURSES ───
+function renderAdminCourses(){
+  $('admin-courses-list').innerHTML=DB.courses.map(c=>`
+    <div class="material-item" style="flex-direction:column;align-items:flex-start;gap:8px;cursor:default;">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+        <div>
+          <div class="material-title">${escHtml(c.name)}</div>
+          <div class="material-sub">${c.questions.length} questions · ${(c.materials||[]).length} materials · ${(c.assignedUsers||[]).length} users</div>
+        </div>
+        <div class="row">
+          <button class="btn btn-outline btn-sm" onclick="editCourse('${c.id}')">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCourse('${c.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('')||'<p class="muted">No courses yet.</p>';
+}
 
-    table.innerHTML = '';
+// ─── USERS ───
+function renderAdminUsers(){
+  $('admin-users-list').innerHTML=DB.users.filter(u=>u.role!=='admin'||true).map(u=>`
+    <div class="user-row">
+      <div class="avatar">${u.name[0].toUpperCase()}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:14px;">${escHtml(u.name)}</div>
+        <div style="font-size:12px;color:var(--muted);">@${escHtml(u.username)} · ${u.role}</div>
+      </div>
+      <div class="row">
+        <button class="btn btn-outline btn-sm" onclick="editUser('${u.id}')">✏️</button>
+        ${u.id!=='u0'?`<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">🗑</button>`:''}
+      </div>
+    </div>`).join('');
+}
 
-    data.results.forEach((r,index)=>{
+// ─── RESULTS ───
+function renderAdminResults(){
+  const sel=$('filter-course').value;
+  // Update filter options
+  $('filter-course').innerHTML='<option value="">All Courses</option>'+DB.courses.map(c=>`<option value="${c.id}"${sel===c.id?' selected':''}>${escHtml(c.name)}</option>`).join('');
+  $('filter-course').value=sel;
 
-        table.innerHTML += `
+  const rows=DB.results.filter(r=>!sel||r.courseId===sel);
+  $('results-table').innerHTML=rows.map((r,i)=>`<tr>
+    <td>${i+1}</td><td>${escHtml(r.name)}</td><td>${escHtml(r.courseName)}</td>
+    <td>${r.score}/${r.total} (${r.pct}%)</td>
+    <td><span class="badge ${r.passed?'pass':'fail'}">${r.passed?'PASS':'FAIL'}</span></td>
+    <td><button class="btn btn-warn btn-sm" onclick="reassignTest('${r.uid}','${r.courseId}')">↺ Reassign</button></td>
+  </tr>`).join('')||'<tr><td colspan="6" class="muted center">No results.</td></tr>';
+  renderLeaderboard('admin-leaderboard-list');
+}
 
-            <tr>
-                <td>${index+1}</td>
-                <td>${r.name}</td>
-                <td>${r.score}/${r.total}</td>
-                <td>
-                    <span class="badge ${r.passed ? 'pass':'fail'}">
-                        ${r.passed ? 'PASS':'FAIL'}
-                    </span>
-                </td>
-            </tr>
-
-        `;
-    });
+function reassignTest(uid,cid){
+  if(!confirm('Reset all attempts for this user on this course?')) return;
+  delete DB.quizAttempts[uid+'_'+cid];
+  const c=DB.courses.find(x=>x.id===cid);
+  if(c&&c.materials) c.materials.forEach(m=>{ delete DB.materialProgress[uid+'_'+cid+'_'+m.id]; });
+  DB.results=DB.results.filter(r=>!(r.uid===uid&&r.courseId===cid));
+  saveDB();
+  alert('Test reassigned. User can now attempt again.');
+  renderAdminResults();
 }
 
 function exportCSV(){
-
-    if(data.results.length === 0){
-        alert('No results available');
-        return;
-    }
-
-    let csv =
-        'Name,Score,Total,Percentage,Status,Date\n';
-
-    data.results.forEach(r=>{
-
-        csv +=
-            `${r.name},${r.score},${r.total},${r.pct}%,${r.passed?'PASS':'FAIL'},${r.date}\n`;
-    });
-
-    const blob =
-        new Blob([csv], {type:'text/csv'});
-
-    const a =
-        document.createElement('a');
-
-    a.href =
-        URL.createObjectURL(blob);
-
-    a.download =
-        'kidza_results.csv';
-
-    a.click();
+  if(!DB.results.length){ alert('No results.'); return; }
+  let csv='Name,Course,Score,Total,Percentage,Status,Attempt,Date\n';
+  DB.results.forEach(r=>{ csv+=`${r.name},${r.courseName},${r.score},${r.total},${r.pct}%,${r.passed?'PASS':'FAIL'},${r.attempt},${r.date}\n`; });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='kidza_results.csv'; a.click();
 }
 
-function goHome(){
+// ═══════════════════════════════════════════════
+//  COURSE MODAL
+// ═══════════════════════════════════════════════
+let editingCourseId=null;
+let tempMaterials=[];
+let tempQuestions=[];
 
-    clearInterval(state.timer);
+function openNewCourseModal(){
+  editingCourseId=null;
+  $('course-modal-title').textContent='New Course';
+  $('cm-name').value=''; $('cm-desc').value=''; $('cm-pass').value=60; $('cm-timer').value=30;
+  tempMaterials=[]; tempQuestions=[];
+  renderCmMaterials(); renderCmQuestions(); renderCmAssign([]);
+  $('course-modal').classList.remove('hidden');
+}
+function editCourse(cid){
+  editingCourseId=cid;
+  const c=DB.courses.find(x=>x.id===cid);
+  $('course-modal-title').textContent='Edit Course';
+  $('cm-name').value=c.name; $('cm-desc').value=c.desc; $('cm-pass').value=c.passPercent; $('cm-timer').value=c.timer;
+  tempMaterials=JSON.parse(JSON.stringify(c.materials||[]));
+  tempQuestions=JSON.parse(JSON.stringify(c.questions||[]));
+  renderCmMaterials(); renderCmQuestions(); renderCmAssign(c.assignedUsers||[]);
+  $('course-modal').classList.remove('hidden');
+}
+function closeCourseModal(){ $('course-modal').classList.add('hidden'); }
 
-    showScreen('landing-screen');
+function addMaterialField(){ tempMaterials.push({id:uid(),type:'video',title:'',url:''}); renderCmMaterials(); }
+function renderCmMaterials(){
+  $('cm-materials-list').innerHTML=tempMaterials.map((m,i)=>`
+    <div class="q-builder mb1">
+      <div class="row mb1">
+        <select onchange="tempMaterials[${i}].type=this.value" style="flex:0 0 100px;">
+          ${['video','ppt','pdf','gif','image'].map(t=>`<option value="${t}"${m.type===t?' selected':''}>${t.toUpperCase()}</option>`).join('')}
+        </select>
+        <input placeholder="Title" value="${escHtml(m.title)}" oninput="tempMaterials[${i}].title=this.value" style="flex:1;">
+        <button class="btn btn-danger btn-sm" onclick="tempMaterials.splice(${i},1);renderCmMaterials()">✕</button>
+      </div>
+      <input placeholder="URL (video/ppt/pdf/image link)" value="${escHtml(m.url||'')}" oninput="tempMaterials[${i}].url=this.value">
+    </div>`).join('')||'<p class="muted" style="font-size:13px;margin-bottom:8px;">No materials added.</p>';
 }
 
+function addQuestionField(){
+  tempQuestions.push({id:uid(),question:'',options:['','','',''],answer:0});
+  renderCmQuestions();
+}
+function renderCmQuestions(){
+  const letters=['A','B','C','D'];
+  $('cm-questions-list').innerHTML=tempQuestions.map((q,qi)=>`
+    <div class="q-builder">
+      <div class="q-builder-header">
+        <b style="font-size:13px;">Q${qi+1}</b>
+        <button class="btn btn-danger btn-sm" onclick="tempQuestions.splice(${qi},1);renderCmQuestions()">✕ Remove</button>
+      </div>
+      <input placeholder="Question text" value="${escHtml(q.question)}" oninput="tempQuestions[${qi}].question=this.value" style="margin-bottom:10px;">
+      ${q.options.map((opt,oi)=>`
+        <div class="opt-row">
+          <input type="radio" class="correct-radio" name="correct-${qi}" ${q.answer===oi?'checked':''} onchange="tempQuestions[${qi}].answer=${oi}" title="Correct answer">
+          <div class="option-letter" style="flex-shrink:0;">${letters[oi]}</div>
+          <input placeholder="Option ${letters[oi]}" value="${escHtml(opt)}" oninput="tempQuestions[${qi}].options[${oi}]=this.value">
+        </div>`).join('')}
+      <p style="font-size:11px;color:var(--muted);margin-top:6px;">🔘 Select radio = correct answer</p>
+    </div>`).join('')||'<p class="muted" style="font-size:13px;margin-bottom:8px;">No questions added.</p>';
+}
+
+function renderCmAssign(current){
+  const staff=DB.users.filter(u=>u.role==='staff');
+  $('cm-assign-list').innerHTML=staff.map(u=>`
+    <label style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:10px;cursor:pointer;margin-bottom:6px;background:#fff8f8;border:1px solid var(--border);">
+      <input type="checkbox" id="assign-${u.id}" ${current.includes(u.id)?'checked':''} style="width:18px;height:18px;">
+      <div class="avatar" style="width:28px;height:28px;font-size:12px;">${u.name[0]}</div>
+      <span style="font-size:14px;font-weight:600;">${escHtml(u.name)}</span>
+    </label>`).join('')||'<p class="muted" style="font-size:13px;">No staff users yet.</p>';
+}
+
+function saveCourse(){
+  const name=$('cm-name').value.trim();
+  if(!name){ alert('Course name required.'); return; }
+  if(tempQuestions.length===0){ alert('Add at least one question.'); return; }
+  for(let q of tempQuestions){
+    if(!q.question.trim()){ alert('All questions need text.'); return; }
+    if(q.options.some(o=>!o.trim())){ alert('All options must be filled.'); return; }
+  }
+  const assigned=DB.users.filter(u=>u.role==='staff'&&document.getElementById('assign-'+u.id)?.checked).map(u=>u.id);
+  const course={
+    id:editingCourseId||uid(),
+    name,desc:$('cm-desc').value.trim(),
+    passPercent:parseInt($('cm-pass').value)||60,
+    timer:parseInt($('cm-timer').value)||30,
+    assignedUsers:assigned,
+    materials:tempMaterials,
+    questions:tempQuestions
+  };
+  if(editingCourseId){
+    const i=DB.courses.findIndex(c=>c.id===editingCourseId);
+    DB.courses[i]=course;
+  } else {
+    DB.courses.push(course);
+  }
+  saveDB(); closeCourseModal(); renderAdminCourses();
+  alert('Course saved!');
+}
+
+function deleteCourse(cid){
+  if(!confirm('Delete this course and all its results?')) return;
+  DB.courses=DB.courses.filter(c=>c.id!==cid);
+  DB.results=DB.results.filter(r=>r.courseId!==cid);
+  Object.keys(DB.quizAttempts).forEach(k=>{ if(k.includes('_'+cid)) delete DB.quizAttempts[k]; });
+  saveDB(); renderAdminCourses();
+}
+
+// ═══════════════════════════════════════════════
+//  USER MODAL
+// ═══════════════════════════════════════════════
+let editingUserId=null;
+function openNewUserModal(){
+  editingUserId=null;
+  $('user-modal-title').textContent='New User';
+  $('um-name').value=''; $('um-username').value=''; $('um-password').value=''; $('um-role').value='staff';
+  $('um-error').classList.add('hidden');
+  $('user-modal').classList.remove('hidden');
+}
+function editUser(uid){
+  editingUserId=uid;
+  const u=DB.users.find(x=>x.id===uid);
+  $('user-modal-title').textContent='Edit User';
+  $('um-name').value=u.name; $('um-username').value=u.username; $('um-password').value=u.password; $('um-role').value=u.role;
+  $('um-error').classList.add('hidden');
+  $('user-modal').classList.remove('hidden');
+}
+function closeUserModal(){ $('user-modal').classList.add('hidden'); }
+function saveUser(){
+  const name=$('um-name').value.trim();
+  const username=$('um-username').value.trim().toLowerCase();
+  const password=$('um-password').value;
+  const role=$('um-role').value;
+  if(!name||!username||!password){ showUserErr('All fields required.'); return; }
+  const dup=DB.users.find(u=>u.username.toLowerCase()===username&&u.id!==editingUserId);
+  if(dup){ showUserErr('Username already taken.'); return; }
+  if(editingUserId){
+    const i=DB.users.findIndex(u=>u.id===editingUserId);
+    DB.users[i]={...DB.users[i],name,username,password,role};
+  } else {
+    DB.users.push({id:uid(),name,username,password,role});
+  }
+  saveDB(); closeUserModal(); renderAdminUsers();
+}
+function showUserErr(msg){ $('um-error').textContent=msg; $('um-error').classList.remove('hidden'); }
+function deleteUser(uid){
+  if(!confirm('Delete this user?')) return;
+  DB.users=DB.users.filter(u=>u.id!==uid);
+  saveDB(); renderAdminUsers();
+}
+
+// ═══════════════════════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const ls=$('login-screen');
+    if(ls.classList.contains('active')) doLogin();
+  }
+});
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+// If a session was saved (page refresh) try to restore
+(function init(){
+  // nothing persisted for session — always start at login
+  showScreen('login-screen');
+})();
 </script>
-
 </body>
 </html>
-```
