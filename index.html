@@ -226,36 +226,15 @@ input[type=file]{padding:8px;}
 <body>
 
 <!-- ══════════════ LOGIN SCREEN ══════════════ -->
-<div class="screen active" id="login-screen">
-  <div class="brand-header">
-    <div class="brand-logo-placeholder">
-    <img src="Banner.jpeg" alt="Kidza Logo" class="brand-logo">
-    
-    <p class="lms-text">Learning Management System</p>
-</div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="center mb2">
-      <div class="page-title">Welcome Back 👋</div>
-      <div class="subtitle">Sign in to access your training</div>
-    </div>
-    <div class="mb2">
-      <label>Username</label>
-      <input type="text" id="login-username" placeholder="Enter your username" autocomplete="username">
-    </div>
-    <div class="mb1">
-      <label>Password</label>
-      <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password">
-    </div>
-    <div id="login-error" class="alert alert-danger hidden"></div>
-    <div class="mt2">
-      <button class="btn btn-primary btn-full" onclick="doLogin()">🔐 Sign In</button>
-    </div>
-  </div>
-  <p class="center muted" style="font-size:12px;padding-bottom:16px;">Contact admin if you forgot your credentials</p>
-</div>
-  .brand-logo-placeholder{
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<style>
+
+.brand-logo-placeholder{
     position: relative;
     text-align: center;
 }
@@ -268,7 +247,7 @@ input[type=file]{padding:8px;}
 
 .lms-text{
     position: absolute;
-    bottom: 18px;   /* space from bottom */
+    bottom: 18px;
     left: 50%;
     transform: translateX(-50%);
     
@@ -277,7 +256,7 @@ input[type=file]{padding:8px;}
     font-weight: 700;
     letter-spacing: 1px;
 
-    background: rgba(0,0,0,0.35); /* optional dark overlay */
+    background: rgba(0,0,0,0.35);
     padding: 8px 18px;
     border-radius: 30px;
 
@@ -285,7 +264,74 @@ input[type=file]{padding:8px;}
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
-  
+</style>
+</head>
+
+<body>
+
+<div class="screen active" id="login-screen">
+
+  <div class="brand-header">
+    
+    <div class="brand-logo-placeholder">
+      
+      <img src="Banner.jpeg" alt="Kidza Logo" class="brand-logo">
+
+      <p class="lms-text">
+        Learning Management System
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="center mb2">
+      <div class="page-title">Welcome Back 👋</div>
+      <div class="subtitle">
+        Sign in to access your training
+      </div>
+    </div>
+
+    <div class="mb2">
+      <label>Username</label>
+      <input 
+        type="text" 
+        id="login-username" 
+        placeholder="Enter your username" 
+        autocomplete="username">
+    </div>
+
+    <div class="mb1">
+      <label>Password</label>
+      <input 
+        type="password" 
+        id="login-password" 
+        placeholder="Enter your password" 
+        autocomplete="current-password">
+    </div>
+
+    <div id="login-error" class="alert alert-danger hidden"></div>
+
+    <div class="mt2">
+      <button 
+        class="btn btn-primary btn-full" 
+        onclick="doLogin()">
+        🔐 Sign In
+      </button>
+    </div>
+
+  </div>
+
+  <p class="center muted" style="font-size:12px;padding-bottom:16px;">
+    Contact admin if you forgot your credentials
+  </p>
+
+</div>
+
+</body>
+</html>
 
 <!-- ══════════════ HOME / DASHBOARD ══════════════ -->
 <div class="screen" id="home-screen">
