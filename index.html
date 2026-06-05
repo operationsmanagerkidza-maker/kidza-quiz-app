@@ -744,7 +744,7 @@ function finishQ(){
 function showCg(sc,tot,pct){
   $('cg-sc').textContent=sc;$('cg-tot').textContent='/ '+tot;
   $('cg-msg').textContent='You scored '+pct+'% — keep it up!';
-  $('cg-em').textContent=pct>=90?'&#127942;':pct>=75?'&#127881;':'&#127775;';
+  $('cg-em').textContent=pct>=90?'🏆':pct>=75?'&#127881;':'&#127775;';
   $('cg-ttl').textContent=pct>=90?'Outstanding!':pct>=75?'Excellent Work!':'Well Done!';
   const box=$('cg-box');
   box.querySelectorAll('.confetti-p').forEach(p=>p.remove());
