@@ -321,7 +321,10 @@ tr:hover td{background:#f8fafc;}
   <div class="app-header">
     <div class="hd-row">
       <div><div class="hd-brand">KIDZA Admin</div><div class="hd-sub" id="adm-sub">Management</div></div>
-      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" id="sync-btn" onclick="syncNow()">&#8635; Sync</button>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
+      </div>
     </div>
   </div>
   <div class="card" style="margin-top:-14px;position:relative;z-index:2;">
@@ -431,10 +434,11 @@ tr:hover td{background:#f8fafc;}
 
 <script>
 // ═══════════════════════
-// DB + SESSION
+// DB + SESSION  (cloud-synced via window.storage)
 // ═══════════════════════
-const DK='kidza_v7', SK='kidza_sess';
-let DB={
+const CLOUD_KEY='kidza_db_v1', SK='kidza_sess_v1';
+
+const DB_DEFAULT={
   users:[
     {id:'u0',name:'Admin',username:'admin',password:'kidza2024',role:'admin'},
     {id:'u1',name:'Priya Sharma',username:'priya',password:'pass123',role:'staff'},
@@ -452,10 +456,54 @@ let DB={
   }],
   results:[],matProg:{},attempts:{}
 };
-function sDB(){try{localStorage.setItem(DK,JSON.stringify(DB));}catch(e){}}
-function lDB(){try{const s=localStorage.getItem(DK);if(s){const d=JSON.parse(s);DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}},d);}}catch(e){}}
-lDB();
 
+let DB=JSON.parse(JSON.stringify(DB_DEFAULT));
+
+// ── Cloud save (shared=true so all devices see the same data) ──
+let _saveTimer=null;
+function sDB(){
+  // Debounce rapid consecutive saves (300ms)
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(async()=>{
+    try{
+      if(window.storage){
+        await window.storage.set(CLOUD_KEY,JSON.stringify(DB),true);
+      }
+    }catch(e){console.warn('Cloud save failed:',e);}
+    // Also keep a local fallback
+    try{localStorage.setItem(CLOUD_KEY,JSON.stringify(DB));}catch(e){}
+  },300);
+}
+
+// ── Cloud load ──
+async function lDB(){
+  let loaded=false;
+  // 1) Try cloud first
+  if(window.storage){
+    try{
+      const r=await window.storage.get(CLOUD_KEY,true);
+      if(r&&r.value){
+        const d=JSON.parse(r.value);
+        DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}},d);
+        loaded=true;
+      }
+    }catch(e){/* key not yet created; fall through */}
+  }
+  // 2) Fallback: local copy
+  if(!loaded){
+    try{
+      const s=localStorage.getItem(CLOUD_KEY);
+      if(s){const d=JSON.parse(s);DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}},d);loaded=true;}
+    }catch(e){}
+  }
+  // 3) First-ever run: push defaults to cloud
+  if(!loaded){
+    DB=JSON.parse(JSON.stringify(DB_DEFAULT));
+    sDB();
+  }
+}
+
+// ── Session: remember-me stays local only (per-device intentional) ──
 let CUR={user:null};
 function saveS(uid){try{localStorage.setItem(SK,uid);}catch(e){}}
 function clearS(){try{localStorage.removeItem(SK);}catch(e){}}
@@ -493,12 +541,15 @@ function pushNotif(t,b){if('Notification' in window&&Notification.permission==='
 // ═══════════════════════
 // AUTH
 // ═══════════════════════
-function doLogin(){
+async function doLogin(){
   const un=$('l-user').value.trim().toLowerCase();
   const pw=$('l-pass').value;
   const rem=$('l-rem').checked;
-  // Re-load DB each login attempt so new users are always visible
-  lDB();
+  // Re-load DB from cloud so new users added on any device are visible
+  const btn=document.querySelector('#s-login .btn-blue');
+  btn.textContent='Syncing…';btn.disabled=true;
+  await lDB();
+  btn.textContent='Sign In';btn.disabled=false;
   const user=DB.users.find(u=>u.username.toLowerCase()===un&&u.password===pw);
   if(!user){$('l-err').textContent='Invalid username or password.';$('l-err').classList.remove('hidden');return;}
   $('l-err').classList.add('hidden');
@@ -507,6 +558,13 @@ function doLogin(){
   askNotif();
   if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
   else{NS.length=0;NS.push('s-home');goHome();}
+}
+async function syncNow(){
+  const btn=$('sync-btn');
+  if(btn){btn.textContent='Syncing…';btn.disabled=true;}
+  await lDB();
+  if(btn){btn.textContent='✓ Synced';setTimeout(()=>{btn.textContent='↻ Sync';btn.disabled=false;},1500);}
+  renderAdmin();
 }
 function doLogout(){clearS();CUR.user=null;$('l-user').value='';$('l-pass').value='';$('l-rem').checked=false;NS.length=0;showScreen('s-login');}
 
@@ -744,7 +802,7 @@ function finishQ(){
 function showCg(sc,tot,pct){
   $('cg-sc').textContent=sc;$('cg-tot').textContent='/ '+tot;
   $('cg-msg').textContent='You scored '+pct+'% — keep it up!';
-  $('cg-em').textContent=pct>=90?'🏆':pct>=75?'&#127881;':'&#127775;';
+  $('cg-em').textContent=pct>=90?'&#127942;':pct>=75?'&#127881;':'&#127775;';
   $('cg-ttl').textContent=pct>=90?'Outstanding!':pct>=75?'Excellent Work!':'Well Done!';
   const box=$('cg-box');
   box.querySelectorAll('.confetti-p').forEach(p=>p.remove());
@@ -997,8 +1055,17 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
 // ═══════════════════════
 // INIT
 // ═══════════════════════
-(function init(){
-  lDB();
+(async function init(){
+  document.body.insertAdjacentHTML('beforeend',
+    '<div id="sync-splash" style="position:fixed;inset:0;background:#1a56db;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:14px;">'+
+    '<div style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#fff;letter-spacing:1px;">KIDZA</div>'+
+    '<div style="color:rgba(255,255,255,.75);font-size:13px;">Syncing data across devices...</div>'+
+    '<div style="width:60px;height:4px;border-radius:50px;background:rgba(255,255,255,.3);overflow:hidden;">'+
+    '<div style="height:100%;background:#fff;border-radius:50px;animation:syncbar 1.2s ease-in-out infinite;"></div></div>'+
+    '</div>'+
+    '<style>@keyframes syncbar{0%{width:0%;margin-left:0}50%{width:100%;margin-left:0}100%{width:0%;margin-left:100%}}</style>');
+  await lDB();
+  document.getElementById('sync-splash').remove();
   if(restoreS()){
     if(CUR.user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
     else{NS.length=0;NS.push('s-home');goHome();}
