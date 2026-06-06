@@ -445,13 +445,13 @@ tr:hover td{background:#f8fafc;}
 // │  Get it from: Firebase Console → Project Settings → Your Apps  │
 // └─────────────────────────────────────────────────────────────────┘
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAbc123xyz",
+  apiKey: "AIzaSyDPWiErsiy2-ZBThzfb8CQqVCaa3Bm4L5E",
   authDomain: "kidza-quiz.firebaseapp.com",
   databaseURL: "https://kidza-quiz-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "kidza-quiz",
-  storageBucket: "kidza-quiz.appspot.com",
-  messagingSenderId: "987654321",
-  appId: "1:987654321:web:abc123"
+  storageBucket: "kidza-quiz.firebasestorage.app",
+  messagingSenderId: "1005530966135",
+  appId: "1:1005530966135:web:5479ee774ac8ed59957e72"
 };
 
 const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.startsWith('PASTE');
@@ -1127,7 +1127,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
   if(!FIREBASE_CONFIGURED){
     const banner = document.createElement('div');
     banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#92400e;color:#fff;font-size:12px;padding:10px 14px;z-index:8000;text-align:center;line-height:1.5;';
-    banner.innerHTML = '⚠️ <b>Offline mode</b> — data is device-only. <a href="#" onclick="this.closest('div').style.display='none'" style="color:#fcd34d;text-decoration:underline;">Dismiss</a>';
+    banner.innerHTML = "⚠️ <b>Offline mode</b> — data is device-only. <a href='#' onclick='this.parentElement.style.display=\"none\"' style='color:#fcd34d;text-decoration:underline;'>Dismiss</a>";
     document.body.appendChild(banner);
   }
 
