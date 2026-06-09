@@ -456,7 +456,13 @@ const FIREBASE_CONFIG = {
   appId: "1:987654321:web:abc123"
 };
 
-const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.startsWith('PASTE');
+// Detect placeholder config — real keys start with "AIzaSy" and are 39 chars; fake ones aren't
+const FIREBASE_CONFIGURED = (
+  typeof FIREBASE_CONFIG.apiKey === 'string' &&
+  FIREBASE_CONFIG.apiKey.length >= 35 &&
+  FIREBASE_CONFIG.apiKey !== 'AIzaSyAbc123xyz' &&
+  !FIREBASE_CONFIG.messagingSenderId.startsWith('987654321')
+);
 
 let fbDB = null;  // Firebase database reference
 const SK = 'kidza_sess';
@@ -504,6 +510,10 @@ let DB = JSON.parse(JSON.stringify(DB_DEFAULT));
 // ── Initialise Firebase (only if configured) ──
 function initFirebase(){
   if(!FIREBASE_CONFIGURED) return false;
+  if(typeof firebase === 'undefined'){
+    console.warn('Firebase SDK not loaded — running in offline mode.');
+    return false;
+  }
   try{
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     fbDB = firebase.database();
@@ -1149,4 +1159,3 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
 </script>
 </body>
 </html>
-  
