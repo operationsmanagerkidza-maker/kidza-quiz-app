@@ -4,9 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <title>Kidza Staff Training</title>
-<link rel="icon" type="image/png" href="https://www.instagram.com/kidzababyshop/">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Firebase Realtime Database SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
@@ -445,13 +445,13 @@ tr:hover td{background:#f8fafc;}
 // │  Get it from: Firebase Console → Project Settings → Your Apps  │
 // └─────────────────────────────────────────────────────────────────┘
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDPWiErsiy2-ZBThzfb8CQqVCaa3Bm4L5E",
+  apiKey: "AIzaSyAbc123xyz",
   authDomain: "kidza-quiz.firebaseapp.com",
   databaseURL: "https://kidza-quiz-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "kidza-quiz",
-  storageBucket: "kidza-quiz.firebasestorage.app",
-  messagingSenderId: "1005530966135",
-  appId: "1:1005530966135:web:5479ee774ac8ed59957e72"
+  storageBucket: "kidza-quiz.appspot.com",
+  messagingSenderId: "987654321",
+  appId: "1:987654321:web:abc123"
 };
 
 const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.startsWith('PASTE');
@@ -482,7 +482,10 @@ const DB_DEFAULT = {
     {id:'u1',name:'Narmatha',username:'9597166849',password:'1234',role:'staff'},
     {id:'u1',name:'Priyadharsini',username:'8667540181',password:'1234',role:'staff'},
     {id:'u1',name:'Tharik',username:'9025937706',password:'1234',role:'staff'},
-    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'}
+    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'},
+    {id:'u1',name:'Jeevanantham',username:'8610922272',password:'1234',role:'staff'},
+    {id:'u1',name:'Swathi Shri',username:'9363505177',password:'1234',role:'staff'}
+
   ],
   courses:[{
     id:'c1',name:'Product Knowledge',desc:'Learn about Kidza products, categories and certifications.',
@@ -773,18 +776,20 @@ function openInst(mode){
 // ═══════════════════════
 // QUIZ ENGINE
 // ═══════════════════════
-let QS={cid:null,mode:null,cur:0,answers:[],ti:null,tl:0};
+let QS={cid:null,mode:null,cur:0,answers:[],ti:null,tl:0,qOrder:[]};
 const LT=['A','B','C','D','E'];
+function shuffleArr(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function startQuiz(){
   const c=DB.courses.find(x=>x.id===CID),k=CUR.user.id+'_'+c.id,a=DB.attempts[k]||[];
-  QS={cid:CID,mode:QMODE,cur:0,answers:[],ti:null,tl:0};
+  const qOrder=shuffleArr(c.questions.map((_,i)=>i));
+  QS={cid:CID,mode:QMODE,cur:0,answers:[],ti:null,tl:0,qOrder};
   $('qz-name').textContent=CUR.user.name;
   $('qz-pips').innerHTML=[0,1].map(i=>'<div class="pip'+(i<a.length?' used':'')+'"></div>').join('')+'<span style="font-size:11px;color:rgba(255,255,255,.65);margin-left:4px;">Att.'+(a.length+1)+'</span>';
   navTo('s-quiz');loadQ();
 }
 function loadQ(){
   clearInterval(QS.ti);
-  const c=DB.courses.find(x=>x.id===QS.cid),q=c.questions[QS.cur];
+  const c=DB.courses.find(x=>x.id===QS.cid),q=c.questions[QS.qOrder[QS.cur]];
   $('qz-prog').style.width=(QS.cur/c.questions.length*100)+'%';
   $('qz-cnt').textContent='Q '+(QS.cur+1)+' / '+c.questions.length;
   $('qz-q').textContent=q.question;
@@ -802,14 +807,14 @@ function upT(){
 }
 function selOpt(i){
   clearInterval(QS.ti);
-  const c=DB.courses.find(x=>x.id===QS.cid),q=c.questions[QS.cur];
+  const c=DB.courses.find(x=>x.id===QS.cid),q=c.questions[QS.qOrder[QS.cur]];
   document.querySelectorAll('.opt-card').forEach(o=>o.style.pointerEvents='none');
   $('qo'+i).classList.add('sel');
   QS.answers.push({q:q.question,sel:i,ans:q.answer,opts:q.options});
   $('qz-next').classList.remove('hidden');
 }
 function autoN(){
-  const c=DB.courses.find(x=>x.id===QS.cid),q=c.questions[QS.cur];
+  const c=DB.courses.find(x=>x.id===QS.cid),q=c.questions[QS.qOrder[QS.cur]];
   QS.answers.push({q:q.question,sel:-1,ans:q.answer,opts:q.options});
   nextQ();
 }
