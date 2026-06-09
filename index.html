@@ -226,13 +226,15 @@ tr:hover td{background:#f8fafc;}
   <div class="card">
     <div class="pg-title mb1">Choose Quiz Mode</div>
     <div class="pg-sub mb2" id="qt-cname"></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Knowledge</div>
     <div class="qtype-card" onclick="openInst('knowledge')">
       <div class="qtype-icon qtk">&#129504;</div>
-      <div><div class="qtype-title">Knowledge Quiz</div><div class="qtype-desc">Standard — 30s per question, focus on accuracy</div></div>
+      <div><div class="qtype-title">Knowledge Quiz</div><div class="qtype-desc">Standard — focus on accuracy</div></div>
     </div>
-    <div class="qtype-card" onclick="openInst('speed')">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-top:14px;margin-bottom:8px;">Speed</div>
+    <div class="qtype-card" style="opacity:.45;pointer-events:none;">
       <div class="qtype-icon qts">&#9889;</div>
-      <div><div class="qtype-title">Speed Quiz</div><div class="qtype-desc">Fast mode — 10s per question, test quick recall</div></div>
+      <div><div class="qtype-title">Speed Quiz</div><div class="qtype-desc">Coming soon</div></div>
     </div>
     <div class="alert al-info mt2" id="qt-info"></div>
   </div>
@@ -482,10 +484,7 @@ const DB_DEFAULT = {
     {id:'u1',name:'Narmatha',username:'9597166849',password:'1234',role:'staff'},
     {id:'u1',name:'Priyadharsini',username:'8667540181',password:'1234',role:'staff'},
     {id:'u1',name:'Tharik',username:'9025937706',password:'1234',role:'staff'},
-    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'},
-    {id:'u1',name:'Jeevanantham',username:'8610922272',password:'1234',role:'staff'},
-    {id:'u1',name:'Swathi Shri',username:'9363505177',password:'1234',role:'staff'}
-
+    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'}
   ],
   courses:[{
     id:'c1',name:'Product Knowledge',desc:'Learn about Kidza products, categories and certifications.',
@@ -717,7 +716,13 @@ function viewMat(cid,mid){
     }else{h+='<video controls playsinline preload="metadata" style="width:100%;border-radius:14px;background:#000;" src="'+esc(url)+'"><p>Cannot play video.</p></video>';}
   }else if(m.type==='ppt'){
     if(!url){h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No PPT URL set.</div>';}
-    else{const vu='https://docs.google.com/gviewer?embedded=true&url='+encodeURIComponent(url);h+='<div style="border-radius:14px;overflow:hidden;border:1.5px solid var(--border);"><iframe src="'+vu+'" style="width:100%;height:380px;border:none;" title="'+esc(m.title)+'"></iframe></div><p style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center;">Presentation loads inline — no external app needed.</p>';}
+    else{
+      let vu=url;
+      // Convert any Google Drive share link to embeddable preview URL
+      const gdMatch=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if(gdMatch){vu='https://drive.google.com/file/d/'+gdMatch[1]+'/preview';}
+      h+='<div style="border-radius:14px;overflow:hidden;border:1.5px solid var(--border);"><iframe src="'+vu+'" style="width:100%;height:420px;border:none;" allow="autoplay" title="'+esc(m.title)+'"></iframe></div><p style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center;">Presentation loads inline — no external app needed.</p>';
+    }
   }else if(m.type==='pdf'){
     if(!url){h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No PDF URL set.</div>';}
     else{h+='<div style="border-radius:14px;overflow:hidden;border:1.5px solid var(--border);"><iframe src="'+esc(url)+'" style="width:100%;height:440px;border:none;"></iframe></div>';}
@@ -1144,3 +1149,4 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
 </script>
 </body>
 </html>
+  
