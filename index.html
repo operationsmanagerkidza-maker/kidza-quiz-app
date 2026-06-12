@@ -364,7 +364,7 @@ tr:hover td{background:#f8fafc;}
       </div>
       <div class="tbl-wrap mb2">
         <table>
-          <thead><tr><th>#</th><th>Name</th><th>Course</th><th>Score</th><th>Mode</th><th>Status</th><th>Act</th></tr></thead>
+          <thead><tr><th>#</th><th>Name</th><th>Course</th><th>Score</th><th>Mode</th><th>Device</th><th>Status</th><th>Act</th></tr></thead>
           <tbody id="adm-re-body"></tbody>
         </table>
       </div>
@@ -447,13 +447,13 @@ tr:hover td{background:#f8fafc;}
 // │  Get it from: Firebase Console → Project Settings → Your Apps  │
 // └─────────────────────────────────────────────────────────────────┘
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDPWiErsiy2-ZBThzfb8CQqVCaa3Bm4L5E",
+  apiKey: "AIzaSyAbc123xyz",
   authDomain: "kidza-quiz.firebaseapp.com",
   databaseURL: "https://kidza-quiz-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "kidza-quiz",
-  storageBucket: "kidza-quiz.firebasestorage.app",
-  messagingSenderId: "1005530966135",
-  appId: "1:1005530966135:web:5479ee774ac8ed59957e72"
+  storageBucket: "kidza-quiz.appspot.com",
+  messagingSenderId: "987654321",
+  appId: "1:987654321:web:abc123"
 };
 
 // Detect placeholder config — real keys start with "AIzaSy" and are 39 chars; fake ones aren't
@@ -490,7 +490,8 @@ const DB_DEFAULT = {
     {id:'u1',name:'Narmatha',username:'9597166849',password:'1234',role:'staff'},
     {id:'u1',name:'Priyadharsini',username:'8667540181',password:'1234',role:'staff'},
     {id:'u1',name:'Tharik',username:'9025937706',password:'1234',role:'staff'},
-    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'}
+    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'},
+    {id:'u1',name:'Swathi Shri',username:'9363505177',password:'1234',role:'staff'},
   ],
   courses:[{
     id:'c1',name:'Product Knowledge',desc:'Learn about Kidza products, categories and certifications.',
@@ -646,7 +647,6 @@ function goHome(){
   const ns=[];
   myC.forEach(c=>{const k=u.id+'_'+c.id;const a=DB.attempts[k]||[];
     if(!a.length)ns.push('New quiz assigned: <b>'+esc(c.name)+'</b>');
-    else if(a.length===1)ns.push('1 attempt left for <b>'+esc(c.name)+'</b>');
   });
   $('notif-area').innerHTML=ns.map(n=>`<div class="notif-card"><span style="font-size:20px;">&#128276;</span><div><div style="font-weight:700;font-size:13px;">Notification<span class="notif-dot"></span></div><div style="font-size:13px;">${n}</div></div></div>`).join('');
   if(!myC.length){$('home-courses').innerHTML='<p class="muted ctr" style="padding:16px;">No courses assigned yet.</p>';}
@@ -655,11 +655,11 @@ function goHome(){
       const k=u.id+'_'+c.id;const a=DB.attempts[k]||[];
       const bp=a.length?Math.max(...a.map(x=>x.pct)):null;
       const md=allMatsDone(u.id,c.id);
-      const badge=a.length>=2?'<span class="badge bd-grey">Done</span>':md?'<span class="badge bd-pass">Ready</span>':'<span class="badge bd-warn">Materials</span>';
+      const badge=a.length>=1?'<span class="badge bd-grey">Done</span>':md?'<span class="badge bd-pass">Ready</span>':'<span class="badge bd-warn">Materials</span>';
       return `<div class="item-row" onclick="openCourse('${c.id}')">
         <div class="item-icon ic-course">&#128218;</div>
         <div class="item-info"><div class="item-title">${esc(c.name)}</div>
-          <div class="item-sub">${c.questions.length} Q &middot; ${a.length}/2 attempts${bp!==null?' &middot; Best: '+bp+'%':''}</div></div>
+          <div class="item-sub">${c.questions.length} Q &middot; ${a.length}/1 attempts${bp!==null?' &middot; Best: '+bp+'%':''}</div></div>
         ${badge}</div>`;
     }).join('');
   }
@@ -697,9 +697,9 @@ function openCourse(cid){
     }).join('');
   }
   const k=u.id+'_'+c.id;const a=DB.attempts[k]||[];const md=allMatsDone(u.id,cid);
-  if(a.length>=2){const bp=Math.max(...a.map(x=>x.pct));$('cd-quiz').innerHTML=`<div class="alert al-warn">Both attempts used. Best: <b>${bp}%</b></div>`;}
+  if(a.length>=1){const bp=Math.max(...a.map(x=>x.pct));$('cd-quiz').innerHTML=`<div class="alert al-warn">Attempt used. Best: <b>${bp}%</b></div>`;}
   else if(!md){$('cd-quiz').innerHTML=`<div class="alert al-warn">Complete all materials first.</div>`;}
-  else{$('cd-quiz').innerHTML=`<button class="btn btn-blue btn-full" onclick="openQType('${cid}')">Take Quiz (Attempt ${a.length+1}/2)</button>`;}
+  else{$('cd-quiz').innerHTML=`<button class="btn btn-blue btn-full" onclick="openQType('${cid}')">Take Quiz (Attempt ${a.length+1}/1)</button>`;}
   navTo('s-course');
 }
 
@@ -762,7 +762,7 @@ function openQType(cid){
   CID=cid;
   const c=DB.courses.find(x=>x.id===cid),k=CUR.user.id+'_'+c.id,a=DB.attempts[k]||[];
   $('qt-cname').textContent=c.name;
-  $('qt-info').textContent='Attempt '+(a.length+1)+' of 2. Choose your quiz mode.';
+  $('qt-info').textContent='Attempt '+(a.length+1)+' of 1. Choose your quiz mode.';
   navTo('s-qtype');
 }
 
@@ -774,17 +774,16 @@ function openInst(mode){
   const c=DB.courses.find(x=>x.id===CID),k=CUR.user.id+'_'+c.id,a=DB.attempts[k]||[];
   const t=mode==='speed'?c.timerS:c.timerK;
   $('inst-ttl').textContent=(mode==='speed'?'Speed Quiz':'Knowledge Quiz')+' — '+c.name;
-  $('inst-sub').textContent='Attempt '+(a.length+1)+' of 2';
+  $('inst-sub').textContent='Attempt '+(a.length+1)+' of 1';
   const steps=['This quiz has <b>'+c.questions.length+' questions</b>.',
     'You have <b>'+t+' seconds per question</b>.',
     'Select one answer — you cannot change it once selected.',
     'Answers shown <b>after all questions</b>.',
     'Passing score: <b>'+c.passPercent+'%</b>.',
-    'You have <b>2 total attempts</b>. Highest score is recorded.',
+    'You have <b>1 total attempt</b>. Make it count.',
     'Do not close or refresh during the quiz.'];
   $('inst-list').innerHTML=steps.map((s,i)=>'<div class="inst-step"><div class="inst-num">'+(i+1)+'</div><div style="font-size:14px;">'+s+'</div></div>').join('');
-  if(a.length===1){$('inst-warn').innerHTML='<div class="alert al-warn">This is your <b>final attempt</b>.</div>';$('inst-warn').classList.remove('hidden');}
-  else $('inst-warn').classList.add('hidden');
+  $('inst-warn').innerHTML='<div class="alert al-warn">This is your <b>final attempt</b>.</div>';$('inst-warn').classList.remove('hidden');
   navTo('s-inst');
 }
 
@@ -799,7 +798,7 @@ function startQuiz(){
   const qOrder=shuffleArr(c.questions.map((_,i)=>i));
   QS={cid:CID,mode:QMODE,cur:0,answers:[],ti:null,tl:0,qOrder};
   $('qz-name').textContent=CUR.user.name;
-  $('qz-pips').innerHTML=[0,1].map(i=>'<div class="pip'+(i<a.length?' used':'')+'"></div>').join('')+'<span style="font-size:11px;color:rgba(255,255,255,.65);margin-left:4px;">Att.'+(a.length+1)+'</span>';
+  $('qz-pips').innerHTML=[0].map(i=>'<div class="pip'+(i<a.length?' used':'')+'"></div>').join('')+'<span style="font-size:11px;color:rgba(255,255,255,.65);margin-left:4px;">Att.'+(a.length+1)+'</span>';
   navTo('s-quiz');loadQ();
 }
 function loadQ(){
@@ -838,6 +837,7 @@ function nextQ(){
   QS.cur++;
   if(QS.cur>=c.questions.length)finishQ();else loadQ();
 }
+function getDeviceType(){return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)?'Mobile':'Desktop';}
 function finishQ(){
   clearInterval(QS.ti);
   const c=DB.courses.find(x=>x.id===QS.cid);
@@ -845,14 +845,14 @@ function finishQ(){
   const tot=c.questions.length,pct=Math.round(sc/tot*100),passed=pct>=c.passPercent;
   const k=CUR.user.id+'_'+c.id;
   if(!DB.attempts[k])DB.attempts[k]=[];
-  DB.attempts[k].push({score:sc,total:tot,pct,passed,mode:QS.mode,date:new Date().toLocaleString()});
+  DB.attempts[k].push({score:sc,total:tot,pct,passed,mode:QS.mode,device:getDeviceType(),date:new Date().toLocaleString()});
   const atts=DB.attempts[k];
-  DB.results.push({uid:CUR.user.id,name:CUR.user.name,cid:c.id,cname:c.name,score:sc,total:tot,pct,passed,mode:QS.mode,attempt:atts.length,date:new Date().toLocaleString()});
+  DB.results.push({uid:CUR.user.id,name:CUR.user.name,cid:c.id,cname:c.name,score:sc,total:tot,pct,passed,mode:QS.mode,device:getDeviceType(),attempt:atts.length,date:new Date().toLocaleString()});
   sDB();
   $('res-sc').textContent=sc;$('res-tot').textContent='/ '+tot;$('res-pct').textContent=pct+'%';
   $('res-hd').textContent=passed?'Quiz Completed!':'Quiz Completed';
   $('res-status').innerHTML=passed?'<span class="badge bd-pass" style="font-size:13px;padding:6px 16px;">PASSED</span>':'<span class="badge bd-fail" style="font-size:13px;padding:6px 16px;">FAILED</span>';
-  const rem=2-atts.length,bp=Math.max(...atts.map(a=>a.pct));
+  const rem=1-atts.length,bp=Math.max(...atts.map(a=>a.pct));
   $('res-rem').textContent=rem>0?rem+' attempt(s) remaining · Best: '+bp+'%':'No attempts remaining · Final: '+bp+'%';
   $('res-review').innerHTML=QS.answers.map((a,i)=>{
     const ok=a.sel===a.ans,cls=a.sel===-1?'rev-skip':ok?'rev-ok':'rev-ng',icon=a.sel===-1?'Skipped':ok?'Correct':'Wrong';
@@ -868,7 +868,7 @@ function finishQ(){
 function showCg(sc,tot,pct){
   $('cg-sc').textContent=sc;$('cg-tot').textContent='/ '+tot;
   $('cg-msg').textContent='You scored '+pct+'% — keep it up!';
-  $('cg-em').textContent=pct>=90?'&#127942;':pct>=75?'&#127881;':'&#127775;';
+  $('cg-em').textContent=pct>=90?'🏆':pct>=75?'🎉'🌟';
   $('cg-ttl').textContent=pct>=90?'Outstanding!':pct>=75?'Excellent Work!':'Well Done!';
   const box=$('cg-box');
   box.querySelectorAll('.confetti-p').forEach(p=>p.remove());
@@ -899,7 +899,7 @@ function renderLb(){
     let best=null,ta=0;
     DB.courses.forEach(c=>{
       if(fc&&c.id!==fc)return;
-      (DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{ta++;if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total,cname:c.name};});
+      (DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{ta++;if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total,cname:c.name,device:a.device};});
     });
     scores[u.id]={name:u.name,uid:u.id,best,ta};
   });
@@ -910,7 +910,7 @@ function renderLb(){
     <div class="lb-item${r.uid===CUR.user.id?' lb-me':''}">
       <div class="lb-rank ${rCls(i)}">${rIcon(i)}</div>
       <div style="flex:1;"><div class="lb-name">${esc(r.name)}${r.uid===CUR.user.id?' (You)':''}</div>
-        <div class="lb-sub">${r.best?r.best.score+'/'+r.best.total+' &middot; '+r.best.cname:'No attempts yet'}</div></div>
+        <div class="lb-sub">${r.best?r.best.score+'/'+r.best.total+' &middot; '+r.best.cname+' &middot; '+(r.best.device||'-'):'No attempts yet'}</div></div>
       <div class="lb-pct">${r.best?r.best.pct+'%':'&mdash;'}</div>
     </div>`).join('');
 }
@@ -979,14 +979,15 @@ function renderAdmRe(){
     <td>${i+1}</td><td>${esc(r.name)}</td><td>${esc(r.cname)}</td>
     <td>${r.score}/${r.total} (${r.pct}%)</td>
     <td><span class="badge bd-blue">${r.mode==='speed'?'Speed':'Know.'}</span></td>
+    <td><span class="badge bd-grey">${r.device||'-'}</span></td>
     <td><span class="badge ${r.passed?'bd-pass':'bd-fail'}">${r.passed?'PASS':'FAIL'}</span></td>
     <td><button class="btn btn-warn btn-xs" onclick="reassign('${r.uid}','${r.cid}')">Reset</button></td>
-  </tr>`).join('')||'<tr><td colspan="7" class="muted ctr">No results.</td></tr>';
+  </tr>`).join('')||'<tr><td colspan="8" class="muted ctr">No results.</td></tr>';
   // Leaderboard in admin
   const sc={};
   DB.users.filter(u=>u.role==='staff').forEach(u=>{
     let best=null;
-    DB.courses.forEach(c=>{(DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total};});});
+    DB.courses.forEach(c=>{(DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total,device:a.device};});});
     sc[u.id]={name:u.name,best};
   });
   const sorted=Object.values(sc).sort((a,b)=>(b.best?.pct||0)-(a.best?.pct||0));
@@ -994,7 +995,7 @@ function renderAdmRe(){
   const rI=(i)=>i===0?'1st':i===1?'2nd':i===2?'3rd':(i+1)+'th';
   $('adm-lb').innerHTML=sorted.map((r,i)=>`
     <div class="lb-item"><div class="lb-rank ${rC(i)}">${rI(i)}</div>
-      <div style="flex:1;"><div class="lb-name">${esc(r.name)}</div></div>
+      <div style="flex:1;"><div class="lb-name">${esc(r.name)}</div><div class="lb-sub">${r.best?(r.best.device||'-'):'No attempts yet'}</div></div>
       <div class="lb-pct">${r.best?r.best.pct+'%':'&mdash;'}</div></div>`).join('');
 }
 
