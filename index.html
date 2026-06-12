@@ -1162,32 +1162,35 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
     banner.innerHTML = "⚠️ <b>Offline mode</b> — data is device-only. <a href='#' onclick='this.parentElement.style.display=\"none\"' style='color:#fcd34d;text-decoration:underline;'>Dismiss</a>";
     document.body.appendChild(banner);
   }
-   function getCurrentScreen(){
-     return document.querySelector('.screen.active').id;
-  }
+function getCurrentScreen(){
+    return document.querySelector('.screen.active').id;
+}
 
-    function appBack(){
-  
-      let s=getCurrentScreen();
-  
-      switch(s){
-  
-        case "s-mat":
-          backFromMat();
-          break;
-  
-        case "s-qtype":
-        case "s-inst":
-        case "s-quiz":
-        case "s-result":
-        case "s-lb":
-        case "s-course":
-          navBack();
-          break;
-  
-        case "s-home":
-          return "EXIT";
-      }
+function appBack(){
+
+    let s = getCurrentScreen();
+
+    switch(s){
+
+      case "s-mat":
+        backFromMat();
+        return "BACK";
+
+      case "s-qtype":
+      case "s-inst":
+      case "s-quiz":
+      case "s-result":
+      case "s-lb":
+      case "s-course":
+        navBack();
+        return "BACK";
+
+      case "s-home":
+        AppInventor.setWebViewString("EXIT");
+        return "EXIT";
+    }
+
+    return "BACK";
   }
 
   if(restoreS()){
