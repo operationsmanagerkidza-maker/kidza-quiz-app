@@ -1163,7 +1163,16 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
     document.body.appendChild(banner);
   }
   function appBack(){
+
+    let currentScreen =
+    document.querySelector('.screen.active').id;
+
+    if(currentScreen=="s-home"){
+        return "EXIT";
+    }
+
     navBack();
+    return "BACK";
   }
 
   if(restoreS()){
