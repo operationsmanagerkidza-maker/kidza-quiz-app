@@ -447,13 +447,13 @@ tr:hover td{background:#f8fafc;}
 // │  Get it from: Firebase Console → Project Settings → Your Apps  │
 // └─────────────────────────────────────────────────────────────────┘
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDPWiErsiy2-ZBThzfb8CQqVCaa3Bm4L5E",
+  apiKey: "AIzaSyAbc123xyz",
   authDomain: "kidza-quiz.firebaseapp.com",
   databaseURL: "https://kidza-quiz-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "kidza-quiz",
-  storageBucket: "kidza-quiz.firebasestorage.app",
-  messagingSenderId: "1005530966135",
-  appId: "1:1005530966135:web:5479ee774ac8ed59957e72"
+  storageBucket: "kidza-quiz.appspot.com",
+  messagingSenderId: "987654321",
+  appId: "1:987654321:web:abc123"
 };
 
 // Detect placeholder config — real keys start with "AIzaSy" and are 39 chars; fake ones aren't
@@ -492,6 +492,7 @@ const DB_DEFAULT = {
     {id:'u1',name:'Tharik',username:'9025937706',password:'1234',role:'staff'},
     {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'},
     {id:'u1',name:'Swathi Shri',username:'9363505177',password:'1234',role:'staff'},
+          {id:'u1',name:'Jeevanantham',username:'8610922272',password:'1234',role:'staff'},
   ],
   courses:[{
     id:'c1',name:'Product Knowledge',desc:'Learn about Kidza products, categories and certifications.',
@@ -542,7 +543,10 @@ async function lDB(){
   // Try Firebase
   if(fbDB){
     try{
-      const snap = await fbDB.ref('kidza/db').get();
+      const snap = await Promise.race([
+        fbDB.ref('kidza/db').get(),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('Firebase timeout')),5000))
+      ]);
       if(snap.exists()){
         const d = snap.val();
         DB = Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}}, d);
@@ -604,19 +608,26 @@ async function doLogin(){
   const un=$('l-user').value.trim().toLowerCase();
   const pw=$('l-pass').value;
   const rem=$('l-rem').checked;
-  // Pull latest DB from Firebase so users added on another device are visible
   const btn=document.querySelector('#s-login .btn-blue');
-  if(btn){btn.textContent='Syncing…';btn.disabled=true;}
-  await lDB();
-  if(btn){btn.textContent='Sign In';btn.disabled=false;}
-  const user=DB.users.find(u=>u.username.toLowerCase()===un&&u.password===pw);
-  if(!user){$('l-err').textContent='Invalid username or password.';$('l-err').classList.remove('hidden');return;}
   $('l-err').classList.add('hidden');
-  CUR.user=user;
-  if(rem)saveS(user.id);
-  askNotif();
-  if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
-  else{NS.length=0;NS.push('s-home');goHome();}
+  if(!un||!pw){$('l-err').textContent='Please enter username and password.';$('l-err').classList.remove('hidden');return;}
+  try{
+    if(btn){btn.textContent='Syncing…';btn.disabled=true;}
+    await lDB();
+    const user=DB.users.find(u=>u.username.toLowerCase()===un&&u.password===pw);
+    if(!user){$('l-err').textContent='Invalid username or password.';$('l-err').classList.remove('hidden');return;}
+    CUR.user=user;
+    if(rem)saveS(user.id);
+    askNotif();
+    if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
+    else{NS.length=0;NS.push('s-home');goHome();}
+  }catch(e){
+    console.error('Login error:',e);
+    $('l-err').textContent='Login failed: '+(e&&e.message?e.message:'Unknown error')+'. Please try again.';
+    $('l-err').classList.remove('hidden');
+  }finally{
+    if(btn){btn.textContent='Sign In';btn.disabled=false;}
+  }
 }
 async function syncNow(){
   const btn=$('sync-btn');
