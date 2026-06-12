@@ -1162,17 +1162,32 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
     banner.innerHTML = "⚠️ <b>Offline mode</b> — data is device-only. <a href='#' onclick='this.parentElement.style.display=\"none\"' style='color:#fcd34d;text-decoration:underline;'>Dismiss</a>";
     document.body.appendChild(banner);
   }
-  function appBack(){
+   function getCurrentScreen(){
+     return document.querySelector('.screen.active').id;
+  }
 
-    let currentScreen =
-    document.querySelector('.screen.active').id;
-
-    if(currentScreen=="s-home"){
-        return "EXIT";
-    }
-
-    navBack();
-    return "BACK";
+    function appBack(){
+  
+      let s=getCurrentScreen();
+  
+      switch(s){
+  
+        case "s-mat":
+          backFromMat();
+          break;
+  
+        case "s-qtype":
+        case "s-inst":
+        case "s-quiz":
+        case "s-result":
+        case "s-lb":
+        case "s-course":
+          navBack();
+          break;
+  
+        case "s-home":
+          return "EXIT";
+      }
   }
 
   if(restoreS()){
