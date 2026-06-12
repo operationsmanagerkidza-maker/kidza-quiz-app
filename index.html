@@ -1162,6 +1162,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
     banner.innerHTML = "⚠️ <b>Offline mode</b> — data is device-only. <a href='#' onclick='this.parentElement.style.display=\"none\"' style='color:#fcd34d;text-decoration:underline;'>Dismiss</a>";
     document.body.appendChild(banner);
   }
+  function appBack(){
+    navBack();
+  }
 
   if(restoreS()){
     if(CUR.user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
@@ -1170,4 +1173,5 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
 })();
 </script>
 </body>
+
 </html>
