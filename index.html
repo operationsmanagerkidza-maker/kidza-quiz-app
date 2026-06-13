@@ -629,6 +629,16 @@ async function lDB(){
 
 // ── Session (remember-me is per-device by design) ──
 let CUR={user:null};
+function sendToMIT(message){
+  try{
+      if(window.AppInventor &&
+         window.AppInventor.setWebViewString){
+          window.AppInventor.setWebViewString(message);
+      }
+  }catch(e){
+      console.log(e);
+  }
+}
 function saveS(uid){try{localStorage.setItem(SK,uid);}catch(e){}}
 function clearS(){try{localStorage.removeItem(SK);}catch(e){}}
 function restoreS(){
