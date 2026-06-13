@@ -18,7 +18,26 @@
   --success:#16a34a;--danger:#dc2626;--warn:#d97706;--warn-bg:#fffbeb;
   --radius:16px;--shadow:0 4px 24px rgba(15,23,42,.08);
   --font:'DM Sans',sans-serif;--display:'Sora',sans-serif;
+  /* ── ANDROID MATERIAL DESIGN 3 TOKENS (added) ── */
+  --android-primary:#1a56db;--android-secondary:#3b82f6;--android-surface:#ffffff;--android-background:#f8fafc;
 }
+/* ── SYNC STATUS BADGE (added) ── */
+#sync-status{position:fixed;top:8px;right:8px;z-index:7000;font-size:11px;font-weight:700;padding:5px 12px;border-radius:50px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.12);transition:.25s;}
+#sync-status .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+#sync-status.online{background:#dcfce7;color:var(--success);}
+#sync-status.online .dot{background:var(--success);}
+#sync-status.offline{background:#fee2e2;color:var(--danger);}
+#sync-status.offline .dot{background:var(--danger);}
+#sync-status.syncing{background:var(--blue-muted);color:var(--blue2);}
+#sync-status.syncing .dot{background:var(--blue2);animation:blink 1s infinite;}
+/* ── Ripple effect for buttons/cards (Android touch feedback) ── */
+.btn,.item-row,.opt-card,.qtype-card,.tab-btn{position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rippleAnim .5s ease-out;pointer-events:none;}
+.opt-card .ripple,.item-row .ripple,.qtype-card .ripple,.tab-btn .ripple{background:rgba(26,86,219,.18);}
+@keyframes rippleAnim{to{transform:scale(2.6);opacity:0;}}
+/* ── Safe-area support for notches / nav bars ── */
+body{padding-bottom:env(safe-area-inset-bottom);}
+.app-header{padding-top:max(52px,env(safe-area-inset-top));}
 html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--black);overflow-x:hidden;}
 .screen{display:none;min-height:100vh;padding-bottom:24px;}
 .screen.active{display:block;animation:fadeUp .28s ease both;}
@@ -159,6 +178,9 @@ tr:hover td{background:#f8fafc;}
 </style>
 </head>
 <body>
+<!-- SYNC STATUS BADGE (added) -->
+<div id="sync-status" class="hidden"><span class="dot"></span><span id="sync-status-text">Online</span></div>
+
 <!-- LOGIN -->
 <div class="screen active" id="s-login">
   <div class="app-header" style="padding-bottom:40px;">
@@ -364,7 +386,7 @@ tr:hover td{background:#f8fafc;}
       </div>
       <div class="tbl-wrap mb2">
         <table>
-          <thead><tr><th>#</th><th>Name</th><th>Course</th><th>Score</th><th>Mode</th><th>Device</th><th>Status</th><th>Act</th></tr></thead>
+          <thead><tr><th>#</th><th>Name</th><th>Course</th><th>Score</th><th>Mode</th><th>Status</th><th>Act</th></tr></thead>
           <tbody id="adm-re-body"></tbody>
         </table>
       </div>
@@ -447,13 +469,13 @@ tr:hover td{background:#f8fafc;}
 // │  Get it from: Firebase Console → Project Settings → Your Apps  │
 // └─────────────────────────────────────────────────────────────────┘
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAbc123xyz",
+  apiKey: "AIzaSyDPWiErsiy2-ZBThzfb8CQqVCaa3Bm4L5E",
   authDomain: "kidza-quiz.firebaseapp.com",
   databaseURL: "https://kidza-quiz-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "kidza-quiz",
-  storageBucket: "kidza-quiz.appspot.com",
-  messagingSenderId: "987654321",
-  appId: "1:987654321:web:abc123"
+  storageBucket: "kidza-quiz.firebasestorage.app",
+  messagingSenderId: "1005530966135",
+  appId: "1:1005530966135:web:5479ee774ac8ed59957e72"
 };
 
 // Detect placeholder config — real keys start with "AIzaSy" and are 39 chars; fake ones aren't
@@ -490,9 +512,7 @@ const DB_DEFAULT = {
     {id:'u1',name:'Narmatha',username:'9597166849',password:'1234',role:'staff'},
     {id:'u1',name:'Priyadharsini',username:'8667540181',password:'1234',role:'staff'},
     {id:'u1',name:'Tharik',username:'9025937706',password:'1234',role:'staff'},
-    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'},
-    {id:'u1',name:'Swathi Shri',username:'9363505177',password:'1234',role:'staff'},
-    {id:'u1',name:'Jeevanantham',username:'8610922272',password:'1234',role:'staff'}
+    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'}
   ],
   courses:[{
     id:'c1',name:'Product Knowledge',desc:'Learn about Kidza products, categories and certifications.',
@@ -523,6 +543,48 @@ function initFirebase(){
   }catch(e){ console.warn('Firebase init failed:',e); return false; }
 }
 
+// ═══════════════════════
+// SYNC MANAGER (added) — realtime cross-device sync + status badge
+// ═══════════════════════
+function setSyncStatus(state,text){
+  const el=$('sync-status'); if(!el) return;
+  el.className=state; el.classList.remove('hidden');
+  const lbl=$('sync-status-text'); if(lbl) lbl.textContent=text||({online:'Online',offline:'Offline',syncing:'Syncing…'}[state]||state);
+}
+let _fbListenerAttached=false;
+// Real-time listener — automatically refreshes UI when data changes on another device
+function listenForChanges(){
+  if(!fbDB||_fbListenerAttached) return;
+  _fbListenerAttached=true;
+  fbDB.ref('kidza/db').on('value', snap=>{
+    if(!snap.exists()) return;
+    const d=snap.val();
+    DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}},d);
+    try{localStorage.setItem(LOCAL_KEY,JSON.stringify(DB));}catch(e){}
+    setSyncStatus('online','Online');
+    refreshCurrentScreen();
+    sendToMIT('SYNC_SUCCESS'); // MIT App Inventor bridge event
+  }, err=>{console.warn('Firebase listener error:',err);setSyncStatus('offline','Offline');sendToMIT('SYNC_FAILED');});
+}
+// Re-render the currently visible screen so realtime updates appear instantly
+function refreshCurrentScreen(){
+  const active=document.querySelector('.screen.active');
+  if(!active||!CUR.user) return;
+  switch(active.id){
+    case 's-home': goHome(); break;
+    case 's-admin': renderAdmin(); break;
+    case 's-lb': renderLb(); break;
+    case 's-course': if(CID) openCourse(CID); break;
+  }
+}
+// Connect / reconnect helpers
+function connectFirebase(){ return initFirebase(); }
+function reconnectFirebase(){
+  if(connectFirebase()){ listenForChanges(); setSyncStatus('syncing','Syncing…'); lDB().then(()=>{setSyncStatus('online','Online');refreshCurrentScreen();}); }
+}
+window.addEventListener('online',()=>{setSyncStatus('syncing','Syncing…');reconnectFirebase();});
+window.addEventListener('offline',()=>{setSyncStatus('offline','Offline');});
+
 // ── Save DB to Firebase + localStorage fallback ──
 let _saveTimer = null;
 function sDB(){
@@ -530,10 +592,12 @@ function sDB(){
   try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); }catch(e){}
   // Debounce Firebase write by 400ms
   if(fbDB){
+    setSyncStatus('syncing','Syncing…');
     clearTimeout(_saveTimer);
     _saveTimer = setTimeout(()=>{
       fbDB.ref('kidza/db').set(JSON.parse(JSON.stringify(DB)))
-        .catch(e=>console.warn('Firebase write error:',e));
+        .then(()=>setSyncStatus('online','Online'))
+        .catch(e=>{console.warn('Firebase write error:',e);setSyncStatus('offline','Offline');});
     }, 400);
   }
 }
@@ -543,10 +607,7 @@ async function lDB(){
   // Try Firebase
   if(fbDB){
     try{
-      const snap = await Promise.race([
-        fbDB.ref('kidza/db').get(),
-        new Promise((_,rej)=>setTimeout(()=>rej(new Error('Firebase timeout')),5000))
-      ]);
+      const snap = await fbDB.ref('kidza/db').get();
       if(snap.exists()){
         const d = snap.val();
         DB = Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}}, d);
@@ -588,14 +649,68 @@ function showScreen(id){
 function closeM(id){$(id).classList.add('hidden');}
 function openM(id){$(id).classList.remove('hidden');}
 
-// Nav stack — desktop back arrow + mobile back button
-const NS=[];
-function navPush(id){NS.push(id);showScreen(id);}
-function navBack(){if(NS.length>1){NS.pop();showScreen(NS[NS.length-1]);}else{goHome();}}
+// ═══════════════════════
+// MIT APP INVENTOR BRIDGE (added)
+// ═══════════════════════
+window.AppInventor = window.AppInventor || {};
+function sendToMIT(message){
+  try{
+    if(window.AppInventor && window.AppInventor.setWebViewString){
+      window.AppInventor.setWebViewString(message);
+    }
+  }catch(e){console.warn('AppInventor bridge error:',e);}
+}
 
-// Mobile hardware back (MIT App Inventor WebViewer handles history.back)
-window.addEventListener('popstate',function(){navBack();});
-function navTo(id){history.pushState({},document.title);navPush(id);}
+// ═══════════════════════
+// NAVIGATION MANAGER (added — centralized screen history stack)
+// Replaces ad-hoc NS array logic. Old helper names (navTo/navPush/navBack)
+// are kept as thin aliases so all existing onclick="" calls keep working.
+// ═══════════════════════
+const NS=[]; // screen history stack — kept for backward compatibility with existing code (admin init etc.)
+const ROOT_SCREENS=['s-login','s-home','s-admin']; // screens where "back" should exit (or do nothing on login)
+
+function navigateTo(screenId){
+  // Prevent duplicate consecutive history entries / navigation loops
+  if(NS[NS.length-1]===screenId) { showScreen(screenId); return; }
+  NS.push(screenId);
+  try{ history.pushState({screen:screenId}, document.title); }catch(e){}
+  showScreen(screenId);
+}
+
+function navigateBack(){
+  const current=NS[NS.length-1];
+  if(NS.length>1){
+    NS.pop();
+    const prev=NS[NS.length-1];
+    showScreen(prev);
+    return;
+  }
+  // Only one (or zero) screens in stack — we're at a root screen
+  if(current==='s-home'||current==='s-admin'){
+    // Home/Admin back → notify MIT App Inventor to close the app
+    sendToMIT('EXIT');
+    return;
+  }
+  if(current==='s-login'||!current){
+    // Nothing to go back to from login
+    return;
+  }
+  // Fallback: go to home
+  goHome();
+}
+
+function clearNavigation(){
+  NS.length=0;
+  try{ history.replaceState({},document.title); }catch(e){}
+}
+
+// Backward-compatible aliases used throughout the existing codebase
+function navPush(id){navigateTo(id);}
+function navBack(){navigateBack();}
+function navTo(id){navigateTo(id);}
+
+// Hardware / browser back button (also used by MIT App Inventor WebViewer)
+window.addEventListener('popstate',function(){navigateBack();});
 
 // Notification
 function askNotif(){if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}
@@ -608,35 +723,37 @@ async function doLogin(){
   const un=$('l-user').value.trim().toLowerCase();
   const pw=$('l-pass').value;
   const rem=$('l-rem').checked;
+  // Pull latest DB from Firebase so users added on another device are visible
   const btn=document.querySelector('#s-login .btn-blue');
+  if(btn){btn.textContent='Syncing…';btn.disabled=true;}
+  await lDB();
+  if(btn){btn.textContent='Sign In';btn.disabled=false;}
+  const user=DB.users.find(u=>u.username.toLowerCase()===un&&u.password===pw);
+  if(!user){$('l-err').textContent='Invalid username or password.';$('l-err').classList.remove('hidden');sendToMIT('LOGIN_FAILED');return;}
   $('l-err').classList.add('hidden');
-  if(!un||!pw){$('l-err').textContent='Please enter username and password.';$('l-err').classList.remove('hidden');return;}
-  try{
-    if(btn){btn.textContent='Syncing…';btn.disabled=true;}
-    await lDB();
-    const user=DB.users.find(u=>u.username.toLowerCase()===un&&u.password===pw);
-    if(!user){$('l-err').textContent='Invalid username or password.';$('l-err').classList.remove('hidden');return;}
-    CUR.user=user;
-    if(rem)saveS(user.id);
-    askNotif();
-    if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
-    else{NS.length=0;NS.push('s-home');goHome();}
-  }catch(e){
-    console.error('Login error:',e);
-    $('l-err').textContent='Login failed: '+(e&&e.message?e.message:'Unknown error')+'. Please try again.';
-    $('l-err').classList.remove('hidden');
-  }finally{
-    if(btn){btn.textContent='Sign In';btn.disabled=false;}
-  }
+  CUR.user=user;
+  if(rem)saveS(user.id);
+  askNotif();
+  sendToMIT('LOGIN_SUCCESS'); // MIT App Inventor bridge event
+  if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
+  else{NS.length=0;NS.push('s-home');goHome();}
 }
 async function syncNow(){
   const btn=$('sync-btn');
   if(btn){btn.textContent='Syncing…';btn.disabled=true;}
-  await lDB();
+  setSyncStatus('syncing','Syncing…');
+  try{
+    await lDB();
+    setSyncStatus(fbDB?'online':'offline', fbDB?'Online':'Offline');
+    sendToMIT('SYNC_SUCCESS');
+  }catch(e){
+    setSyncStatus('offline','Offline');
+    sendToMIT('SYNC_FAILED');
+  }
   if(btn){btn.textContent='✓ Done';setTimeout(()=>{btn.textContent='↻ Sync';btn.disabled=false;},1500);}
   renderAdmin();
 }
-function doLogout(){clearS();CUR.user=null;$('l-user').value='';$('l-pass').value='';$('l-rem').checked=false;NS.length=0;showScreen('s-login');}
+function doLogout(){sendToMIT('LOGOUT');clearS();CUR.user=null;$('l-user').value='';$('l-pass').value='';$('l-rem').checked=false;clearNavigation();showScreen('s-login');}
 
 // ═══════════════════════
 // HOME
@@ -658,6 +775,7 @@ function goHome(){
   const ns=[];
   myC.forEach(c=>{const k=u.id+'_'+c.id;const a=DB.attempts[k]||[];
     if(!a.length)ns.push('New quiz assigned: <b>'+esc(c.name)+'</b>');
+    else if(a.length===1)ns.push('1 attempt left for <b>'+esc(c.name)+'</b>');
   });
   $('notif-area').innerHTML=ns.map(n=>`<div class="notif-card"><span style="font-size:20px;">&#128276;</span><div><div style="font-weight:700;font-size:13px;">Notification<span class="notif-dot"></span></div><div style="font-size:13px;">${n}</div></div></div>`).join('');
   if(!myC.length){$('home-courses').innerHTML='<p class="muted ctr" style="padding:16px;">No courses assigned yet.</p>';}
@@ -666,11 +784,11 @@ function goHome(){
       const k=u.id+'_'+c.id;const a=DB.attempts[k]||[];
       const bp=a.length?Math.max(...a.map(x=>x.pct)):null;
       const md=allMatsDone(u.id,c.id);
-      const badge=a.length>=1?'<span class="badge bd-grey">Done</span>':md?'<span class="badge bd-pass">Ready</span>':'<span class="badge bd-warn">Materials</span>';
+      const badge=a.length>=2?'<span class="badge bd-grey">Done</span>':md?'<span class="badge bd-pass">Ready</span>':'<span class="badge bd-warn">Materials</span>';
       return `<div class="item-row" onclick="openCourse('${c.id}')">
         <div class="item-icon ic-course">&#128218;</div>
         <div class="item-info"><div class="item-title">${esc(c.name)}</div>
-          <div class="item-sub">${c.questions.length} Q &middot; ${a.length}/1 attempts${bp!==null?' &middot; Best: '+bp+'%':''}</div></div>
+          <div class="item-sub">${c.questions.length} Q &middot; ${a.length}/2 attempts${bp!==null?' &middot; Best: '+bp+'%':''}</div></div>
         ${badge}</div>`;
     }).join('');
   }
@@ -708,10 +826,11 @@ function openCourse(cid){
     }).join('');
   }
   const k=u.id+'_'+c.id;const a=DB.attempts[k]||[];const md=allMatsDone(u.id,cid);
-  if(a.length>=1){const bp=Math.max(...a.map(x=>x.pct));$('cd-quiz').innerHTML=`<div class="alert al-warn">Attempt used. Best: <b>${bp}%</b></div>`;}
+  if(a.length>=2){const bp=Math.max(...a.map(x=>x.pct));$('cd-quiz').innerHTML=`<div class="alert al-warn">Both attempts used. Best: <b>${bp}%</b></div>`;}
   else if(!md){$('cd-quiz').innerHTML=`<div class="alert al-warn">Complete all materials first.</div>`;}
-  else{$('cd-quiz').innerHTML=`<button class="btn btn-blue btn-full" onclick="openQType('${cid}')">Take Quiz (Attempt ${a.length+1}/1)</button>`;}
+  else{$('cd-quiz').innerHTML=`<button class="btn btn-blue btn-full" onclick="openQType('${cid}')">Take Quiz (Attempt ${a.length+1}/2)</button>`;}
   navTo('s-course');
+  sendToMIT('COURSE_OPENED'); // MIT App Inventor bridge event
 }
 
 // ═══════════════════════
@@ -760,6 +879,7 @@ function viewMat(cid,mid){
 function markMatDone(){
   if(!confirm('Mark complete? You will not be able to re-view.'))return;
   DB.matProg[CUR.user.id+'_'+VM.cid+'_'+VM.mid]=true;sDB();
+  sendToMIT('MATERIAL_COMPLETED'); // MIT App Inventor bridge event
   $('mat-done-area').innerHTML='<div class="alert al-ok">Marked complete!</div>';
   setTimeout(()=>openCourse(VM.cid),800);
 }
@@ -773,7 +893,7 @@ function openQType(cid){
   CID=cid;
   const c=DB.courses.find(x=>x.id===cid),k=CUR.user.id+'_'+c.id,a=DB.attempts[k]||[];
   $('qt-cname').textContent=c.name;
-  $('qt-info').textContent='Attempt '+(a.length+1)+' of 1. Choose your quiz mode.';
+  $('qt-info').textContent='Attempt '+(a.length+1)+' of 2. Choose your quiz mode.';
   navTo('s-qtype');
 }
 
@@ -785,16 +905,17 @@ function openInst(mode){
   const c=DB.courses.find(x=>x.id===CID),k=CUR.user.id+'_'+c.id,a=DB.attempts[k]||[];
   const t=mode==='speed'?c.timerS:c.timerK;
   $('inst-ttl').textContent=(mode==='speed'?'Speed Quiz':'Knowledge Quiz')+' — '+c.name;
-  $('inst-sub').textContent='Attempt '+(a.length+1)+' of 1';
+  $('inst-sub').textContent='Attempt '+(a.length+1)+' of 2';
   const steps=['This quiz has <b>'+c.questions.length+' questions</b>.',
     'You have <b>'+t+' seconds per question</b>.',
     'Select one answer — you cannot change it once selected.',
     'Answers shown <b>after all questions</b>.',
     'Passing score: <b>'+c.passPercent+'%</b>.',
-    'You have <b>1 total attempt</b>. Make it count.',
+    'You have <b>2 total attempts</b>. Highest score is recorded.',
     'Do not close or refresh during the quiz.'];
   $('inst-list').innerHTML=steps.map((s,i)=>'<div class="inst-step"><div class="inst-num">'+(i+1)+'</div><div style="font-size:14px;">'+s+'</div></div>').join('');
-  $('inst-warn').innerHTML='<div class="alert al-warn">This is your <b>final attempt</b>.</div>';$('inst-warn').classList.remove('hidden');
+  if(a.length===1){$('inst-warn').innerHTML='<div class="alert al-warn">This is your <b>final attempt</b>.</div>';$('inst-warn').classList.remove('hidden');}
+  else $('inst-warn').classList.add('hidden');
   navTo('s-inst');
 }
 
@@ -809,8 +930,9 @@ function startQuiz(){
   const qOrder=shuffleArr(c.questions.map((_,i)=>i));
   QS={cid:CID,mode:QMODE,cur:0,answers:[],ti:null,tl:0,qOrder};
   $('qz-name').textContent=CUR.user.name;
-  $('qz-pips').innerHTML=[0].map(i=>'<div class="pip'+(i<a.length?' used':'')+'"></div>').join('')+'<span style="font-size:11px;color:rgba(255,255,255,.65);margin-left:4px;">Att.'+(a.length+1)+'</span>';
+  $('qz-pips').innerHTML=[0,1].map(i=>'<div class="pip'+(i<a.length?' used':'')+'"></div>').join('')+'<span style="font-size:11px;color:rgba(255,255,255,.65);margin-left:4px;">Att.'+(a.length+1)+'</span>';
   navTo('s-quiz');loadQ();
+  sendToMIT('QUIZ_STARTED'); // MIT App Inventor bridge event
 }
 function loadQ(){
   clearInterval(QS.ti);
@@ -848,7 +970,6 @@ function nextQ(){
   QS.cur++;
   if(QS.cur>=c.questions.length)finishQ();else loadQ();
 }
-function getDeviceType(){return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)?'Mobile':'Desktop';}
 function finishQ(){
   clearInterval(QS.ti);
   const c=DB.courses.find(x=>x.id===QS.cid);
@@ -856,20 +977,21 @@ function finishQ(){
   const tot=c.questions.length,pct=Math.round(sc/tot*100),passed=pct>=c.passPercent;
   const k=CUR.user.id+'_'+c.id;
   if(!DB.attempts[k])DB.attempts[k]=[];
-  DB.attempts[k].push({score:sc,total:tot,pct,passed,mode:QS.mode,device:getDeviceType(),date:new Date().toLocaleString()});
+  DB.attempts[k].push({score:sc,total:tot,pct,passed,mode:QS.mode,date:new Date().toLocaleString()});
   const atts=DB.attempts[k];
-  DB.results.push({uid:CUR.user.id,name:CUR.user.name,cid:c.id,cname:c.name,score:sc,total:tot,pct,passed,mode:QS.mode,device:getDeviceType(),attempt:atts.length,date:new Date().toLocaleString()});
+  DB.results.push({uid:CUR.user.id,name:CUR.user.name,cid:c.id,cname:c.name,score:sc,total:tot,pct,passed,mode:QS.mode,attempt:atts.length,date:new Date().toLocaleString()});
   sDB();
   $('res-sc').textContent=sc;$('res-tot').textContent='/ '+tot;$('res-pct').textContent=pct+'%';
   $('res-hd').textContent=passed?'Quiz Completed!':'Quiz Completed';
   $('res-status').innerHTML=passed?'<span class="badge bd-pass" style="font-size:13px;padding:6px 16px;">PASSED</span>':'<span class="badge bd-fail" style="font-size:13px;padding:6px 16px;">FAILED</span>';
-  const rem=1-atts.length,bp=Math.max(...atts.map(a=>a.pct));
+  const rem=2-atts.length,bp=Math.max(...atts.map(a=>a.pct));
   $('res-rem').textContent=rem>0?rem+' attempt(s) remaining · Best: '+bp+'%':'No attempts remaining · Final: '+bp+'%';
   $('res-review').innerHTML=QS.answers.map((a,i)=>{
     const ok=a.sel===a.ans,cls=a.sel===-1?'rev-skip':ok?'rev-ok':'rev-ng',icon=a.sel===-1?'Skipped':ok?'Correct':'Wrong';
     return '<div class="rev-item '+cls+'"><b>'+icon+' Q'+(i+1)+'.</b> '+esc(a.q)+'<br><br><span>Your answer: <b>'+(a.sel>=0?LT[a.sel]+'. '+esc(a.opts[a.sel]):'Not answered')+'</b></span><br><span>Correct: <b style="color:var(--success)">'+LT[a.ans]+'. '+esc(a.opts[a.ans])+'</b></span></div>';
   }).join('');
   pushNotif('Kidza Quiz Complete','You scored '+pct+'% on '+c.name);
+  sendToMIT('QUIZ_COMPLETED'); // MIT App Inventor bridge event
   if(passed)showCg(sc,tot,pct);else{NS.push('s-result');showScreen('s-result');}
 }
 
@@ -879,7 +1001,7 @@ function finishQ(){
 function showCg(sc,tot,pct){
   $('cg-sc').textContent=sc;$('cg-tot').textContent='/ '+tot;
   $('cg-msg').textContent='You scored '+pct+'% — keep it up!';
-  $('cg-em').textContent=pct>=90?'🏆':pct>=75?'🎉':'🌟';
+  $('cg-em').textContent=pct>=90?'&#127942;':pct>=75?'&#127881;':'&#127775;';
   $('cg-ttl').textContent=pct>=90?'Outstanding!':pct>=75?'Excellent Work!':'Well Done!';
   const box=$('cg-box');
   box.querySelectorAll('.confetti-p').forEach(p=>p.remove());
@@ -910,7 +1032,7 @@ function renderLb(){
     let best=null,ta=0;
     DB.courses.forEach(c=>{
       if(fc&&c.id!==fc)return;
-      (DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{ta++;if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total,cname:c.name,device:a.device};});
+      (DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{ta++;if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total,cname:c.name};});
     });
     scores[u.id]={name:u.name,uid:u.id,best,ta};
   });
@@ -921,7 +1043,7 @@ function renderLb(){
     <div class="lb-item${r.uid===CUR.user.id?' lb-me':''}">
       <div class="lb-rank ${rCls(i)}">${rIcon(i)}</div>
       <div style="flex:1;"><div class="lb-name">${esc(r.name)}${r.uid===CUR.user.id?' (You)':''}</div>
-        <div class="lb-sub">${r.best?r.best.score+'/'+r.best.total+' &middot; '+r.best.cname+' &middot; '+(r.best.device||'-'):'No attempts yet'}</div></div>
+        <div class="lb-sub">${r.best?r.best.score+'/'+r.best.total+' &middot; '+r.best.cname:'No attempts yet'}</div></div>
       <div class="lb-pct">${r.best?r.best.pct+'%':'&mdash;'}</div>
     </div>`).join('');
 }
@@ -990,15 +1112,14 @@ function renderAdmRe(){
     <td>${i+1}</td><td>${esc(r.name)}</td><td>${esc(r.cname)}</td>
     <td>${r.score}/${r.total} (${r.pct}%)</td>
     <td><span class="badge bd-blue">${r.mode==='speed'?'Speed':'Know.'}</span></td>
-    <td><span class="badge bd-grey">${r.device||'-'}</span></td>
     <td><span class="badge ${r.passed?'bd-pass':'bd-fail'}">${r.passed?'PASS':'FAIL'}</span></td>
     <td><button class="btn btn-warn btn-xs" onclick="reassign('${r.uid}','${r.cid}')">Reset</button></td>
-  </tr>`).join('')||'<tr><td colspan="8" class="muted ctr">No results.</td></tr>';
+  </tr>`).join('')||'<tr><td colspan="7" class="muted ctr">No results.</td></tr>';
   // Leaderboard in admin
   const sc={};
   DB.users.filter(u=>u.role==='staff').forEach(u=>{
     let best=null;
-    DB.courses.forEach(c=>{(DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total,device:a.device};});});
+    DB.courses.forEach(c=>{(DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total};});});
     sc[u.id]={name:u.name,best};
   });
   const sorted=Object.values(sc).sort((a,b)=>(b.best?.pct||0)-(a.best?.pct||0));
@@ -1006,7 +1127,7 @@ function renderAdmRe(){
   const rI=(i)=>i===0?'1st':i===1?'2nd':i===2?'3rd':(i+1)+'th';
   $('adm-lb').innerHTML=sorted.map((r,i)=>`
     <div class="lb-item"><div class="lb-rank ${rC(i)}">${rI(i)}</div>
-      <div style="flex:1;"><div class="lb-name">${esc(r.name)}</div><div class="lb-sub">${r.best?(r.best.device||'-'):'No attempts yet'}</div></div>
+      <div style="flex:1;"><div class="lb-name">${esc(r.name)}</div></div>
       <div class="lb-pct">${r.best?r.best.pct+'%':'&mdash;'}</div></div>`).join('');
 }
 
@@ -1155,42 +1276,20 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
   await lDB();
   splash.remove();
 
+  // Set up realtime sync status badge + listener (added)
+  if(firebaseOK){
+    setSyncStatus(navigator.onLine===false?'offline':'online', navigator.onLine===false?'Offline':'Online');
+    listenForChanges();
+  }else{
+    setSyncStatus('offline','Offline');
+  }
+
   // Show Firebase setup banner if not yet configured
   if(!FIREBASE_CONFIGURED){
     const banner = document.createElement('div');
     banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#92400e;color:#fff;font-size:12px;padding:10px 14px;z-index:8000;text-align:center;line-height:1.5;';
     banner.innerHTML = "⚠️ <b>Offline mode</b> — data is device-only. <a href='#' onclick='this.parentElement.style.display=\"none\"' style='color:#fcd34d;text-decoration:underline;'>Dismiss</a>";
     document.body.appendChild(banner);
-  }
-function getCurrentScreen(){
-    return document.querySelector('.screen.active').id;
-}
-
-function appBack(){
-
-    let s = getCurrentScreen();
-
-    switch(s){
-
-      case "s-mat":
-        backFromMat();
-        return "BACK";
-
-      case "s-qtype":
-      case "s-inst":
-      case "s-quiz":
-      case "s-result":
-      case "s-lb":
-      case "s-course":
-        navBack();
-        return "BACK";
-
-      case "s-home":
-        AppInventor.setWebViewString("EXIT");
-        return "EXIT";
-    }
-
-    return "BACK";
   }
 
   if(restoreS()){
@@ -1200,5 +1299,4 @@ function appBack(){
 })();
 </script>
 </body>
-
 </html>
