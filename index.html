@@ -746,7 +746,9 @@ async function doLogin(){
   askNotif();
   sendToMIT('LOGIN_SUCCESS'); // MIT App Inventor bridge event
   if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
-  else{NS.length=0;NS.push('s-home');goHome();}
+  else{NS.length=0;NS.push('s-home');goHome();
+  }
+  
 async function syncNow(){
   const btn=$('sync-btn');
   if(btn){btn.textContent='Syncing…';btn.disabled=true;}
