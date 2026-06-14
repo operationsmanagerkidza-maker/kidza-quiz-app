@@ -747,8 +747,7 @@ async function doLogin(){
   sendToMIT('LOGIN_SUCCESS'); // MIT App Inventor bridge event
   if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
   else{NS.length=0;NS.push('s-home');goHome();
-  }
-  
+  }  
 async function syncNow(){
   const btn=$('sync-btn');
   if(btn){btn.textContent='Syncing…';btn.disabled=true;}
@@ -1302,12 +1301,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
     banner.innerHTML = "⚠️ <b>Offline mode</b> — data is device-only. <a href='#' onclick='this.parentElement.style.display=\"none\"' style='color:#fcd34d;text-decoration:underline;'>Dismiss</a>";
     document.body.appendChild(banner);
   }
-
-  if(restoreS()){
-    if(CUR.user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
-    else{NS.length=0;NS.push('s-home');goHome();}
-  }else{showScreen('s-login');}
-})();
 </script>
 </body>
 </html>
