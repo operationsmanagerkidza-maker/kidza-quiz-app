@@ -629,16 +629,6 @@ async function lDB(){
 
 // ── Session (remember-me is per-device by design) ──
 let CUR={user:null};
-function sendToMIT(message){
-  try{
-      if(window.AppInventor &&
-         window.AppInventor.setWebViewString){
-          window.AppInventor.setWebViewString(message);
-      }
-  }catch(e){
-      console.log(e);
-  }
-}
 function saveS(uid){try{localStorage.setItem(SK,uid);}catch(e){}}
 function clearS(){try{localStorage.removeItem(SK);}catch(e){}}
 function restoreS(){
@@ -746,8 +736,8 @@ async function doLogin(){
   askNotif();
   sendToMIT('LOGIN_SUCCESS'); // MIT App Inventor bridge event
   if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
-  else{NS.length=0;NS.push('s-home');goHome();
-  }  
+  else{NS.length=0;NS.push('s-home');goHome();}
+}
 async function syncNow(){
   const btn=$('sync-btn');
   if(btn){btn.textContent='Syncing…';btn.disabled=true;}
@@ -1301,6 +1291,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
     banner.innerHTML = "⚠️ <b>Offline mode</b> — data is device-only. <a href='#' onclick='this.parentElement.style.display=\"none\"' style='color:#fcd34d;text-decoration:underline;'>Dismiss</a>";
     document.body.appendChild(banner);
   }
+
+  if(restoreS()){
+    if(CUR.user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
+    else{NS.length=0;NS.push('s-home');goHome();}
+  }else{showScreen('s-login');}
+})();
 </script>
 </body>
 </html>
