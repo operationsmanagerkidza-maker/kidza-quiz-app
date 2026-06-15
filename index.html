@@ -6,9 +6,10 @@
 <title>Kidza Staff Training</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<!-- Firebase Realtime Database SDK -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -222,6 +223,15 @@ tr:hover td{background:#f8fafc;}
     </div>
     <div id="l-err" class="alert al-err hidden"></div>
     <button class="btn btn-blue btn-full" onclick="doLogin()">Sign In</button>
+    <div style="display:flex;align-items:center;gap:10px;margin:14px 0;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <span style="font-size:12px;color:var(--muted);font-weight:600;">OR</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+    <button class="btn btn-outline btn-full" id="gh-login-btn" onclick="doGithubLogin()" style="display:flex;align-items:center;justify-content:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      Sign in with GitHub
+    </button>
     <p class="ctr muted mt1" style="font-size:12px;">Contact admin if you forgot credentials</p>
     <a class="fp-link" onclick="openForgotPw()">🔑 Admin Forgot Password</a>
   </div>
@@ -583,6 +593,7 @@ const FIREBASE_CONFIGURED = (
 const ADMIN_FP_SECRET = 'kidza@admin2024';
 
 let fbDB = null;
+let fbAuth = null;
 const SK = 'kidza_sess';
 const LOCAL_KEY = 'kidza_v8';
 const RESUME_KEY = 'kidza_resume';
@@ -644,6 +655,7 @@ function initFirebase(){
   try{
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     fbDB = firebase.database();
+    fbAuth = firebase.auth();
     return true;
   }catch(e){ console.warn('Firebase init failed:',e); return false; }
 }
@@ -709,6 +721,12 @@ async function lDB(){
       if(snap.exists()){
         DB=Object.assign({users:[],courses:[],speedTests:[],results:[],speedResults:[],matProg:{},attempts:{},speedAttempts:{},logoUrl:''},snap.val());
         try{localStorage.setItem(LOCAL_KEY,JSON.stringify(DB));}catch(e){}
+        return;
+      } else {
+        // Firebase is empty — seed with defaults and push
+        DB=JSON.parse(JSON.stringify(DB_DEFAULT));
+        try{localStorage.setItem(LOCAL_KEY,JSON.stringify(DB));}catch(e){}
+        fbDB.ref('kidza/db').set(JSON.parse(JSON.stringify(DB))).catch(e=>console.warn('Seed error:',e));
         return;
       }
     }catch(e){console.warn('Firebase read error:',e);}
@@ -861,6 +879,74 @@ function doForgotPw(){
   u.password=newpw;
   sDB();closeM('m-fp');
   alert('Password reset successfully!');
+}
+
+// ═══════════════════════
+// GITHUB LOGIN
+// ═══════════════════════
+async function doGithubLogin(){
+  if(!fbAuth){
+    $('l-err').textContent='GitHub login requires Firebase. Please configure Firebase.';
+    $('l-err').classList.remove('hidden');
+    return;
+  }
+  const btn=$('gh-login-btn');
+  if(btn){btn.textContent='Opening GitHub\u2026';btn.disabled=true;}
+  $('l-err').classList.add('hidden');
+  try{
+    const provider=new firebase.auth.GithubAuthProvider();
+    const result=await fbAuth.signInWithPopup(provider);
+    const ghUser=result.user;
+    const ghEmail=(ghUser.email||'').toLowerCase();
+    const ghName=ghUser.displayName||ghUser.email||'GitHub User';
+
+    await lDB();
+
+    // Try to match by email first, then by name (case-insensitive)
+    let matchedUser=null;
+    if(ghEmail) matchedUser=DB.users.find(u=>u.username.toLowerCase()===ghEmail||u.email&&u.email.toLowerCase()===ghEmail);
+    if(!matchedUser&&ghName) matchedUser=DB.users.find(u=>u.name.toLowerCase()===ghName.toLowerCase());
+
+    if(!matchedUser){
+      // Auto-create as staff user linked to this GitHub account
+      const newId=nuid();
+      matchedUser={id:newId,name:ghName,username:ghEmail||ghUser.uid,password:'',role:'staff',githubUid:ghUser.uid,email:ghEmail};
+      DB.users.push(matchedUser);
+      sDB();
+    } else if(!matchedUser.githubUid){
+      // Link GitHub UID to existing user
+      matchedUser.githubUid=ghUser.uid;
+      if(!matchedUser.email&&ghEmail) matchedUser.email=ghEmail;
+      sDB();
+    }
+
+    CUR.user=matchedUser;
+    saveS(matchedUser.id);
+    askNotif();
+    applyLogoUrl(DB.logoUrl||'');
+    sendToMIT('LOGIN_SUCCESS');
+    $('l-err').classList.add('hidden');
+    if(matchedUser.role==='admin'){
+      clearResume();NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');
+    }else{
+      checkAbandonedQuiz();
+      NS.length=0;NS.push('s-home');goHome();
+      const resume=loadResume();
+      if(resume&&resume.uid===matchedUser.id&&resume.screen){
+        setTimeout(()=>tryResume(resume),350);
+      }
+    }
+  }catch(e){
+    console.warn('GitHub login error:',e);
+    let msg='GitHub login failed.';
+    if(e.code==='auth/popup-closed-by-user') msg='GitHub login cancelled.';
+    else if(e.code==='auth/popup-blocked') msg='Popup blocked. Please allow popups for this site.';
+    else if(e.code==='auth/account-exists-with-different-credential') msg='This email is already linked to another login method.';
+    $('l-err').textContent=msg;
+    $('l-err').classList.remove('hidden');
+  }finally{
+    if(btn){btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg> Sign in with GitHub';btn.disabled=false;}
+  }
 }
 
 // ═══════════════════════
