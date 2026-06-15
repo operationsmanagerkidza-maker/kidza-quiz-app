@@ -6,10 +6,9 @@
 <title>Kidza Staff Training</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<!-- Firebase SDKs -->
+<!-- Firebase Realtime Database SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -176,41 +175,16 @@ tr:hover td{background:#f8fafc;}
 .muted{color:var(--muted);}
 .mb1{margin-bottom:10px;}.mb2{margin-bottom:18px;}.mt1{margin-top:10px;}.mt2{margin-top:18px;}
 .sp{height:14px;}
-
-/* ── DOUBLE BACK TOAST ── */
-#dbl-back-toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,.85);color:#fff;padding:10px 22px;border-radius:50px;font-size:14px;font-weight:600;z-index:8999;display:none;white-space:nowrap;pointer-events:none;}
-/* ── BRAND LOGO ── */
-.hd-logo-wrap{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
-.hd-logo-img{height:42px;width:auto;object-fit:contain;border-radius:6px;filter:brightness(0) invert(1);}
-/* ── OFFLINE FILE BADGE ── */
-.ic-offline{background:#f0fdf4;}
-/* ── REVIEW LOCKED (before 2nd attempt) ── */
-.review-locked{background:#f1f5f9;border-radius:12px;padding:18px;text-align:center;color:var(--mid);font-size:14px;}
-/* ── SPEED TEST ── */
-.speed-result-ring{width:130px;height:130px;border-radius:50%;border:5px solid var(--blue);background:var(--blue-light);margin:12px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-/* ── FORGOT PW LINK ── */
-.fp-link{color:var(--blue);font-size:13px;cursor:pointer;text-decoration:underline;text-align:center;display:block;margin-top:8px;}
-
-
-/* ── ADDITIONAL V4 STYLES ── */
-#dbl-back-toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,.85);color:#fff;padding:10px 22px;border-radius:50px;font-size:14px;font-weight:600;z-index:8999;display:none;white-space:nowrap;pointer-events:none;}
-.hd-logo-wrap{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
-.hd-logo-img{height:42px;width:auto;object-fit:contain;border-radius:6px;filter:brightness(0) invert(1);}
-.ic-offline{background:#f0fdf4;}
-.review-locked{background:#f1f5f9;border-radius:12px;padding:18px;text-align:center;color:var(--mid);font-size:14px;}
-.speed-result-ring{width:130px;height:130px;border-radius:50%;border:5px solid var(--blue);background:var(--blue-light);margin:12px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.fp-link{color:var(--blue);font-size:13px;cursor:pointer;text-decoration:underline;text-align:center;display:block;margin-top:8px;}
 </style>
 </head>
 <body>
-<div id="dbl-back-toast">Press back again to exit</div>
 <!-- SYNC STATUS BADGE (added) -->
 <div id="sync-status" class="hidden"><span class="dot"></span><span id="sync-status-text">Online</span></div>
 
 <!-- LOGIN -->
 <div class="screen active" id="s-login">
   <div class="app-header" style="padding-bottom:40px;">
-    <div class="hd-logo-wrap"><img id="logo-main" class="hd-logo-img hidden" src="" alt="Kidza" onerror="this.classList.add('hidden');document.getElementById('logo-text-main').classList.remove('hidden')"><span id="logo-text-main" style="font-family:var(--display);font-size:28px;font-weight:800;color:#fff;letter-spacing:1px;">KIDZA</span></div>
+    <div class="hd-brand">KIDZA</div>
     <div class="hd-sub">Staff Training Portal</div>
   </div>
   <div class="card" style="margin-top:-24px;position:relative;z-index:2;">
@@ -223,17 +197,7 @@ tr:hover td{background:#f8fafc;}
     </div>
     <div id="l-err" class="alert al-err hidden"></div>
     <button class="btn btn-blue btn-full" onclick="doLogin()">Sign In</button>
-    <div style="display:flex;align-items:center;gap:10px;margin:14px 0;">
-      <div style="flex:1;height:1px;background:var(--border);"></div>
-      <span style="font-size:12px;color:var(--muted);font-weight:600;">OR</span>
-      <div style="flex:1;height:1px;background:var(--border);"></div>
-    </div>
-    <button class="btn btn-outline btn-full" id="gh-login-btn" onclick="doGithubLogin()" style="display:flex;align-items:center;justify-content:center;gap:10px;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-      Sign in with GitHub
-    </button>
     <p class="ctr muted mt1" style="font-size:12px;">Contact admin if you forgot credentials</p>
-    <a class="fp-link" onclick="openForgotPw()">🔑 Admin Forgot Password</a>
   </div>
 </div>
 
@@ -241,7 +205,7 @@ tr:hover td{background:#f8fafc;}
 <div class="screen" id="s-home">
   <div class="app-header">
     <div class="hd-row">
-      <div><div class="hd-logo-wrap"><img id="logo-home" class="hd-logo-img hidden" src="" alt="Kidza" onerror="this.classList.add('hidden');document.getElementById('logo-text-home').classList.remove('hidden')"><span id="logo-text-home" style="font-family:var(--display);font-size:22px;font-weight:800;color:#fff;letter-spacing:1px;display:none"></span></div><div class="hd-sub" id="h-sub">Staff Portal</div></div>
+      <div><div class="hd-brand">KIDZA</div><div class="hd-sub" id="h-sub">Staff Portal</div></div>
       <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
     </div>
   </div>
@@ -257,7 +221,6 @@ tr:hover td{background:#f8fafc;}
   </div>
   <div class="card">
     <button class="btn btn-outline btn-full" onclick="goLb()">🏆 Leaderboard</button>
-    <button class="btn btn-outline btn-full mt1" onclick="goSpeedTest()">⚡ Speed Test</button>
   </div>
   <div class="sp"></div>
 </div>
@@ -276,6 +239,27 @@ tr:hover td{background:#f8fafc;}
     <div id="cd-quiz"></div>
   </div>
   <div class="sp"></div>
+</div>
+
+<!-- QUIZ TYPE -->
+<div class="screen" id="s-qtype">
+  <div class="back-bar"><button class="back-btn" onclick="navBack()">&#8592;</button><span class="back-title">Select Quiz Mode</span></div>
+  <div class="sp"></div>
+  <div class="card">
+    <div class="pg-title mb1">Choose Quiz Mode</div>
+    <div class="pg-sub mb2" id="qt-cname"></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Knowledge</div>
+    <div class="qtype-card" onclick="openInst('knowledge')">
+      <div class="qtype-icon qtk">&#129504;</div>
+      <div><div class="qtype-title">Knowledge Quiz</div><div class="qtype-desc">Standard — focus on accuracy</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-top:14px;margin-bottom:8px;">Speed</div>
+    <div class="qtype-card" style="opacity:.45;pointer-events:none;">
+      <div class="qtype-icon qts">&#9889;</div>
+      <div><div class="qtype-title">Speed Quiz</div><div class="qtype-desc">Coming soon</div></div>
+    </div>
+    <div class="alert al-info mt2" id="qt-info"></div>
+  </div>
 </div>
 
 <!-- INSTRUCTIONS -->
@@ -322,7 +306,6 @@ tr:hover td{background:#f8fafc;}
     <div class="mb1">Percentage: <b style="color:var(--blue);" id="res-pct"></b></div>
     <div class="mb1" id="res-status"></div>
     <div style="font-size:12px;color:var(--muted);" id="res-rem"></div>
-    <div id="res-best-score" class="mt1"></div>
   </div>
   <div class="card">
     <div class="pg-title mb2" style="font-size:16px;">Answer Review</div>
@@ -360,56 +343,11 @@ tr:hover td{background:#f8fafc;}
   <div class="sp"></div>
 </div>
 
-
-<!-- SPEED TEST (Standalone) -->
-<div class="screen" id="s-speed">
-  <div class="back-bar"><button class="back-btn" onclick="navBack()">&#8592;</button><span class="back-title">Speed Test</span></div>
-  <div class="sp"></div>
-  <div class="card">
-    <div class="pg-title mb1">⚡ Speed Tests</div>
-    <div class="pg-sub mb2">Quick-fire assigned tests</div>
-    <div id="speed-test-list"></div>
-  </div>
-  <div class="sp"></div>
-</div>
-
-<!-- SPEED TEST QUIZ -->
-<div class="screen" id="s-speed-quiz">
-  <div class="app-header" style="padding:44px 20px 20px;">
-    <div class="hd-row">
-      <div><div style="font-size:12px;color:rgba(255,255,255,.65);">Speed Test</div><div style="font-family:var(--display);font-weight:700;color:#fff;font-size:16px;" id="spqz-name"></div></div>
-      <div class="timer-pill" id="spqz-timer">&#9889; <span id="spqz-tsec">10</span>s</div>
-    </div>
-  </div>
-  <div class="card" style="margin-top:-14px;position:relative;z-index:2;">
-    <div class="prog-bar"><div class="prog-fill" id="spqz-prog"></div></div>
-    <b id="spqz-cnt" style="font-size:13px;color:var(--mid);display:block;margin-bottom:12px;"></b>
-    <div style="font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:18px;line-height:1.5;" id="spqz-q"></div>
-    <div id="spqz-opts"></div>
-    <button class="btn btn-blue btn-full mt2 hidden" id="spqz-next" onclick="spNextQ()">Next</button>
-  </div>
-</div>
-
-<!-- SPEED TEST RESULT -->
-<div class="screen" id="s-speed-result">
-  <div class="back-bar"><button class="back-btn" onclick="goHomeFromResult()">&#8592;</button><span class="back-title">Speed Test Result</span></div>
-  <div class="sp"></div>
-  <div class="card ctr">
-    <div class="pg-title mb1">⚡ Speed Test Complete!</div>
-    <div class="speed-result-ring"><h1 style="font-family:var(--display);font-size:42px;font-weight:800;color:var(--blue);line-height:1;" id="sp-res-sc">0</h1><small style="font-size:13px;color:var(--muted);" id="sp-res-tot">/ 0</small></div>
-    <div class="mb1">Score: <b style="color:var(--blue);" id="sp-res-pct"></b></div>
-    <div id="sp-res-status" class="mb1"></div>
-  </div>
-  <div class="card"><div class="pg-title mb2" style="font-size:16px;">Answer Review</div><div id="sp-res-review"></div></div>
-  <div class="card"><button class="btn btn-blue btn-full" onclick="goHomeFromResult()">Back to Home</button></div>
-  <div class="sp"></div>
-</div>
-
 <!-- ══ ADMIN ══ -->
 <div class="screen" id="s-admin">
   <div class="app-header">
     <div class="hd-row">
-      <div><div class="hd-logo-wrap"><img id="logo-admin" class="hd-logo-img hidden" src="" alt="Kidza" onerror="this.classList.add('hidden');document.getElementById('logo-text-admin').classList.remove('hidden')"><span id="logo-text-admin" style="font-family:var(--display);font-size:22px;font-weight:800;color:#fff;letter-spacing:1px;">Admin</span></div><div class="hd-sub" id="adm-sub">Management</div></div>
+      <div><div class="hd-brand">KIDZA Admin</div><div class="hd-sub" id="adm-sub">Management</div></div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-ghost btn-sm" id="sync-btn" onclick="syncNow()">↻ Sync</button>
         <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
@@ -420,7 +358,6 @@ tr:hover td{background:#f8fafc;}
     <div class="tabs" id="adm-tabs">
       <button class="tab-btn active" onclick="admTab('ov')">Overview</button>
       <button class="tab-btn" onclick="admTab('co')">Courses</button>
-      <button class="tab-btn" onclick="admTab('sp')">Speed Tests</button>
       <button class="tab-btn" onclick="admTab('us')">Users</button>
       <button class="tab-btn" onclick="admTab('re')">Results</button>
     </div>
@@ -436,11 +373,6 @@ tr:hover td{background:#f8fafc;}
       <button class="btn btn-blue btn-full mb2" onclick="openCModal(null)">+ New Course</button>
       <div id="adm-co-list"></div>
     </div>
-    <!-- SPEED TESTS -->
-    <div id="adm-sp" class="hidden">
-      <button class="btn btn-blue btn-full mb2" onclick="openSpModal(null)">+ New Speed Test</button>
-      <div id="adm-sp-list"></div>
-    </div>
     <!-- USERS -->
     <div id="adm-us" class="hidden">
       <button class="btn btn-blue btn-full mb2" onclick="openUModal(null)">+ New User</button>
@@ -454,7 +386,7 @@ tr:hover td{background:#f8fafc;}
       </div>
       <div class="tbl-wrap mb2">
         <table>
-          <thead><tr><th>#</th><th>Name</th><th>Course</th><th>Score</th><th>Type</th><th>Att.</th><th>Status</th><th>Act</th></tr></thead>
+          <thead><tr><th>#</th><th>Name</th><th>Course</th><th>Score</th><th>Mode</th><th>Status</th><th>Act</th></tr></thead>
           <tbody id="adm-re-body"></tbody>
         </table>
       </div>
@@ -463,24 +395,6 @@ tr:hover td{background:#f8fafc;}
     </div>
   </div>
   <div class="sp"></div>
-</div>
-
-
-<!-- FORGOT PASSWORD MODAL (admin only) -->
-<div class="modal-ov hidden" id="m-fp">
-  <div class="modal-box">
-    <div class="modal-hnd"></div>
-    <div class="modal-ttl">Admin Password Reset</div>
-    <div class="alert al-info mb2">This is for admin accounts only.</div>
-    <div class="iw"><span class="lbl">Admin Username</span><input id="fp-uname" placeholder="Admin username"></div>
-    <div class="iw"><span class="lbl">New Password</span><input type="password" id="fp-newpw" placeholder="New password"></div>
-    <div class="iw"><span class="lbl">Secret Code</span><input type="password" id="fp-secret" placeholder="Admin secret (kidza@admin2024)"></div>
-    <div id="fp-err" class="alert al-err hidden"></div>
-    <div class="row mt2">
-      <button class="btn btn-blue btn-full" onclick="doForgotPw()">Reset Password</button>
-      <button class="btn btn-outline btn-full" onclick="closeM('m-fp')">Cancel</button>
-    </div>
-  </div>
 </div>
 
 <!-- COURSE MODAL -->
@@ -509,32 +423,6 @@ tr:hover td{background:#f8fafc;}
     <div class="row mt2">
       <button class="btn btn-blue btn-full" onclick="saveCourse()">Save Course</button>
       <button class="btn btn-outline btn-full" onclick="closeM('m-co')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- SPEED TEST MODAL (Admin) -->
-<div class="modal-ov hidden" id="m-sp">
-  <div class="modal-box">
-    <div class="modal-hnd"></div>
-    <div class="modal-ttl" id="m-sp-ttl">New Speed Test</div>
-    <div class="iw"><span class="lbl">Speed Test Name</span><input id="sp-n" placeholder="Speed test name"></div>
-    <div class="iw"><span class="lbl">Description</span><textarea id="sp-d" placeholder="Brief description..."></textarea></div>
-    <div class="row mb2" style="flex-wrap:wrap;gap:10px;">
-      <div style="flex:1;min-width:80px;"><span class="lbl">Pass %</span><input type="number" id="sp-p" value="60" min="1" max="100"></div>
-      <div style="flex:1;min-width:80px;"><span class="lbl">Timer (s/Q)</span><input type="number" id="sp-tk" value="10" min="3"></div>
-    </div>
-    <div class="sep"></div>
-    <div style="font-weight:700;font-size:13px;margin-bottom:8px;">Questions</div>
-    <div id="sp-qs"></div>
-    <button class="btn btn-outline btn-full btn-sm mb2" onclick="addSpQ()">+ Add Question</button>
-    <div class="sep"></div>
-    <div style="font-weight:700;font-size:13px;margin-bottom:8px;">Assign to Users</div>
-    <div id="sp-asgn"></div>
-    <div class="row mt2">
-      <button class="btn btn-blue btn-full" onclick="saveSpeedTest()">Save Speed Test</button>
-      <button class="btn btn-outline btn-full" onclick="closeM('m-sp')">Cancel</button>
     </div>
   </div>
 </div>
@@ -573,8 +461,13 @@ tr:hover td{background:#f8fafc;}
 
 <script>
 // ═══════════════════════
-// FIREBASE CONFIG
+// DB + SESSION  (Firebase Realtime Database — syncs across all devices)
 // ═══════════════════════
+
+// ┌─────────────────────────────────────────────────────────────────┐
+// │  FIREBASE CONFIG — paste your own project config here          │
+// │  Get it from: Firebase Console → Project Settings → Your Apps  │
+// └─────────────────────────────────────────────────────────────────┘
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDPWiErsiy2-ZBThzfb8CQqVCaa3Bm4L5E",
   authDomain: "kidza-quiz.firebaseapp.com",
@@ -584,19 +477,18 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "1005530966135",
   appId: "1:1005530966135:web:5479ee774ac8ed59957e72"
 };
+
+// Detect placeholder config — real keys start with "AIzaSy" and are 39 chars; fake ones aren't
 const FIREBASE_CONFIGURED = (
   typeof FIREBASE_CONFIG.apiKey === 'string' &&
   FIREBASE_CONFIG.apiKey.length >= 35 &&
   FIREBASE_CONFIG.apiKey !== 'AIzaSyAbc123xyz' &&
   !FIREBASE_CONFIG.messagingSenderId.startsWith('987654321')
 );
-const ADMIN_FP_SECRET = 'kidza@admin2024';
 
-let fbDB = null;
-let fbAuth = null;
+let fbDB = null;  // Firebase database reference
 const SK = 'kidza_sess';
-const LOCAL_KEY = 'kidza_v8';
-const RESUME_KEY = 'kidza_resume';
+const LOCAL_KEY = 'kidza_v7';
 
 const DB_DEFAULT = {
   users:[
@@ -604,83 +496,77 @@ const DB_DEFAULT = {
     {id:'u1',name:'TEST',username:'test',password:'1234',role:'staff'},
     {id:'u2',name:'Rajagopal',username:'9629816727',password:'1234',role:'staff'},
     {id:'u3',name:'Rajadurai',username:'9751088431',password:'1234',role:'staff'},
-    {id:'u4',name:'Tamilarsan',username:'8838405191',password:'1234',role:'staff'},
-    {id:'u5',name:'Manjula',username:'8012185613',password:'1234',role:'staff'},
-    {id:'u6',name:'Prasanth',username:'8838820294',password:'1234',role:'staff'},
-    {id:'u7',name:'Prabha',username:'8508463900',password:'1234',role:'staff'},
-    {id:'u8',name:'Surya',username:'8098493506',password:'1234',role:'staff'},
-    {id:'u9',name:'Swathi',username:'9789405578',password:'1234',role:'staff'},
-    {id:'u10',name:'Yuvarajan',username:'9787686585',password:'1234',role:'staff'},
-    {id:'u11',name:'Saranya',username:'7868061065',password:'1234',role:'staff'},
-    {id:'u12',name:'Veera',username:'9345486979',password:'1234',role:'staff'},
-    {id:'u13',name:'Philip Arun',username:'8072019655',password:'1234',role:'staff'},
-    {id:'u14',name:'Dhanajeyan',username:'8220268887',password:'1234',role:'staff'},
-    {id:'u15',name:'Kavya',username:'7418714690',password:'1234',role:'staff'},
-    {id:'u16',name:'Malathi',username:'9025431213',password:'1234',role:'staff'},
-    {id:'u17',name:'Narmatha',username:'9597166849',password:'1234',role:'staff'},
-    {id:'u18',name:'Priyadharsini',username:'8667540181',password:'1234',role:'staff'},
-    {id:'u19',name:'Tharik',username:'9025937706',password:'1234',role:'staff'},
-    {id:'u20',name:'Nila',username:'8825710851',password:'1234',role:'staff'}
+    {id:'u1',name:'Tamilarsan',username:'8838405191',password:'1234',role:'staff'},
+    {id:'u1',name:'Manjula',username:'8012185613',password:'1234',role:'staff'},
+    {id:'u1',name:'Prasanth',username:'8838820294',password:'1234',role:'staff'},
+    {id:'u1',name:'Prabha',username:'8508463900',password:'1234',role:'staff'},
+    {id:'u1',name:'Surya',username:'8098493506',password:'1234',role:'staff'},
+    {id:'u1',name:'Swathi',username:'9789405578',password:'1234',role:'staff'},
+    {id:'u1',name:'Yuvarajan',username:'9787686585',password:'1234',role:'staff'},
+    {id:'u1',name:'Saranya',username:'7868061065',password:'1234',role:'staff'},
+    {id:'u1',name:'Veera',username:'9345486979',password:'1234',role:'staff'},
+    {id:'u1',name:'Philip Arun',username:'8072019655',password:'1234',role:'staff'},
+    {id:'u1',name:'Dhanajeyan',username:'8220268887',password:'1234',role:'staff'},
+    {id:'u1',name:'Kavya',username:'7418714690',password:'1234',role:'staff'},
+    {id:'u1',name:'Malathi',username:'9025431213',password:'1234',role:'staff'},
+    {id:'u1',name:'Narmatha',username:'9597166849',password:'1234',role:'staff'},
+    {id:'u1',name:'Priyadharsini',username:'8667540181',password:'1234',role:'staff'},
+    {id:'u1',name:'Tharik',username:'9025937706',password:'1234',role:'staff'},
+    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'}
   ],
   courses:[{
     id:'c1',name:'Product Knowledge',desc:'Learn about Kidza products, categories and certifications.',
     passPercent:60,timerK:30,timerS:10,assignedUsers:['u1','u2'],
-    materials:[
-      {id:'m1',type:'video',title:'Product Overview',url:'',offlineFile:'',offlineFileName:''},
-      {id:'m2',type:'pdf',title:'Product Catalogue',url:'',offlineFile:'',offlineFileName:''}
-    ],
+    materials:[{id:'m1',type:'video',title:'Product Overview',url:''},{id:'m2',type:'pdf',title:'Product Catalogue',url:''}],
     questions:[
       {id:'q1',question:'What is the Kidza return policy?',options:['7 Days','14 Days','30 Days','No Return'],answer:2},
       {id:'q2',question:'Which certification is required for baby products?',options:['ISO','ISI','BIS','FDA'],answer:2},
       {id:'q3',question:'Which age group uses newborn diapers?',options:['0-3 Months','1-2 Years','3-5 Years','5+ Years'],answer:0}
     ]
   }],
-  speedTests:[],
-  results:[],
-  speedResults:[],
-  matProg:{},
-  attempts:{},
-  speedAttempts:{},
-  logoUrl:''
+  results:[],matProg:{},attempts:{}
 };
 
 let DB = JSON.parse(JSON.stringify(DB_DEFAULT));
 
-// ═══════════════════════
-// FIREBASE INIT + SYNC
-// ═══════════════════════
+// ── Initialise Firebase (only if configured) ──
 function initFirebase(){
   if(!FIREBASE_CONFIGURED) return false;
-  if(typeof firebase==='undefined'){ console.warn('Firebase SDK not loaded.'); return false; }
+  if(typeof firebase === 'undefined'){
+    console.warn('Firebase SDK not loaded — running in offline mode.');
+    return false;
+  }
   try{
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     fbDB = firebase.database();
-    fbAuth = firebase.auth();
     return true;
   }catch(e){ console.warn('Firebase init failed:',e); return false; }
 }
 
+// ═══════════════════════
+// SYNC MANAGER (added) — realtime cross-device sync + status badge
+// ═══════════════════════
 function setSyncStatus(state,text){
   const el=$('sync-status'); if(!el) return;
   el.className=state; el.classList.remove('hidden');
-  const lbl=$('sync-status-text'); if(lbl) lbl.textContent=text||({online:'Online',offline:'Offline',syncing:'Syncing\u2026'}[state]||state);
+  const lbl=$('sync-status-text'); if(lbl) lbl.textContent=text||({online:'Online',offline:'Offline',syncing:'Syncing…'}[state]||state);
 }
-
 let _fbListenerAttached=false;
+// Real-time listener — automatically refreshes UI when data changes on another device
 function listenForChanges(){
   if(!fbDB||_fbListenerAttached) return;
   _fbListenerAttached=true;
-  fbDB.ref('kidza/db').on('value',snap=>{
+  fbDB.ref('kidza/db').on('value', snap=>{
     if(!snap.exists()) return;
-    DB=Object.assign({users:[],courses:[],speedTests:[],results:[],speedResults:[],matProg:{},attempts:{},speedAttempts:{},logoUrl:''},snap.val());
+    const d=snap.val();
+    DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}},d);
     try{localStorage.setItem(LOCAL_KEY,JSON.stringify(DB));}catch(e){}
     setSyncStatus('online','Online');
-    applyLogoUrl(DB.logoUrl||'');
     refreshCurrentScreen();
-    sendToMIT('SYNC_SUCCESS');
-  },err=>{ setSyncStatus('offline','Offline'); sendToMIT('SYNC_FAILED'); });
+    sendToMIT('SYNC_SUCCESS'); // MIT App Inventor bridge event
+  }, err=>{console.warn('Firebase listener error:',err);setSyncStatus('offline','Offline');sendToMIT('SYNC_FAILED');});
 }
-
+// Re-render the currently visible screen so realtime updates appear instantly
 function refreshCurrentScreen(){
   const active=document.querySelector('.screen.active');
   if(!active||!CUR.user) return;
@@ -689,106 +575,65 @@ function refreshCurrentScreen(){
     case 's-admin': renderAdmin(); break;
     case 's-lb': renderLb(); break;
     case 's-course': if(CID) openCourse(CID); break;
-    case 's-speed': renderSpeedTests(); break;
   }
 }
-
-function reconnectFirebase(){
-  if(connectFirebase()){ listenForChanges(); setSyncStatus('syncing','Syncing\u2026'); lDB().then(()=>{setSyncStatus('online','Online');refreshCurrentScreen();}); }
-}
+// Connect / reconnect helpers
 function connectFirebase(){ return initFirebase(); }
-window.addEventListener('online',()=>{setSyncStatus('syncing','Syncing\u2026');reconnectFirebase();});
-window.addEventListener('offline',()=>setSyncStatus('offline','Offline'));
+function reconnectFirebase(){
+  if(connectFirebase()){ listenForChanges(); setSyncStatus('syncing','Syncing…'); lDB().then(()=>{setSyncStatus('online','Online');refreshCurrentScreen();}); }
+}
+window.addEventListener('online',()=>{setSyncStatus('syncing','Syncing…');reconnectFirebase();});
+window.addEventListener('offline',()=>{setSyncStatus('offline','Offline');});
 
-let _saveTimer=null;
+// ── Save DB to Firebase + localStorage fallback ──
+let _saveTimer = null;
 function sDB(){
-  try{localStorage.setItem(LOCAL_KEY,JSON.stringify(DB));}catch(e){}
+  // Always write localStorage immediately as fallback
+  try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); }catch(e){}
+  // Debounce Firebase write by 400ms
   if(fbDB){
-    setSyncStatus('syncing','Syncing\u2026');
+    setSyncStatus('syncing','Syncing…');
     clearTimeout(_saveTimer);
-    _saveTimer=setTimeout(()=>{
+    _saveTimer = setTimeout(()=>{
       fbDB.ref('kidza/db').set(JSON.parse(JSON.stringify(DB)))
         .then(()=>setSyncStatus('online','Online'))
         .catch(e=>{console.warn('Firebase write error:',e);setSyncStatus('offline','Offline');});
-    },400);
+    }, 400);
   }
 }
 
+// ── Load DB: Firebase first, then localStorage, then defaults ──
 async function lDB(){
+  // Try Firebase
   if(fbDB){
     try{
-      const snap=await fbDB.ref('kidza/db').get();
+      const snap = await fbDB.ref('kidza/db').get();
       if(snap.exists()){
-        DB=Object.assign({users:[],courses:[],speedTests:[],results:[],speedResults:[],matProg:{},attempts:{},speedAttempts:{},logoUrl:''},snap.val());
-        try{localStorage.setItem(LOCAL_KEY,JSON.stringify(DB));}catch(e){}
-        return;
-      } else {
-        // Firebase is empty — seed with defaults and push
-        DB=JSON.parse(JSON.stringify(DB_DEFAULT));
-        try{localStorage.setItem(LOCAL_KEY,JSON.stringify(DB));}catch(e){}
-        fbDB.ref('kidza/db').set(JSON.parse(JSON.stringify(DB))).catch(e=>console.warn('Seed error:',e));
+        const d = snap.val();
+        DB = Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}}, d);
+        // Also update local cache
+        try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); }catch(e){}
         return;
       }
-    }catch(e){console.warn('Firebase read error:',e);}
+    }catch(e){ console.warn('Firebase read error:',e); }
   }
+  // Fallback: localStorage
   try{
-    const s=localStorage.getItem(LOCAL_KEY);
-    if(s){DB=Object.assign({users:[],courses:[],speedTests:[],results:[],speedResults:[],matProg:{},attempts:{},speedAttempts:{},logoUrl:''},JSON.parse(s));return;}
+    const s = localStorage.getItem(LOCAL_KEY);
+    if(s){ const d=JSON.parse(s); DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}},d); return; }
   }catch(e){}
-  DB=JSON.parse(JSON.stringify(DB_DEFAULT));
+  // First run: use defaults and push to Firebase
+  DB = JSON.parse(JSON.stringify(DB_DEFAULT));
   sDB();
 }
 
-// ═══════════════════════
-// LOGO
-// ═══════════════════════
-function applyLogoUrl(url){
-  ['logo-main','logo-home','logo-admin'].forEach(id=>{
-    const img=$(id); if(!img) return;
-    if(url){ img.src=url; img.classList.remove('hidden'); }
-    else { img.classList.add('hidden'); }
-  });
-}
-
-// ═══════════════════════
-// SESSION + RESUME
-// ═══════════════════════
+// ── Session (remember-me is per-device by design) ──
 let CUR={user:null};
 function saveS(uid){try{localStorage.setItem(SK,uid);}catch(e){}}
 function clearS(){try{localStorage.removeItem(SK);}catch(e){}}
 function restoreS(){
   try{const uid=localStorage.getItem(SK);if(uid){const u=DB.users.find(x=>x.id===uid);if(u){CUR.user=u;return true;}}}catch(e){}
   return false;
-}
-function saveResume(screenId,data){
-  const noSave=['s-quiz','s-speed-quiz','s-login','s-result','s-speed-result'];
-  if(noSave.includes(screenId)) return;
-  try{localStorage.setItem(RESUME_KEY,JSON.stringify({screen:screenId,data:data||{},uid:CUR.user&&CUR.user.id}));}catch(e){}
-}
-function clearResume(){try{localStorage.removeItem(RESUME_KEY);}catch(e){}}
-function loadResume(){try{const r=localStorage.getItem(RESUME_KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
-
-// Track quiz-in-progress so if app closes mid-test, attempt is consumed
-function saveQuizInProg(cid,uid){
-  try{localStorage.setItem('kidza_qip',JSON.stringify({cid,uid,ts:Date.now()}));}catch(e){}
-}
-function clearQuizInProg(){try{localStorage.removeItem('kidza_qip');}catch(e){}}
-function checkAbandonedQuiz(){
-  try{
-    const raw=localStorage.getItem('kidza_qip');
-    if(!raw) return;
-    const info=JSON.parse(raw);
-    if(!info||!info.uid||!info.cid||!CUR.user||info.uid!==CUR.user.id) return;
-    const k=info.uid+'_'+info.cid;
-    if(!DB.attempts[k]) DB.attempts[k]=[];
-    if(DB.attempts[k].length<2){
-      DB.attempts[k].push({score:0,total:0,pct:0,passed:false,mode:'knowledge',date:new Date().toLocaleString(),abandoned:true});
-      const c=DB.courses.find(x=>x.id===info.cid);
-      DB.results.push({uid:info.uid,name:CUR.user.name,cid:info.cid,cname:c?c.name:'',score:0,total:0,pct:0,passed:false,mode:'knowledge',attempt:DB.attempts[k].length,date:new Date().toLocaleString(),abandoned:true});
-      sDB();
-    }
-    clearQuizInProg();
-  }catch(e){clearQuizInProg();}
 }
 
 // ═══════════════════════
@@ -805,149 +650,71 @@ function closeM(id){$(id).classList.add('hidden');}
 function openM(id){$(id).classList.remove('hidden');}
 
 // ═══════════════════════
-// MIT APP INVENTOR BRIDGE
+// MIT APP INVENTOR BRIDGE (added)
 // ═══════════════════════
-window.AppInventor=window.AppInventor||{};
-function sendToMIT(msg){
-  try{if(window.AppInventor&&window.AppInventor.setWebViewString)window.AppInventor.setWebViewString(msg);}catch(e){}
+window.AppInventor = window.AppInventor || {};
+function sendToMIT(message){
+  try{
+    if(window.AppInventor && window.AppInventor.setWebViewString){
+      window.AppInventor.setWebViewString(message);
+    }
+  }catch(e){console.warn('AppInventor bridge error:',e);}
 }
 
 // ═══════════════════════
-// NAVIGATION + DOUBLE-BACK-TO-EXIT
+// NAVIGATION MANAGER (added — centralized screen history stack)
+// Replaces ad-hoc NS array logic. Old helper names (navTo/navPush/navBack)
+// are kept as thin aliases so all existing onclick="" calls keep working.
 // ═══════════════════════
-const NS=[];
-let _lastBackTime=0;
+const NS=[]; // screen history stack — kept for backward compatibility with existing code (admin init etc.)
+const ROOT_SCREENS=['s-login','s-home','s-admin']; // screens where "back" should exit (or do nothing on login)
 
 function navigateTo(screenId){
-  if(NS[NS.length-1]===screenId){showScreen(screenId);return;}
+  // Prevent duplicate consecutive history entries / navigation loops
+  if(NS[NS.length-1]===screenId) { showScreen(screenId); return; }
   NS.push(screenId);
-  try{history.pushState({screen:screenId},document.title);}catch(e){}
+  try{ history.pushState({screen:screenId}, document.title); }catch(e){}
   showScreen(screenId);
-  if(CUR.user) saveResume(screenId,{cid:CID,vmcid:VM.cid,vmmid:VM.mid});
 }
 
 function navigateBack(){
   const current=NS[NS.length-1];
   if(NS.length>1){
     NS.pop();
-    showScreen(NS[NS.length-1]);
-    if(CUR.user) saveResume(NS[NS.length-1],{cid:CID});
+    const prev=NS[NS.length-1];
+    showScreen(prev);
     return;
   }
+  // Only one (or zero) screens in stack — we're at a root screen
   if(current==='s-home'||current==='s-admin'){
-    const now=Date.now();
-    if(now-_lastBackTime<2200){
-      sendToMIT('EXIT');
-      return;
-    }
-    _lastBackTime=now;
-    const toast=$('dbl-back-toast');
-    if(toast){toast.style.display='block';clearTimeout(window._dbtt);window._dbtt=setTimeout(()=>toast.style.display='none',2000);}
+    // Home/Admin back → notify MIT App Inventor to close the app
+    sendToMIT('EXIT');
     return;
   }
-  if(current==='s-login'||!current) return;
+  if(current==='s-login'||!current){
+    // Nothing to go back to from login
+    return;
+  }
+  // Fallback: go to home
   goHome();
 }
 
-function clearNavigation(){NS.length=0;try{history.replaceState({},document.title);}catch(e){}}
+function clearNavigation(){
+  NS.length=0;
+  try{ history.replaceState({},document.title); }catch(e){}
+}
+
+// Backward-compatible aliases used throughout the existing codebase
 function navPush(id){navigateTo(id);}
 function navBack(){navigateBack();}
 function navTo(id){navigateTo(id);}
 
-window.addEventListener('popstate',()=>navigateBack());
+// Hardware / browser back button (also used by MIT App Inventor WebViewer)
+window.addEventListener('popstate',function(){navigateBack();});
 
-// ═══════════════════════
-// NOTIFICATIONS
-// ═══════════════════════
+// Notification
 function askNotif(){if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}
 function pushNotif(t,b){if('Notification' in window&&Notification.permission==='granted')new Notification(t,{body:b});}
-
-// ═══════════════════════
-// FORGOT PASSWORD (Admin only)
-// ═══════════════════════
-function openForgotPw(){openM('m-fp');}
-function doForgotPw(){
-  const uname=$('fp-uname').value.trim().toLowerCase();
-  const newpw=$('fp-newpw').value;
-  const secret=$('fp-secret').value;
-  const err=$('fp-err');
-  err.classList.add('hidden');
-  if(!uname||!newpw||!secret){err.textContent='All fields required.';err.classList.remove('hidden');return;}
-  if(secret!==ADMIN_FP_SECRET){err.textContent='Invalid secret code.';err.classList.remove('hidden');return;}
-  const u=DB.users.find(x=>x.username.toLowerCase()===uname&&x.role==='admin');
-  if(!u){err.textContent='Admin account not found.';err.classList.remove('hidden');return;}
-  u.password=newpw;
-  sDB();closeM('m-fp');
-  alert('Password reset successfully!');
-}
-
-// ═══════════════════════
-// GITHUB LOGIN
-// ═══════════════════════
-async function doGithubLogin(){
-  if(!fbAuth){
-    $('l-err').textContent='GitHub login requires Firebase. Please configure Firebase.';
-    $('l-err').classList.remove('hidden');
-    return;
-  }
-  const btn=$('gh-login-btn');
-  if(btn){btn.textContent='Opening GitHub\u2026';btn.disabled=true;}
-  $('l-err').classList.add('hidden');
-  try{
-    const provider=new firebase.auth.GithubAuthProvider();
-    const result=await fbAuth.signInWithPopup(provider);
-    const ghUser=result.user;
-    const ghEmail=(ghUser.email||'').toLowerCase();
-    const ghName=ghUser.displayName||ghUser.email||'GitHub User';
-
-    await lDB();
-
-    // Try to match by email first, then by name (case-insensitive)
-    let matchedUser=null;
-    if(ghEmail) matchedUser=DB.users.find(u=>u.username.toLowerCase()===ghEmail||u.email&&u.email.toLowerCase()===ghEmail);
-    if(!matchedUser&&ghName) matchedUser=DB.users.find(u=>u.name.toLowerCase()===ghName.toLowerCase());
-
-    if(!matchedUser){
-      // Auto-create as staff user linked to this GitHub account
-      const newId=nuid();
-      matchedUser={id:newId,name:ghName,username:ghEmail||ghUser.uid,password:'',role:'staff',githubUid:ghUser.uid,email:ghEmail};
-      DB.users.push(matchedUser);
-      sDB();
-    } else if(!matchedUser.githubUid){
-      // Link GitHub UID to existing user
-      matchedUser.githubUid=ghUser.uid;
-      if(!matchedUser.email&&ghEmail) matchedUser.email=ghEmail;
-      sDB();
-    }
-
-    CUR.user=matchedUser;
-    saveS(matchedUser.id);
-    askNotif();
-    applyLogoUrl(DB.logoUrl||'');
-    sendToMIT('LOGIN_SUCCESS');
-    $('l-err').classList.add('hidden');
-    if(matchedUser.role==='admin'){
-      clearResume();NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');
-    }else{
-      checkAbandonedQuiz();
-      NS.length=0;NS.push('s-home');goHome();
-      const resume=loadResume();
-      if(resume&&resume.uid===matchedUser.id&&resume.screen){
-        setTimeout(()=>tryResume(resume),350);
-      }
-    }
-  }catch(e){
-    console.warn('GitHub login error:',e);
-    let msg='GitHub login failed.';
-    if(e.code==='auth/popup-closed-by-user') msg='GitHub login cancelled.';
-    else if(e.code==='auth/popup-blocked') msg='Popup blocked. Please allow popups for this site.';
-    else if(e.code==='auth/account-exists-with-different-credential') msg='This email is already linked to another login method.';
-    $('l-err').textContent=msg;
-    $('l-err').classList.remove('hidden');
-  }finally{
-    if(btn){btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg> Sign in with GitHub';btn.disabled=false;}
-  }
-}
 
 // ═══════════════════════
 // AUTH
@@ -956,62 +723,37 @@ async function doLogin(){
   const un=$('l-user').value.trim().toLowerCase();
   const pw=$('l-pass').value;
   const rem=$('l-rem').checked;
+  // Pull latest DB from Firebase so users added on another device are visible
   const btn=document.querySelector('#s-login .btn-blue');
-  if(btn){btn.textContent='Syncing\u2026';btn.disabled=true;}
+  if(btn){btn.textContent='Syncing…';btn.disabled=true;}
   await lDB();
   if(btn){btn.textContent='Sign In';btn.disabled=false;}
   const user=DB.users.find(u=>u.username.toLowerCase()===un&&u.password===pw);
   if(!user){$('l-err').textContent='Invalid username or password.';$('l-err').classList.remove('hidden');sendToMIT('LOGIN_FAILED');return;}
   $('l-err').classList.add('hidden');
   CUR.user=user;
-  if(rem) saveS(user.id);
+  if(rem)saveS(user.id);
   askNotif();
-  applyLogoUrl(DB.logoUrl||'');
-  sendToMIT('LOGIN_SUCCESS');
-  if(user.role==='admin'){
-    clearResume();NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');
-  }else{
-    checkAbandonedQuiz();
-    NS.length=0;NS.push('s-home');goHome();
-    // Resume last screen
-    const resume=loadResume();
-    if(resume&&resume.uid===user.id&&resume.screen){
-      setTimeout(()=>tryResume(resume),350);
-    }
-  }
+  sendToMIT('LOGIN_SUCCESS'); // MIT App Inventor bridge event
+  if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
+  else{NS.length=0;NS.push('s-home');goHome();}
 }
-
-function tryResume(resume){
-  if(!resume||!resume.screen) return;
-  const noResume=['s-quiz','s-speed-quiz','s-login','s-result','s-speed-result'];
-  if(noResume.includes(resume.screen)) return;
-  if(resume.data&&resume.data.cid){
-    const c=DB.courses.find(x=>x.id===resume.data.cid);
-    if(c) CID=c.id;
-  }
-  switch(resume.screen){
-    case 's-course': if(CID) openCourse(CID); break;
-    case 's-lb': goLb(); break;
-    case 's-speed': goSpeedTest(); break;
-    default: break;
-  }
-}
-
 async function syncNow(){
   const btn=$('sync-btn');
-  if(btn){btn.textContent='Syncing\u2026';btn.disabled=true;}
-  setSyncStatus('syncing','Syncing\u2026');
-  try{await lDB();setSyncStatus(fbDB?'online':'offline',fbDB?'Online':'Offline');sendToMIT('SYNC_SUCCESS');}
-  catch(e){setSyncStatus('offline','Offline');sendToMIT('SYNC_FAILED');}
-  if(btn){btn.textContent='\u2713 Done';setTimeout(()=>{btn.textContent='\u21bb Sync';btn.disabled=false;},1500);}
+  if(btn){btn.textContent='Syncing…';btn.disabled=true;}
+  setSyncStatus('syncing','Syncing…');
+  try{
+    await lDB();
+    setSyncStatus(fbDB?'online':'offline', fbDB?'Online':'Offline');
+    sendToMIT('SYNC_SUCCESS');
+  }catch(e){
+    setSyncStatus('offline','Offline');
+    sendToMIT('SYNC_FAILED');
+  }
+  if(btn){btn.textContent='✓ Done';setTimeout(()=>{btn.textContent='↻ Sync';btn.disabled=false;},1500);}
   renderAdmin();
 }
-
-function doLogout(){
-  sendToMIT('LOGOUT');clearS();clearResume();CUR.user=null;
-  $('l-user').value='';$('l-pass').value='';$('l-rem').checked=false;
-  clearNavigation();showScreen('s-login');
-}
+function doLogout(){sendToMIT('LOGOUT');clearS();CUR.user=null;$('l-user').value='';$('l-pass').value='';$('l-rem').checked=false;clearNavigation();showScreen('s-login');}
 
 // ═══════════════════════
 // HOME
@@ -1024,17 +766,18 @@ function goHome(){
   const pcts=allA.map(a=>a.pct);
   const avg=pcts.length?Math.round(pcts.reduce((s,v)=>s+v,0)/pcts.length):0;
   const best=pcts.length?Math.max(...pcts):0;
-  $('home-stats').innerHTML=
-    '<div class="stat-card"><div class="stat-num">'+myC.length+'</div><div class="stat-lbl">Courses</div></div>'+
-    '<div class="stat-card"><div class="stat-num">'+allA.length+'</div><div class="stat-lbl">Attempts</div></div>'+
-    '<div class="stat-card"><div class="stat-num">'+avg+'%</div><div class="stat-lbl">Avg Score</div></div>'+
-    '<div class="stat-card"><div class="stat-num">'+best+'%</div><div class="stat-lbl">Best Score</div></div>';
+  $('home-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${myC.length}</div><div class="stat-lbl">Courses</div></div>
+    <div class="stat-card"><div class="stat-num">${allA.length}</div><div class="stat-lbl">Attempts</div></div>
+    <div class="stat-card"><div class="stat-num">${avg}%</div><div class="stat-lbl">Avg Score</div></div>
+    <div class="stat-card"><div class="stat-num">${best}%</div><div class="stat-lbl">Best Score</div></div>`;
+  // Notifs
   const ns=[];
   myC.forEach(c=>{const k=u.id+'_'+c.id;const a=DB.attempts[k]||[];
-    if(!a.length) ns.push('New quiz assigned: <b>'+esc(c.name)+'</b>');
-    else if(a.length===1) ns.push('1 attempt left for <b>'+esc(c.name)+'</b>');
+    if(!a.length)ns.push('New quiz assigned: <b>'+esc(c.name)+'</b>');
+    else if(a.length===1)ns.push('1 attempt left for <b>'+esc(c.name)+'</b>');
   });
-  $('notif-area').innerHTML=ns.map(n=>'<div class="notif-card"><span style="font-size:20px;">&#128276;</span><div><div style="font-weight:700;font-size:13px;">Notification<span class="notif-dot"></span></div><div style="font-size:13px;">'+n+'</div></div></div>').join('');
+  $('notif-area').innerHTML=ns.map(n=>`<div class="notif-card"><span style="font-size:20px;">&#128276;</span><div><div style="font-weight:700;font-size:13px;">Notification<span class="notif-dot"></span></div><div style="font-size:13px;">${n}</div></div></div>`).join('');
   if(!myC.length){$('home-courses').innerHTML='<p class="muted ctr" style="padding:16px;">No courses assigned yet.</p>';}
   else{
     $('home-courses').innerHTML=myC.map(c=>{
@@ -1042,20 +785,19 @@ function goHome(){
       const bp=a.length?Math.max(...a.map(x=>x.pct)):null;
       const md=allMatsDone(u.id,c.id);
       const badge=a.length>=2?'<span class="badge bd-grey">Done</span>':md?'<span class="badge bd-pass">Ready</span>':'<span class="badge bd-warn">Materials</span>';
-      return '<div class="item-row" onclick="openCourse(\''+c.id+'\')">'+
-        '<div class="item-icon ic-course">&#128218;</div>'+
-        '<div class="item-info"><div class="item-title">'+esc(c.name)+'</div>'+
-        '<div class="item-sub">'+c.questions.length+' Q &middot; '+a.length+'/2 attempts'+(bp!==null?' &middot; Best: '+bp+'%':'')+'</div></div>'+
-        badge+'</div>';
+      return `<div class="item-row" onclick="openCourse('${c.id}')">
+        <div class="item-icon ic-course">&#128218;</div>
+        <div class="item-info"><div class="item-title">${esc(c.name)}</div>
+          <div class="item-sub">${c.questions.length} Q &middot; ${a.length}/2 attempts${bp!==null?' &middot; Best: '+bp+'%':''}</div></div>
+        ${badge}</div>`;
     }).join('');
   }
   showScreen('s-home');
-  saveResume('s-home',{});
 }
 
 function allMatsDone(uid,cid){
   const c=DB.courses.find(x=>x.id===cid);
-  if(!c||!c.materials||!c.materials.length) return true;
+  if(!c||!c.materials||!c.materials.length)return true;
   return c.materials.every(m=>DB.matProg[uid+'_'+cid+'_'+m.id]);
 }
 
@@ -1076,25 +818,23 @@ function openCourse(cid){
       const done=DB.matProg[u.id+'_'+cid+'_'+m.id];
       const ic={video:'&#127916;',ppt:'&#128202;',pdf:'&#128196;',gif:'&#128248;',image:'&#128248;'};
       const cc={video:'ic-video',ppt:'ic-ppt',pdf:'ic-pdf',gif:'ic-img',image:'ic-img'};
-      const hasOff=(m.offlineFile||'').trim().length>4;
-      return '<div class="item-row'+(done?' done':'')+'" onclick="'+(done?'void 0':'viewMat(\''+cid+'\',\''+m.id+'\')')+'">'+
-        '<div class="item-icon '+(cc[m.type]||'ic-pdf')+'">'+(ic[m.type]||'&#128206;')+'</div>'+
-        '<div class="item-info"><div class="item-title">'+esc(m.title)+'</div><div class="item-sub">'+m.type.toUpperCase()+(hasOff?' &middot; Offline':'')+'</div></div>'+
-        (done?'<span class="badge bd-pass">Done</span>':'<span class="badge bd-blue">View</span>')+
-        '</div>';
+      return `<div class="item-row${done?' done':''}" onclick="${done?'void 0':'viewMat(\''+cid+'\',\''+m.id+'\')'}">
+        <div class="item-icon ${cc[m.type]||'ic-pdf'}">${ic[m.type]||'&#128206;'}</div>
+        <div class="item-info"><div class="item-title">${esc(m.title)}</div><div class="item-sub">${m.type.toUpperCase()}</div></div>
+        ${done?'<span class="badge bd-pass">Done</span>':'<span class="badge bd-blue">View</span>'}
+      </div>`;
     }).join('');
   }
   const k=u.id+'_'+c.id;const a=DB.attempts[k]||[];const md=allMatsDone(u.id,cid);
-  if(a.length>=2){const bp=Math.max(...a.map(x=>x.pct));$('cd-quiz').innerHTML='<div class="alert al-warn">Both attempts used. Best Score: <b>'+bp+'%</b></div>';}
-  else if(!md){$('cd-quiz').innerHTML='<div class="alert al-warn">Complete all materials first.</div>';}
-  else{$('cd-quiz').innerHTML='<button class="btn btn-blue btn-full" onclick="openInst(\''+cid+'\')">&#128203; Knowledge Test (Attempt '+(a.length+1)+'/2)</button>';}
+  if(a.length>=2){const bp=Math.max(...a.map(x=>x.pct));$('cd-quiz').innerHTML=`<div class="alert al-warn">Both attempts used. Best: <b>${bp}%</b></div>`;}
+  else if(!md){$('cd-quiz').innerHTML=`<div class="alert al-warn">Complete all materials first.</div>`;}
+  else{$('cd-quiz').innerHTML=`<button class="btn btn-blue btn-full" onclick="openQType('${cid}')">Take Quiz (Attempt ${a.length+1}/2)</button>`;}
   navTo('s-course');
-  saveResume('s-course',{cid});
-  sendToMIT('COURSE_OPENED');
+  sendToMIT('COURSE_OPENED'); // MIT App Inventor bridge event
 }
 
 // ═══════════════════════
-// MATERIAL VIEWER
+// MATERIAL
 // ═══════════════════════
 let VM={cid:null,mid:null};
 function viewMat(cid,mid){
@@ -1103,320 +843,156 @@ function viewMat(cid,mid){
   $('mat-bar').textContent=m.title;
   let h='<div class="pg-title mb2">'+esc(m.title)+'</div>';
   const url=(m.url||'').trim();
-  const offFile=(m.offlineFile||'').trim();
-  const offName=m.offlineFileName||m.title;
-
-  // Offline download button if present
-  if(offFile){
-    h+='<div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;border:1.5px solid var(--border);margin-bottom:12px;background:#f8fafc;">'+
-      '<span style="font-size:22px;">&#128190;</span>'+
-      '<div style="flex:1;"><div style="font-weight:700;font-size:14px;">Offline File</div><div style="font-size:12px;color:var(--muted);">'+esc(offName)+'</div></div>'+
-      '<a href="'+esc(offFile)+'" download="'+esc(offName)+'" class="btn btn-outline btn-xs" target="_blank">&#11015; Download</a></div>';
-  }
-
   if(m.type==='video'){
-    if(!url&&!offFile){h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No video set.</div>';}
-    else if(url){
-      if(url.includes('youtu')){
-        const ym=url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-        const vid=ym?ym[1]:'';
-        if(vid) h+='<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:14px;overflow:hidden;background:#000;"><iframe src="https://www.youtube-nocookie.com/embed/'+vid+'?rel=0&playsinline=1&modestbranding=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="autoplay;encrypted-media;picture-in-picture" allowfullscreen title="'+esc(m.title)+'"></iframe></div>';
-        else h+='<div class="alert al-warn">Could not parse YouTube URL.</div>';
-      }else if(url.includes('vimeo.com')){
-        const vid=url.split('/').pop().split('?')[0];
-        h+='<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:14px;overflow:hidden;background:#000;"><iframe src="https://player.vimeo.com/video/'+vid+'?playsinline=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="autoplay;fullscreen" allowfullscreen></iframe></div>';
-      }else{
-        h+='<video controls playsinline preload="metadata" style="width:100%;border-radius:14px;background:#000;" src="'+esc(url)+'"><p>Cannot play video.</p></video>';
-      }
-    }
+    if(!url){h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No video URL set.</div>';}
+    else if(url.includes('youtu')){
+      const ym=url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+      const vid=ym?ym[1]:'';
+      if(vid){h+='<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:14px;overflow:hidden;background:#000;"><iframe src="https://www.youtube-nocookie.com/embed/'+vid+'?rel=0&playsinline=1&modestbranding=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="autoplay;encrypted-media;picture-in-picture" allowfullscreen title="'+esc(m.title)+'"></iframe></div>';}
+      else{h+='<div class="alert al-warn">Could not parse YouTube URL.</div>';}
+    }else if(url.includes('vimeo.com')){
+      const vid=url.split('/').pop().split('?')[0];
+      h+='<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:14px;overflow:hidden;background:#000;"><iframe src="https://player.vimeo.com/video/'+vid+'?playsinline=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="autoplay;fullscreen" allowfullscreen></iframe></div>';
+    }else{h+='<video controls playsinline preload="metadata" style="width:100%;border-radius:14px;background:#000;" src="'+esc(url)+'"><p>Cannot play video.</p></video>';}
   }else if(m.type==='ppt'){
-    if(!url){if(!offFile) h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No PPT URL set.</div>';}
+    if(!url){h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No PPT URL set.</div>';}
     else{
       let vu=url;
-      const gdm=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      if(gdm) vu='https://drive.google.com/file/d/'+gdm[1]+'/preview';
-      h+='<div style="border-radius:14px;overflow:hidden;border:1.5px solid var(--border);"><iframe src="'+vu+'" style="width:100%;height:420px;border:none;" allow="autoplay" title="'+esc(m.title)+'"></iframe></div>';
+      // Convert any Google Drive share link to embeddable preview URL
+      const gdMatch=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if(gdMatch){vu='https://drive.google.com/file/d/'+gdMatch[1]+'/preview';}
+      h+='<div style="border-radius:14px;overflow:hidden;border:1.5px solid var(--border);"><iframe src="'+vu+'" style="width:100%;height:420px;border:none;" allow="autoplay" title="'+esc(m.title)+'"></iframe></div><p style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center;">Presentation loads inline — no external app needed.</p>';
     }
   }else if(m.type==='pdf'){
-    if(!url){if(!offFile) h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No PDF URL set.</div>';}
-    else h+='<div style="border-radius:14px;overflow:hidden;border:1.5px solid var(--border);"><iframe src="'+esc(url)+'" style="width:100%;height:440px;border:none;"></iframe></div>';
+    if(!url){h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No PDF URL set.</div>';}
+    else{h+='<div style="border-radius:14px;overflow:hidden;border:1.5px solid var(--border);"><iframe src="'+esc(url)+'" style="width:100%;height:440px;border:none;"></iframe></div>';}
   }else if(m.type==='gif'||m.type==='image'){
-    if(!url){if(!offFile) h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No image URL set.</div>';}
-    else h+='<img src="'+esc(url)+'" style="width:100%;border-radius:14px;" alt="'+esc(m.title)+'">';
+    if(!url){h+='<div style="background:#f1f5f9;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">No image URL set.</div>';}
+    else{h+='<img src="'+esc(url)+'" style="width:100%;border-radius:14px;" alt="'+esc(m.title)+'">';}
   }
-
   $('mat-content').innerHTML=h;
   const done=DB.matProg[CUR.user.id+'_'+cid+'_'+mid];
   if(done){$('mat-done-area').innerHTML='<div class="alert al-ok">Already marked complete.</div>';}
   else{$('mat-done-area').innerHTML='<div class="alert al-warn mb1">Once marked complete, you cannot re-view this material.</div><button class="btn btn-success btn-full" onclick="markMatDone()">Mark as Completed</button>';}
   navTo('s-mat');
-  saveResume('s-mat',{cid,vmcid:cid,vmmid:mid});
 }
-
 function markMatDone(){
-  if(!confirm('Mark complete? You will not be able to re-view.')) return;
+  if(!confirm('Mark complete? You will not be able to re-view.'))return;
   DB.matProg[CUR.user.id+'_'+VM.cid+'_'+VM.mid]=true;sDB();
-  sendToMIT('MATERIAL_COMPLETED');
+  sendToMIT('MATERIAL_COMPLETED'); // MIT App Inventor bridge event
   $('mat-done-area').innerHTML='<div class="alert al-ok">Marked complete!</div>';
   setTimeout(()=>openCourse(VM.cid),800);
 }
-function backFromMat(){if(CID) openCourse(CID);else navBack();}
+function backFromMat(){if(CID)openCourse(CID);else navBack();}
 
 // ═══════════════════════
-// INSTRUCTIONS (Knowledge Test)
+// QUIZ TYPE
 // ═══════════════════════
-let QMODE='knowledge';
-function openInst(cid){
-  CID=cid;QMODE='knowledge';
+let QMODE=null;
+function openQType(cid){
+  CID=cid;
   const c=DB.courses.find(x=>x.id===cid),k=CUR.user.id+'_'+c.id,a=DB.attempts[k]||[];
-  const t=c.timerK||30;
-  $('inst-ttl').textContent='Knowledge Test \u2014 '+c.name;
+  $('qt-cname').textContent=c.name;
+  $('qt-info').textContent='Attempt '+(a.length+1)+' of 2. Choose your quiz mode.';
+  navTo('s-qtype');
+}
+
+// ═══════════════════════
+// INSTRUCTIONS
+// ═══════════════════════
+function openInst(mode){
+  QMODE=mode;
+  const c=DB.courses.find(x=>x.id===CID),k=CUR.user.id+'_'+c.id,a=DB.attempts[k]||[];
+  const t=mode==='speed'?c.timerS:c.timerK;
+  $('inst-ttl').textContent=(mode==='speed'?'Speed Quiz':'Knowledge Quiz')+' — '+c.name;
   $('inst-sub').textContent='Attempt '+(a.length+1)+' of 2';
-  const steps=[
-    'This test has <b>'+c.questions.length+' questions</b>.',
-    'You have <b>'+t+' seconds</b> per question.',
-    'Select one answer \u2014 you cannot change it once selected.',
-    '<b>Answers are shown only after your 2nd attempt.</b>',
+  const steps=['This quiz has <b>'+c.questions.length+' questions</b>.',
+    'You have <b>'+t+' seconds per question</b>.',
+    'Select one answer — you cannot change it once selected.',
+    'Answers shown <b>after all questions</b>.',
     'Passing score: <b>'+c.passPercent+'%</b>.',
-    'You have <b>2 total attempts</b>. Best score is your final score.',
-    'Each attempt shows <b>shuffled question order</b> (unique per user).',
-    '<b>If you close the app during the test, that attempt is counted.</b>',
-    'Do not close or refresh during the quiz.'
-  ];
+    'You have <b>2 total attempts</b>. Highest score is recorded.',
+    'Do not close or refresh during the quiz.'];
   $('inst-list').innerHTML=steps.map((s,i)=>'<div class="inst-step"><div class="inst-num">'+(i+1)+'</div><div style="font-size:14px;">'+s+'</div></div>').join('');
-  if(a.length===1){$('inst-warn').innerHTML='<div class="alert al-warn">This is your <b>final attempt</b>. Answers will be shown after this attempt.</div>';$('inst-warn').classList.remove('hidden');}
+  if(a.length===1){$('inst-warn').innerHTML='<div class="alert al-warn">This is your <b>final attempt</b>.</div>';$('inst-warn').classList.remove('hidden');}
   else $('inst-warn').classList.add('hidden');
   navTo('s-inst');
 }
 
 // ═══════════════════════
-// QUIZ ENGINE (Knowledge — 2 attempts, shuffled per user+attempt)
+// QUIZ ENGINE
 // ═══════════════════════
-let QS={cid:null,cur:0,answers:[],ti:null,tl:0,qOrder:[],optOrders:[],attemptNum:1};
+let QS={cid:null,mode:null,cur:0,answers:[],ti:null,tl:0,qOrder:[]};
 const LT=['A','B','C','D','E'];
-
 function shuffleArr(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-
-// Deterministic per-user/per-attempt shuffle using seeded LCG
-function seededShuffle(arr,seed){
-  const a=[...arr];let s=seed>>>0;
-  for(let i=a.length-1;i>0;i--){
-    s=(Math.imul(s,1664525)+1013904223)>>>0;
-    const j=s%(i+1);
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-function getUserSeed(uid,cid,attemptNum){
-  let s=0;
-  for(let i=0;i<uid.length;i++) s=(s*31+uid.charCodeAt(i))&0x7fffffff;
-  for(let i=0;i<cid.length;i++) s=(s*31+cid.charCodeAt(i))&0x7fffffff;
-  return (s+attemptNum*997)>>>0;
-}
-
 function startQuiz(){
-  const c=DB.courses.find(x=>x.id===CID);
-  const k=CUR.user.id+'_'+c.id;
-  const a=DB.attempts[k]||[];
-  const attemptNum=a.length+1;
-  const seed=getUserSeed(CUR.user.id,c.id,attemptNum);
-
-  // Unique question order per user+attempt
-  const qOrder=seededShuffle(c.questions.map((_,i)=>i),seed);
-  // Unique option order per question per attempt
-  const optOrders=qOrder.map((qi,pos)=>seededShuffle(c.questions[qi].options.map((_,i)=>i),(seed+pos*131)>>>0));
-
-  QS={cid:CID,cur:0,answers:[],ti:null,tl:0,qOrder,optOrders,attemptNum};
+  const c=DB.courses.find(x=>x.id===CID),k=CUR.user.id+'_'+c.id,a=DB.attempts[k]||[];
+  const qOrder=shuffleArr(c.questions.map((_,i)=>i));
+  QS={cid:CID,mode:QMODE,cur:0,answers:[],ti:null,tl:0,qOrder};
   $('qz-name').textContent=CUR.user.name;
-  $('qz-pips').innerHTML=[0,1].map(i=>'<div class="pip'+(i<a.length?' used':'')+'"></div>').join('')+'<span style="font-size:11px;color:rgba(255,255,255,.65);margin-left:4px;">Att.'+attemptNum+'</span>';
-
-  // Save in-progress marker — if app closes during quiz, attempt is consumed
-  saveQuizInProg(CID,CUR.user.id);
-
+  $('qz-pips').innerHTML=[0,1].map(i=>'<div class="pip'+(i<a.length?' used':'')+'"></div>').join('')+'<span style="font-size:11px;color:rgba(255,255,255,.65);margin-left:4px;">Att.'+(a.length+1)+'</span>';
   navTo('s-quiz');loadQ();
-  sendToMIT('QUIZ_STARTED');
+  sendToMIT('QUIZ_STARTED'); // MIT App Inventor bridge event
 }
-
 function loadQ(){
   clearInterval(QS.ti);
-  const c=DB.courses.find(x=>x.id===QS.cid);
-  const qi=QS.qOrder[QS.cur];
-  const q=c.questions[qi];
-  const optOrder=QS.optOrders[QS.cur];
+  const c=DB.courses.find(x=>x.id===QS.cid),q=c.questions[QS.qOrder[QS.cur]];
   $('qz-prog').style.width=(QS.cur/c.questions.length*100)+'%';
   $('qz-cnt').textContent='Q '+(QS.cur+1)+' / '+c.questions.length;
   $('qz-q').textContent=q.question;
-  $('qz-opts').innerHTML=optOrder.map((origIdx,di)=>
-    '<div class="opt-card" id="qo'+di+'" onclick="selOpt('+di+')"><div class="opt-letter">'+LT[di]+'</div><div class="opt-text">'+esc(q.options[origIdx])+'</div></div>'
-  ).join('');
+  $('qz-opts').innerHTML=q.options.map((o,i)=>'<div class="opt-card" id="qo'+i+'" onclick="selOpt('+i+')"><div class="opt-letter">'+LT[i]+'</div><div class="opt-text">'+esc(o)+'</div></div>').join('');
   $('qz-next').classList.add('hidden');
-  startT(c.timerK||30);
+  startT(QMODE==='speed'?c.timerS:c.timerK);
 }
-
-function startT(s){QS.tl=s;upT();QS.ti=setInterval(()=>{QS.tl--;upT();if(QS.tl<=0){clearInterval(QS.ti);autoN();}},1000);}
-function upT(){$('qz-tsec').textContent=QS.tl;$('qz-timer').classList.toggle('urgent',QS.tl<=5);}
-
-function selOpt(di){
+function startT(s){
+  QS.tl=s;upT();
+  QS.ti=setInterval(()=>{QS.tl--;upT();if(QS.tl<=0){clearInterval(QS.ti);autoN();}},1000);
+}
+function upT(){
+  $('qz-tsec').textContent=QS.tl;
+  $('qz-timer').classList.toggle('urgent',QS.tl<=5);
+}
+function selOpt(i){
   clearInterval(QS.ti);
-  const c=DB.courses.find(x=>x.id===QS.cid);
-  const qi=QS.qOrder[QS.cur];
-  const q=c.questions[qi];
-  const origIdx=QS.optOrders[QS.cur][di];
+  const c=DB.courses.find(x=>x.id===QS.cid),q=c.questions[QS.qOrder[QS.cur]];
   document.querySelectorAll('.opt-card').forEach(o=>o.style.pointerEvents='none');
-  $('qo'+di).classList.add('sel');
-  QS.answers.push({q:q.question,sel:origIdx,ans:q.answer,opts:q.options});
+  $('qo'+i).classList.add('sel');
+  QS.answers.push({q:q.question,sel:i,ans:q.answer,opts:q.options});
   $('qz-next').classList.remove('hidden');
 }
-
 function autoN(){
-  const c=DB.courses.find(x=>x.id===QS.cid);
-  const qi=QS.qOrder[QS.cur];
-  const q=c.questions[qi];
+  const c=DB.courses.find(x=>x.id===QS.cid),q=c.questions[QS.qOrder[QS.cur]];
   QS.answers.push({q:q.question,sel:-1,ans:q.answer,opts:q.options});
   nextQ();
 }
-function nextQ(){const c=DB.courses.find(x=>x.id===QS.cid);QS.cur++;if(QS.cur>=c.questions.length)finishQ();else loadQ();}
-
+function nextQ(){
+  const c=DB.courses.find(x=>x.id===QS.cid);
+  QS.cur++;
+  if(QS.cur>=c.questions.length)finishQ();else loadQ();
+}
 function finishQ(){
   clearInterval(QS.ti);
-  clearQuizInProg(); // completed normally
   const c=DB.courses.find(x=>x.id===QS.cid);
   let sc=0;QS.answers.forEach(a=>{if(a.sel===a.ans)sc++;});
   const tot=c.questions.length,pct=Math.round(sc/tot*100),passed=pct>=c.passPercent;
   const k=CUR.user.id+'_'+c.id;
-  if(!DB.attempts[k]) DB.attempts[k]=[];
-  DB.attempts[k].push({score:sc,total:tot,pct,passed,mode:'knowledge',date:new Date().toLocaleString()});
+  if(!DB.attempts[k])DB.attempts[k]=[];
+  DB.attempts[k].push({score:sc,total:tot,pct,passed,mode:QS.mode,date:new Date().toLocaleString()});
   const atts=DB.attempts[k];
-  DB.results.push({uid:CUR.user.id,name:CUR.user.name,cid:c.id,cname:c.name,score:sc,total:tot,pct,passed,mode:'knowledge',attempt:atts.length,date:new Date().toLocaleString()});
+  DB.results.push({uid:CUR.user.id,name:CUR.user.name,cid:c.id,cname:c.name,score:sc,total:tot,pct,passed,mode:QS.mode,attempt:atts.length,date:new Date().toLocaleString()});
   sDB();
-
-  const isFinal=(atts.length>=2);
-  const validAtts=atts.filter(a=>!a.abandoned);
-  const bestPct=validAtts.length?Math.max(...validAtts.map(a=>a.pct)):pct;
-  const bestAtt=validAtts.length?validAtts.reduce((b,a)=>a.pct>b.pct?a:b,validAtts[0]):{score:sc,total:tot,pct};
-
   $('res-sc').textContent=sc;$('res-tot').textContent='/ '+tot;$('res-pct').textContent=pct+'%';
-  $('res-hd').textContent='Knowledge Test Complete';
+  $('res-hd').textContent=passed?'Quiz Completed!':'Quiz Completed';
   $('res-status').innerHTML=passed?'<span class="badge bd-pass" style="font-size:13px;padding:6px 16px;">PASSED</span>':'<span class="badge bd-fail" style="font-size:13px;padding:6px 16px;">FAILED</span>';
-
-  if(isFinal){
-    $('res-rem').textContent='Both attempts used.';
-    // Show best score as final
-    $('res-rem').innerHTML='Both attempts used. <b>\uD83C\uDFC6 Final Best Score: '+bestPct+'%</b>';
-    // Show answer review only after 2nd attempt
-    $('res-review').innerHTML=QS.answers.map((a,i)=>{
-      const ok=a.sel===a.ans,cls=a.sel===-1?'rev-skip':ok?'rev-ok':'rev-ng',icon=a.sel===-1?'Skipped':ok?'Correct':'Wrong';
-      return '<div class="rev-item '+cls+'"><b>'+icon+' Q'+(i+1)+'.</b> '+esc(a.q)+'<br><br>'+
-        '<span>Your answer: <b>'+(a.sel>=0?esc(a.opts[a.sel]):'Not answered')+'</b></span><br>'+
-        '<span>Correct: <b style="color:var(--success)">'+esc(a.opts[a.ans])+'</b></span></div>';
-    }).join('');
-  }else{
-    const rem=2-atts.length;
-    $('res-rem').textContent=rem+' attempt(s) remaining. Answers shown after 2nd attempt.';
-    // Lock review on first attempt
-    $('res-review').innerHTML='<div class="review-locked">&#128274; Answer review available after your 2nd attempt.</div>';
-  }
-
-  pushNotif('Kidza Test Complete','You scored '+pct+'% on '+c.name);
-  sendToMIT('QUIZ_COMPLETED');
-  if(passed) showCg(bestAtt.score,bestAtt.total,bestPct);
-  else{NS.push('s-result');showScreen('s-result');}
-}
-
-// ═══════════════════════
-// STANDALONE SPEED TEST
-// ═══════════════════════
-let SP_QUIZ={stid:null,cur:0,answers:[],ti:null,tl:0,qOrder:[]};
-
-function goSpeedTest(){
-  navTo('s-speed');
-  renderSpeedTests();
-  saveResume('s-speed',{});
-}
-
-function renderSpeedTests(){
-  const u=CUR.user;
-  const myT=(DB.speedTests||[]).filter(st=>(st.assignedUsers||[]).includes(u.id));
-  if(!myT.length){
-    $('speed-test-list').innerHTML='<p class="muted ctr" style="padding:20px;">No speed tests assigned to you yet.</p>';
-    return;
-  }
-  $('speed-test-list').innerHTML=myT.map(st=>{
-    const k=u.id+'_sp_'+st.id;
-    const a=(DB.speedAttempts&&DB.speedAttempts[k])||[];
-    const bp=a.length?Math.max(...a.map(x=>x.pct)):null;
-    return '<div class="item-row" onclick="startSpeedTest(\''+st.id+'\')">'+
-      '<div class="item-icon" style="background:#fff7ed;font-size:22px;">&#9889;</div>'+
-      '<div class="item-info"><div class="item-title">'+esc(st.name)+'</div>'+
-      '<div class="item-sub">'+(st.questions||[]).length+' Q &middot; '+(st.timer||10)+'s each'+(bp!==null?' &middot; Best: '+bp+'%':'')+'</div></div>'+
-      '<span class="badge bd-blue">Start</span></div>';
-  }).join('');
-}
-
-function startSpeedTest(stid){
-  const st=(DB.speedTests||[]).find(x=>x.id===stid);
-  if(!st){alert('Speed test not found.');return;}
-  const seed=getUserSeed(CUR.user.id,stid,(DB.speedAttempts&&DB.speedAttempts[CUR.user.id+'_sp_'+stid]||[]).length+1);
-  const qOrder=seededShuffle((st.questions||[]).map((_,i)=>i),seed);
-  SP_QUIZ={stid,cur:0,answers:[],ti:null,tl:0,qOrder};
-  $('spqz-name').textContent=st.name;
-  navTo('s-speed-quiz');spLoadQ();
-}
-
-function spLoadQ(){
-  clearInterval(SP_QUIZ.ti);
-  const st=(DB.speedTests||[]).find(x=>x.id===SP_QUIZ.stid);
-  const qi=SP_QUIZ.qOrder[SP_QUIZ.cur];
-  const q=st.questions[qi];
-  $('spqz-prog').style.width=(SP_QUIZ.cur/st.questions.length*100)+'%';
-  $('spqz-cnt').textContent='Q '+(SP_QUIZ.cur+1)+' / '+st.questions.length;
-  $('spqz-q').textContent=q.question;
-  $('spqz-opts').innerHTML=q.options.map((o,i)=>'<div class="opt-card" id="spo'+i+'" onclick="spSel('+i+')"><div class="opt-letter">'+LT[i]+'</div><div class="opt-text">'+esc(o)+'</div></div>').join('');
-  $('spqz-next').classList.add('hidden');
-  const t=st.timer||10;SP_QUIZ.tl=t;spUpT();
-  SP_QUIZ.ti=setInterval(()=>{SP_QUIZ.tl--;spUpT();if(SP_QUIZ.tl<=0){clearInterval(SP_QUIZ.ti);spAutoN();}},1000);
-}
-function spUpT(){$('spqz-tsec').textContent=SP_QUIZ.tl;$('spqz-timer').classList.toggle('urgent',SP_QUIZ.tl<=3);}
-function spSel(i){
-  clearInterval(SP_QUIZ.ti);
-  const st=(DB.speedTests||[]).find(x=>x.id===SP_QUIZ.stid);
-  const qi=SP_QUIZ.qOrder[SP_QUIZ.cur];
-  const q=st.questions[qi];
-  document.querySelectorAll('#spqz-opts .opt-card').forEach(o=>o.style.pointerEvents='none');
-  $('spo'+i).classList.add('sel');
-  SP_QUIZ.answers.push({q:q.question,sel:i,ans:q.answer,opts:q.options});
-  $('spqz-next').classList.remove('hidden');
-}
-function spAutoN(){
-  const st=(DB.speedTests||[]).find(x=>x.id===SP_QUIZ.stid);
-  const qi=SP_QUIZ.qOrder[SP_QUIZ.cur];
-  const q=st.questions[qi];
-  SP_QUIZ.answers.push({q:q.question,sel:-1,ans:q.answer,opts:q.options});
-  spNextQ();
-}
-function spNextQ(){const st=(DB.speedTests||[]).find(x=>x.id===SP_QUIZ.stid);SP_QUIZ.cur++;if(SP_QUIZ.cur>=st.questions.length)spFinish();else spLoadQ();}
-function spFinish(){
-  clearInterval(SP_QUIZ.ti);
-  const st=(DB.speedTests||[]).find(x=>x.id===SP_QUIZ.stid);
-  let sc=0;SP_QUIZ.answers.forEach(a=>{if(a.sel===a.ans)sc++;});
-  const tot=st.questions.length,pct=Math.round(sc/tot*100),passed=pct>=(st.passPercent||60);
-  const k=CUR.user.id+'_sp_'+SP_QUIZ.stid;
-  if(!DB.speedAttempts) DB.speedAttempts={};
-  if(!DB.speedAttempts[k]) DB.speedAttempts[k]=[];
-  DB.speedAttempts[k].push({score:sc,total:tot,pct,passed,date:new Date().toLocaleString()});
-  if(!DB.speedResults) DB.speedResults=[];
-  DB.speedResults.push({uid:CUR.user.id,name:CUR.user.name,stid:SP_QUIZ.stid,stname:st.name,score:sc,total:tot,pct,passed,date:new Date().toLocaleString()});
-  sDB();
-  $('sp-res-sc').textContent=sc;$('sp-res-tot').textContent='/ '+tot;$('sp-res-pct').textContent=pct+'%';
-  $('sp-res-status').innerHTML=passed?'<span class="badge bd-pass" style="font-size:13px;padding:6px 16px;">PASSED</span>':'<span class="badge bd-fail" style="font-size:13px;padding:6px 16px;">FAILED</span>';
-  $('sp-res-review').innerHTML=SP_QUIZ.answers.map((a,i)=>{
+  const rem=2-atts.length,bp=Math.max(...atts.map(a=>a.pct));
+  $('res-rem').textContent=rem>0?rem+' attempt(s) remaining · Best: '+bp+'%':'No attempts remaining · Final: '+bp+'%';
+  $('res-review').innerHTML=QS.answers.map((a,i)=>{
     const ok=a.sel===a.ans,cls=a.sel===-1?'rev-skip':ok?'rev-ok':'rev-ng',icon=a.sel===-1?'Skipped':ok?'Correct':'Wrong';
-    return '<div class="rev-item '+cls+'"><b>'+icon+' Q'+(i+1)+'.</b> '+esc(a.q)+'<br><br>'+
-      '<span>Your answer: <b>'+(a.sel>=0?LT[a.sel]+'. '+esc(a.opts[a.sel]):'Not answered')+'</b></span><br>'+
-      '<span>Correct: <b style="color:var(--success)">'+LT[a.ans]+'. '+esc(a.opts[a.ans])+'</b></span></div>';
+    return '<div class="rev-item '+cls+'"><b>'+icon+' Q'+(i+1)+'.</b> '+esc(a.q)+'<br><br><span>Your answer: <b>'+(a.sel>=0?LT[a.sel]+'. '+esc(a.opts[a.sel]):'Not answered')+'</b></span><br><span>Correct: <b style="color:var(--success)">'+LT[a.ans]+'. '+esc(a.opts[a.ans])+'</b></span></div>';
   }).join('');
-  NS.push('s-speed-result');showScreen('s-speed-result');
-  sendToMIT('SPEED_QUIZ_COMPLETED');
+  pushNotif('Kidza Quiz Complete','You scored '+pct+'% on '+c.name);
+  sendToMIT('QUIZ_COMPLETED'); // MIT App Inventor bridge event
+  if(passed)showCg(sc,tot,pct);else{NS.push('s-result');showScreen('s-result');}
 }
 
 // ═══════════════════════
@@ -1424,8 +1000,8 @@ function spFinish(){
 // ═══════════════════════
 function showCg(sc,tot,pct){
   $('cg-sc').textContent=sc;$('cg-tot').textContent='/ '+tot;
-  $('cg-msg').textContent='You scored '+pct+'% \u2014 keep it up!';
-  $('cg-em').textContent=pct>=90?'\u{1F3C6}':pct>=75?'\u{1F389}':'\u{1F31F}';
+  $('cg-msg').textContent='You scored '+pct+'% — keep it up!';
+  $('cg-em').textContent=pct>=90?'&#127942;':pct>=75?'&#127881;':'&#127775;';
   $('cg-ttl').textContent=pct>=90?'Outstanding!':pct>=75?'Excellent Work!':'Well Done!';
   const box=$('cg-box');
   box.querySelectorAll('.confetti-p').forEach(p=>p.remove());
@@ -1435,13 +1011,13 @@ function showCg(sc,tot,pct){
   NS.push('s-result');showScreen('s-result');
 }
 function closeCg(){$('cg-ov').classList.add('hidden');}
-function goHomeFromResult(){clearResume();NS.length=0;NS.push('s-home');goHome();}
+function goHomeFromResult(){NS.length=0;NS.push('s-home');goHome();}
 
 // ═══════════════════════
 // LEADERBOARD
 // ═══════════════════════
 let lbTab='all';
-function goLb(){navTo('s-lb');renderLb();saveResume('s-lb',{});}
+function goLb(){navTo('s-lb');renderLb();}
 function switchLbTab(tab){
   lbTab=tab;
   $('lb-cfilter').classList.toggle('hidden',tab!=='course');
@@ -1455,84 +1031,76 @@ function renderLb(){
   DB.users.filter(u=>u.role==='staff').forEach(u=>{
     let best=null,ta=0;
     DB.courses.forEach(c=>{
-      if(fc&&c.id!==fc) return;
-      (DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{ta++;if(!best||a.pct>best.pct) best={pct:a.pct,score:a.score,total:a.total,cname:c.name};});
+      if(fc&&c.id!==fc)return;
+      (DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{ta++;if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total,cname:c.name};});
     });
     scores[u.id]={name:u.name,uid:u.id,best,ta};
   });
   const sorted=Object.values(scores).sort((a,b)=>(b.best?.pct||0)-(a.best?.pct||0));
   const rCls=(i)=>i===0?'r1':i===1?'r2':i===2?'r3':'rN';
-  const rIcon=(i)=>i===0?'\u{1F947}':i===1?'\u{1F948}':i===2?'\u{1F949}':'#'+(i+1);
-  $('lb-list').innerHTML=sorted.map((r,i)=>
-    '<div class="lb-item'+(r.uid===CUR.user.id?' lb-me':'')+'">'+
-    '<div class="lb-rank '+rCls(i)+'">'+rIcon(i)+'</div>'+
-    '<div style="flex:1;"><div class="lb-name">'+esc(r.name)+(r.uid===CUR.user.id?' (You)':'')+'</div>'+
-    '<div class="lb-sub">'+(r.best?r.best.score+'/'+r.best.total+' &middot; '+r.best.cname:'No attempts yet')+'</div></div>'+
-    '<div class="lb-pct">'+(r.best?r.best.pct+'%':'&mdash;')+'</div></div>'
-  ).join('');
+  const rIcon=(i)=>i===0?'&#129351;':i===1?'&#129352;':i===2?'&#129353;':'#'+(i+1);
+  $('lb-list').innerHTML=sorted.map((r,i)=>`
+    <div class="lb-item${r.uid===CUR.user.id?' lb-me':''}">
+      <div class="lb-rank ${rCls(i)}">${rIcon(i)}</div>
+      <div style="flex:1;"><div class="lb-name">${esc(r.name)}${r.uid===CUR.user.id?' (You)':''}</div>
+        <div class="lb-sub">${r.best?r.best.score+'/'+r.best.total+' &middot; '+r.best.cname:'No attempts yet'}</div></div>
+      <div class="lb-pct">${r.best?r.best.pct+'%':'&mdash;'}</div>
+    </div>`).join('');
 }
 
 // ═══════════════════════
 // ADMIN
 // ═══════════════════════
-function renderAdmin(){$('adm-sub').textContent='Logged in as '+CUR.user.name;admTab('ov');}
-
+function renderAdmin(){
+  $('adm-sub').textContent='Logged in as '+CUR.user.name;
+  admTab('ov');
+}
 function admTab(t){
-  ['ov','co','sp','us','re'].forEach(x=>{const el=$('adm-'+x);if(el) el.classList.toggle('hidden',x!==t);});
-  document.querySelectorAll('#adm-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',['ov','co','sp','us','re'][i]===t));
-  if(t==='ov') renderAdmOv();
-  if(t==='co') renderAdmCo();
-  if(t==='sp') renderAdmSp();
-  if(t==='us') renderAdmUs();
-  if(t==='re') renderAdmRe();
+  ['ov','co','us','re'].forEach(x=>$('adm-'+x).classList.toggle('hidden',x!==t));
+  document.querySelectorAll('#adm-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',['ov','co','us','re'][i]===t));
+  if(t==='ov')renderAdmOv();
+  if(t==='co')renderAdmCo();
+  if(t==='us')renderAdmUs();
+  if(t==='re')renderAdmRe();
 }
 
 const CHS={};
-function mkC(id,type,data,opts){if(CHS[id])CHS[id].destroy();const el=$(id);if(!el) return;CHS[id]=new Chart(el.getContext('2d'),{type,data,options:opts});}
+function mkC(id,type,data,opts){if(CHS[id])CHS[id].destroy();CHS[id]=new Chart($(id).getContext('2d'),{type,data,options:opts});}
 
 function renderAdmOv(){
-  const allA=Object.values(DB.attempts).flat().filter(a=>!a.abandoned);
+  const allA=Object.values(DB.attempts).flat();
   const passed=allA.filter(a=>a.passed).length;
   const avg=allA.length?Math.round(allA.reduce((s,a)=>s+a.pct,0)/allA.length):0;
-  $('adm-stats').innerHTML=
-    '<div class="stat-card"><div class="stat-num">'+DB.users.filter(u=>u.role==='staff').length+'</div><div class="stat-lbl">Staff</div></div>'+
-    '<div class="stat-card"><div class="stat-num">'+DB.courses.length+'</div><div class="stat-lbl">Courses</div></div>'+
-    '<div class="stat-card"><div class="stat-num">'+allA.length+'</div><div class="stat-lbl">Attempts</div></div>'+
-    '<div class="stat-card"><div class="stat-num">'+avg+'%</div><div class="stat-lbl">Avg Score</div></div>';
+  $('adm-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${DB.users.filter(u=>u.role==='staff').length}</div><div class="stat-lbl">Staff</div></div>
+    <div class="stat-card"><div class="stat-num">${DB.courses.length}</div><div class="stat-lbl">Courses</div></div>
+    <div class="stat-card"><div class="stat-num">${allA.length}</div><div class="stat-lbl">Attempts</div></div>
+    <div class="stat-card"><div class="stat-num">${avg}%</div><div class="stat-lbl">Avg Score</div></div>`;
   const bk=[0,0,0,0,0];allA.forEach(a=>bk[Math.min(4,Math.floor(a.pct/20))]++);
   mkC('ch-sc','bar',{labels:['0-20%','21-40%','41-60%','61-80%','81-100%'],datasets:[{label:'Attempts',data:bk,backgroundColor:['#dc2626','#f97316','#eab308','#22c55e','#16a34a'],borderRadius:8,borderSkipped:false}]},{plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1},grid:{color:'#f1f5f9'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
   mkC('ch-pf','doughnut',{labels:['Passed','Failed'],datasets:[{data:[passed,allA.length-passed],backgroundColor:['#16a34a','#dc2626'],borderWidth:0}]},{plugins:{legend:{position:'bottom'}},responsive:true,maintainAspectRatio:false,cutout:'62%'});
   const cl=DB.courses.map(c=>c.name.length>16?c.name.slice(0,16)+'...':c.name);
-  const cd=DB.courses.map(c=>{const n=(c.assignedUsers||[]).length;if(!n) return 0;const d=(c.assignedUsers||[]).filter(u=>allMatsDone(u,c.id)).length;return Math.round(d/n*100);});
+  const cd=DB.courses.map(c=>{const n=(c.assignedUsers||[]).length;if(!n)return 0;const d=(c.assignedUsers||[]).filter(u=>allMatsDone(u,c.id)).length;return Math.round(d/n*100);});
   mkC('ch-cp','bar',{labels:cl,datasets:[{label:'%',data:cd,backgroundColor:'#1a56db',borderRadius:8,borderSkipped:false}]},{plugins:{legend:{display:false}},scales:{y:{max:100,ticks:{callback:v=>v+'%'},grid:{color:'#f1f5f9'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
 }
 
 function renderAdmCo(){
-  $('adm-co-list').innerHTML=DB.courses.map(c=>
-    '<div class="item-row" style="cursor:default;flex-wrap:wrap;gap:8px;">'+
-    '<div class="item-icon ic-course">&#128218;</div>'+
-    '<div class="item-info"><div class="item-title">'+esc(c.name)+'</div><div class="item-sub">'+c.questions.length+' Q &middot; '+(c.materials||[]).length+' Mat &middot; '+(c.assignedUsers||[]).length+' Users</div></div>'+
-    '<div class="row"><button class="btn btn-outline btn-xs" onclick="openCModal(\''+c.id+'\')">Edit</button><button class="btn btn-danger btn-xs" onclick="delCourse(\''+c.id+'\')">Del</button></div></div>'
-  ).join('')||'<p class="muted">No courses yet.</p>';
-}
-
-function renderAdmSp(){
-  const tests=DB.speedTests||[];
-  $('adm-sp-list').innerHTML=tests.map(st=>
-    '<div class="item-row" style="cursor:default;flex-wrap:wrap;gap:8px;">'+
-    '<div class="item-icon" style="background:#fff7ed;font-size:22px;">&#9889;</div>'+
-    '<div class="item-info"><div class="item-title">'+esc(st.name)+'</div><div class="item-sub">'+(st.questions||[]).length+' Q &middot; '+(st.timer||10)+'s &middot; '+(st.assignedUsers||[]).length+' Users</div></div>'+
-    '<div class="row"><button class="btn btn-outline btn-xs" onclick="openSpModal(\''+st.id+'\')">Edit</button><button class="btn btn-danger btn-xs" onclick="delSpeedTest(\''+st.id+'\')">Del</button></div></div>'
-  ).join('')||'<p class="muted">No speed tests yet.</p>';
+  $('adm-co-list').innerHTML=DB.courses.map(c=>`
+    <div class="item-row" style="cursor:default;flex-wrap:wrap;gap:8px;">
+      <div class="item-icon ic-course">&#128218;</div>
+      <div class="item-info"><div class="item-title">${esc(c.name)}</div><div class="item-sub">${c.questions.length} Q &middot; ${(c.materials||[]).length} Mat &middot; ${(c.assignedUsers||[]).length} Users</div></div>
+      <div class="row"><button class="btn btn-outline btn-xs" onclick="openCModal('${c.id}')">Edit</button><button class="btn btn-danger btn-xs" onclick="delCourse('${c.id}')">Del</button></div>
+    </div>`).join('')||'<p class="muted">No courses yet.</p>';
 }
 
 function renderAdmUs(){
-  $('adm-us-list').innerHTML=DB.users.map(u=>
-    '<div class="item-row" style="cursor:default;">'+
-    '<div class="av">'+u.name[0].toUpperCase()+'</div>'+
-    '<div class="item-info"><div class="item-title">'+esc(u.name)+'</div><div class="item-sub">@'+esc(u.username)+' &middot; '+u.role+'</div></div>'+
-    '<div class="row"><button class="btn btn-outline btn-xs" onclick="openUModal(\''+u.id+'\')">Edit</button>'+(u.id!=='u0'?'<button class="btn btn-danger btn-xs" onclick="delUser(\''+u.id+'\')">Del</button>':'')+'</div></div>'
-  ).join('');
+  // Show ALL users including admins, full list
+  $('adm-us-list').innerHTML=DB.users.map(u=>`
+    <div class="item-row" style="cursor:default;">
+      <div class="av">${u.name[0].toUpperCase()}</div>
+      <div class="item-info"><div class="item-title">${esc(u.name)}</div><div class="item-sub">@${esc(u.username)} &middot; ${u.role}</div></div>
+      <div class="row"><button class="btn btn-outline btn-xs" onclick="openUModal('${u.id}')">Edit</button>${u.id!=='u0'?'<button class="btn btn-danger btn-xs" onclick="delUser(\''+u.id+'\')">Del</button>':''}</div>
+    </div>`).join('');
 }
 
 function renderAdmRe(){
@@ -1540,62 +1108,42 @@ function renderAdmRe(){
   $('adm-fc').innerHTML='<option value="">All Courses</option>'+DB.courses.map(c=>'<option value="'+c.id+'"'+(sel===c.id?' selected':'')+'>'+esc(c.name)+'</option>').join('');
   $('adm-fc').value=sel;
   const rows=DB.results.filter(r=>!sel||r.cid===sel);
-  $('adm-re-body').innerHTML=rows.map((r,i)=>
-    '<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+'</td><td>'+esc(r.cname)+'</td>'+
-    '<td>'+(r.abandoned?'<i>Abandoned</i>':r.score+'/'+r.total+' ('+r.pct+'%)')+'</td>'+
-    '<td><span class="badge bd-blue">Know.</span></td>'+
-    '<td>'+r.attempt+'</td>'+
-    '<td><span class="badge '+(r.passed?'bd-pass':'bd-fail')+'">'+(r.passed?'PASS':'FAIL')+'</span></td>'+
-    '<td style="display:flex;gap:4px;">'+
-    '<button class="btn btn-warn btn-xs" onclick="resetAttempt(\''+r.uid+'\',\''+r.cid+'\')">Reset</button>'+
-    '<button class="btn btn-danger btn-xs" onclick="deleteResult('+i+')">Del</button></td></tr>'
-  ).join('')||'<tr><td colspan="8" class="muted ctr">No results.</td></tr>';
+  $('adm-re-body').innerHTML=rows.map((r,i)=>`<tr>
+    <td>${i+1}</td><td>${esc(r.name)}</td><td>${esc(r.cname)}</td>
+    <td>${r.score}/${r.total} (${r.pct}%)</td>
+    <td><span class="badge bd-blue">${r.mode==='speed'?'Speed':'Know.'}</span></td>
+    <td><span class="badge ${r.passed?'bd-pass':'bd-fail'}">${r.passed?'PASS':'FAIL'}</span></td>
+    <td><button class="btn btn-warn btn-xs" onclick="reassign('${r.uid}','${r.cid}')">Reset</button></td>
+  </tr>`).join('')||'<tr><td colspan="7" class="muted ctr">No results.</td></tr>';
   // Leaderboard in admin
   const sc={};
   DB.users.filter(u=>u.role==='staff').forEach(u=>{
     let best=null;
-    DB.courses.forEach(c=>{(DB.attempts[u.id+'_'+c.id]||[]).filter(a=>!a.abandoned).forEach(a=>{if(!best||a.pct>best.pct) best={pct:a.pct,score:a.score,total:a.total};});});
+    DB.courses.forEach(c=>{(DB.attempts[u.id+'_'+c.id]||[]).forEach(a=>{if(!best||a.pct>best.pct)best={pct:a.pct,score:a.score,total:a.total};});});
     sc[u.id]={name:u.name,best};
   });
   const sorted=Object.values(sc).sort((a,b)=>(b.best?.pct||0)-(a.best?.pct||0));
   const rC=(i)=>i===0?'r1':i===1?'r2':i===2?'r3':'rN';
   const rI=(i)=>i===0?'1st':i===1?'2nd':i===2?'3rd':(i+1)+'th';
-  $('adm-lb').innerHTML=sorted.map((r,i)=>
-    '<div class="lb-item"><div class="lb-rank '+rC(i)+'">'+rI(i)+'</div>'+
-    '<div style="flex:1;"><div class="lb-name">'+esc(r.name)+'</div></div>'+
-    '<div class="lb-pct">'+(r.best?r.best.pct+'%':'&mdash;')+'</div></div>'
-  ).join('');
+  $('adm-lb').innerHTML=sorted.map((r,i)=>`
+    <div class="lb-item"><div class="lb-rank ${rC(i)}">${rI(i)}</div>
+      <div style="flex:1;"><div class="lb-name">${esc(r.name)}</div></div>
+      <div class="lb-pct">${r.best?r.best.pct+'%':'&mdash;'}</div></div>`).join('');
 }
 
-// Admin: delete single result row (admin only)
-function deleteResult(idx){
-  if(!confirm('Delete this result entry? This cannot be undone.')) return;
-  DB.results.splice(idx,1);
-  sDB();renderAdmRe();
-}
-// Admin: reset all attempts for user+course
-function resetAttempt(uid,cid){
-  if(!confirm('Reset ALL attempts for this user on this course?')) return;
+function reassign(uid,cid){
+  if(!confirm('Reset all attempts for this user on this course?'))return;
   delete DB.attempts[uid+'_'+cid];
   const c=DB.courses.find(x=>x.id===cid);
-  if(c&&c.materials) c.materials.forEach(m=>delete DB.matProg[uid+'_'+cid+'_'+m.id]);
+  if(c&&c.materials)c.materials.forEach(m=>delete DB.matProg[uid+'_'+cid+'_'+m.id]);
   DB.results=DB.results.filter(r=>!(r.uid===uid&&r.cid===cid));
   sDB();alert('Reset done. User can attempt again.');renderAdmRe();
 }
 function exportCSV(){
   if(!DB.results.length){alert('No results.');return;}
-  let csv='Name,Course,Score,Total,Pct,Type,Attempt,Status,Date\n';
-  DB.results.forEach(r=>{csv+=r.name+','+r.cname+','+r.score+','+r.total+','+r.pct+'%,Knowledge,'+r.attempt+','+(r.passed?'PASS':'FAIL')+','+r.date+'\n';});
+  let csv='Name,Course,Score,Total,Pct,Mode,Status,Attempt,Date\n';
+  DB.results.forEach(r=>{csv+=r.name+','+r.cname+','+r.score+','+r.total+','+r.pct+'%,'+r.mode+','+(r.passed?'PASS':'FAIL')+','+r.attempt+','+r.date+'\n';});
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='kidza_results.csv';a.click();
-}
-
-// Brand logo setting (admin)
-function openLogoSetting(){
-  const url=prompt('Enter your brand logo image URL (leave blank to remove):', DB.logoUrl||'');
-  if(url===null) return;
-  DB.logoUrl=url.trim();
-  sDB();applyLogoUrl(DB.logoUrl);
-  alert(DB.logoUrl?'Logo updated!':'Logo removed.');
 }
 
 // ═══════════════════════
@@ -1608,124 +1156,66 @@ function openCModal(cid){
     const c=DB.courses.find(x=>x.id===cid);
     $('m-co-ttl').textContent='Edit Course';
     $('mc-n').value=c.name;$('mc-d').value=c.desc||'';
-    $('mc-p').value=c.passPercent||60;$('mc-tk').value=c.timerK||30;
+    $('mc-p').value=c.passPercent||60;$('mc-tk').value=c.timerK||30;$('mc-ts').value=c.timerS||10;
     TM=JSON.parse(JSON.stringify(c.materials||[]));TQ=JSON.parse(JSON.stringify(c.questions||[]));
     renderAsgn(c.assignedUsers||[]);
   }else{
     $('m-co-ttl').textContent='New Course';
-    $('mc-n').value='';$('mc-d').value='';$('mc-p').value=60;$('mc-tk').value=30;
+    $('mc-n').value='';$('mc-d').value='';$('mc-p').value=60;$('mc-tk').value=30;$('mc-ts').value=10;
     TM=[];TQ=[];renderAsgn([]);
   }
   renderMats();renderQs();openM('m-co');
 }
-
-function addMat(){TM.push({id:nuid(),type:'video',title:'',url:'',offlineFile:'',offlineFileName:''});renderMats();}
+function addMat(){TM.push({id:nuid(),type:'video',title:'',url:''});renderMats();}
 function renderMats(){
-  $('mc-mats').innerHTML=TM.map((m,i)=>
-    '<div class="qb"><div class="qb-h"><b style="font-size:12px;">Mat '+(i+1)+'</b><button class="btn btn-danger btn-xs" onclick="TM.splice('+i+',1);renderMats()">Remove</button></div>'+
-    '<div class="row mb1"><select onchange="TM['+i+'].type=this.value" style="flex:0 0 90px;font-size:13px;padding:8px;">'+
-    ['video','ppt','pdf','gif','image'].map(t=>'<option value="'+t+'"'+(m.type===t?' selected':'')+'>'+t.toUpperCase()+'</option>').join('')+
-    '</select><input placeholder="Title" value="'+esc(m.title)+'" oninput="TM['+i+'].title=this.value" style="flex:1;"></div>'+
-    '<input placeholder="URL (YouTube, Google Drive, PDF link...)" value="'+esc(m.url||'')+'" oninput="TM['+i+'].url=this.value" style="margin-bottom:8px;">'+
-    '<input placeholder="Offline file URL (downloadable, optional)" value="'+esc(m.offlineFile||'')+'" oninput="TM['+i+'].offlineFile=this.value" style="margin-bottom:4px;">'+
-    '<input placeholder="Offline file display name (e.g. guide.pdf)" value="'+esc(m.offlineFileName||'')+'" oninput="TM['+i+'].offlineFileName=this.value">'+
-    '<p style="font-size:11px;color:var(--muted);margin-top:4px;">Offline file = staff can download even without internet</p></div>'
-  ).join('')||'<p class="muted" style="font-size:13px;margin-bottom:8px;">No materials.</p>';
+  $('mc-mats').innerHTML=TM.map((m,i)=>`
+    <div class="qb"><div class="qb-h"><b style="font-size:12px;">Mat ${i+1}</b><button class="btn btn-danger btn-xs" onclick="TM.splice(${i},1);renderMats()">Remove</button></div>
+      <div class="row mb1">
+        <select onchange="TM[${i}].type=this.value" style="flex:0 0 90px;font-size:13px;padding:8px;">
+          ${['video','ppt','pdf','gif','image'].map(t=>'<option value="'+t+'"'+(m.type===t?' selected':'')+'>'+t.toUpperCase()+'</option>').join('')}
+        </select>
+        <input placeholder="Title" value="${esc(m.title)}" oninput="TM[${i}].title=this.value" style="flex:1;">
+      </div>
+      <input placeholder="URL (YouTube, PPT, PDF, image link...)" value="${esc(m.url||'')}" oninput="TM[${i}].url=this.value">
+    </div>`).join('')||'<p class="muted" style="font-size:13px;margin-bottom:8px;">No materials.</p>';
 }
-
 function addQ(){TQ.push({id:nuid(),question:'',options:['','','',''],answer:0});renderQs();}
 function renderQs(){
-  $('mc-qs').innerHTML=TQ.map((q,qi)=>
-    '<div class="qb"><div class="qb-h"><b style="font-size:12px;">Q'+(qi+1)+'</b><button class="btn btn-danger btn-xs" onclick="TQ.splice('+qi+',1);renderQs()">Remove</button></div>'+
-    '<input placeholder="Question text" value="'+esc(q.question)+'" oninput="TQ['+qi+'].question=this.value" style="margin-bottom:10px;">'+
-    q.options.map((o,oi)=>'<div class="opt-row"><input type="radio" name="ca'+qi+'" '+(q.answer===oi?'checked':'')+' onchange="TQ['+qi+'].answer='+oi+'" title="Mark correct"><div class="opt-letter" style="flex-shrink:0;background:#f1f5f9;color:var(--mid);">'+LT[oi]+'</div><input type="text" placeholder="Option '+LT[oi]+'" value="'+esc(o)+'" oninput="TQ['+qi+'].options['+oi+']=this.value"></div>').join('')+
-    '<p style="font-size:11px;color:var(--muted);margin-top:4px;">Select radio = correct answer</p></div>'
-  ).join('')||'<p class="muted" style="font-size:13px;margin-bottom:8px;">No questions.</p>';
+  $('mc-qs').innerHTML=TQ.map((q,qi)=>`
+    <div class="qb"><div class="qb-h"><b style="font-size:12px;">Q${qi+1}</b><button class="btn btn-danger btn-xs" onclick="TQ.splice(${qi},1);renderQs()">Remove</button></div>
+      <input placeholder="Question text" value="${esc(q.question)}" oninput="TQ[${qi}].question=this.value" style="margin-bottom:10px;">
+      ${q.options.map((o,oi)=>'<div class="opt-row"><input type="radio" name="ca'+qi+'" '+(q.answer===oi?'checked':'')+' onchange="TQ['+qi+'].answer='+oi+'" title="Mark correct"><div class="opt-letter" style="flex-shrink:0;background:#f1f5f9;color:var(--mid);">'+LT[oi]+'</div><input type="text" placeholder="Option '+LT[oi]+'" value="'+esc(o)+'" oninput="TQ['+qi+'].options['+oi+']=this.value"></div>').join('')}
+      <p style="font-size:11px;color:var(--muted);margin-top:4px;">Radio = correct answer</p>
+    </div>`).join('')||'<p class="muted" style="font-size:13px;margin-bottom:8px;">No questions.</p>';
 }
-
 function renderAsgn(cur){
+  // Always re-read DB.users for freshest list
   const staff=DB.users.filter(u=>u.role==='staff');
-  $('mc-asgn').innerHTML=staff.map(u=>
-    '<label style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;background:#f8fafc;border:1px solid var(--border);margin-bottom:6px;">'+
-    '<input type="checkbox" id="asg-'+u.id+'" '+(cur.includes(u.id)?'checked':'')+' style="width:18px;height:18px;accent-color:var(--blue);">'+
-    '<div class="av" style="width:30px;height:30px;font-size:12px;">'+u.name[0]+'</div>'+
-    '<span style="font-size:14px;font-weight:600;">'+esc(u.name)+'</span>'+
-    '<span class="muted" style="font-size:12px;">@'+esc(u.username)+'</span></label>'
-  ).join('')||'<p class="muted" style="font-size:13px;">No staff users yet.</p>';
+  $('mc-asgn').innerHTML=staff.map(u=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;background:#f8fafc;border:1px solid var(--border);margin-bottom:6px;">
+      <input type="checkbox" id="asg-${u.id}" ${cur.includes(u.id)?'checked':''} style="width:18px;height:18px;accent-color:var(--blue);">
+      <div class="av" style="width:30px;height:30px;font-size:12px;">${u.name[0]}</div>
+      <span style="font-size:14px;font-weight:600;">${esc(u.name)}</span>
+      <span class="muted" style="font-size:12px;">@${esc(u.username)}</span>
+    </label>`).join('')||'<p class="muted" style="font-size:13px;">No staff users yet. Add users first.</p>';
 }
-
 function saveCourse(){
   const name=$('mc-n').value.trim();
   if(!name){alert('Course name required.');return;}
   if(!TQ.length){alert('Add at least one question.');return;}
   for(const q of TQ){if(!q.question.trim()||q.options.some(o=>!o.trim())){alert('Fill all question fields.');return;}}
   const asgnd=DB.users.filter(u=>u.role==='staff'&&$('asg-'+u.id)?.checked).map(u=>u.id);
-  const co={id:ECO||nuid(),name,desc:$('mc-d').value.trim(),passPercent:parseInt($('mc-p').value)||60,timerK:parseInt($('mc-tk').value)||30,timerS:10,assignedUsers:asgnd,materials:TM,questions:TQ};
+  const co={id:ECO||nuid(),name,desc:$('mc-d').value.trim(),passPercent:parseInt($('mc-p').value)||60,timerK:parseInt($('mc-tk').value)||30,timerS:parseInt($('mc-ts').value)||10,assignedUsers:asgnd,materials:TM,questions:TQ};
   if(ECO){const i=DB.courses.findIndex(c=>c.id===ECO);DB.courses[i]=co;}else DB.courses.push(co);
   sDB();closeM('m-co');renderAdmCo();
+  asgnd.forEach(uid=>{const u=DB.users.find(x=>x.id===uid);if(u)pushNotif('New Quiz Assigned','You have a new quiz: '+name);});
   alert('Course saved!');
 }
 function delCourse(cid){
-  if(!confirm('Delete this course and all results?')) return;
+  if(!confirm('Delete this course and all results?'))return;
   DB.courses=DB.courses.filter(c=>c.id!==cid);DB.results=DB.results.filter(r=>r.cid!==cid);
-  Object.keys(DB.attempts).forEach(k=>{if(k.split('_')[1]===cid) delete DB.attempts[k];});
+  Object.keys(DB.attempts).forEach(k=>{if(k.split('_')[1]===cid)delete DB.attempts[k];});
   sDB();renderAdmCo();
-}
-
-// ═══════════════════════
-// SPEED TEST MODAL (Admin)
-// ═══════════════════════
-let ESP=null,SP_TQ=[];
-function openSpModal(stid){
-  ESP=stid;
-  if(stid){
-    const st=(DB.speedTests||[]).find(x=>x.id===stid);
-    $('m-sp-ttl').textContent='Edit Speed Test';
-    $('sp-n').value=st.name;$('sp-d').value=st.desc||'';
-    $('sp-p').value=st.passPercent||60;$('sp-tk').value=st.timer||10;
-    SP_TQ=JSON.parse(JSON.stringify(st.questions||[]));
-    renderSpAsgn(st.assignedUsers||[]);
-  }else{
-    $('m-sp-ttl').textContent='New Speed Test';
-    $('sp-n').value='';$('sp-d').value='';$('sp-p').value=60;$('sp-tk').value=10;
-    SP_TQ=[];renderSpAsgn([]);
-  }
-  renderSpQs();openM('m-sp');
-}
-function addSpQ(){SP_TQ.push({id:nuid(),question:'',options:['','','',''],answer:0});renderSpQs();}
-function renderSpQs(){
-  $('sp-qs').innerHTML=SP_TQ.map((q,qi)=>
-    '<div class="qb"><div class="qb-h"><b style="font-size:12px;">Q'+(qi+1)+'</b><button class="btn btn-danger btn-xs" onclick="SP_TQ.splice('+qi+',1);renderSpQs()">Remove</button></div>'+
-    '<input placeholder="Question text" value="'+esc(q.question)+'" oninput="SP_TQ['+qi+'].question=this.value" style="margin-bottom:10px;">'+
-    q.options.map((o,oi)=>'<div class="opt-row"><input type="radio" name="spa'+qi+'" '+(q.answer===oi?'checked':'')+' onchange="SP_TQ['+qi+'].answer='+oi+'" title="Mark correct"><div class="opt-letter" style="flex-shrink:0;background:#f1f5f9;color:var(--mid);">'+LT[oi]+'</div><input type="text" placeholder="Option '+LT[oi]+'" value="'+esc(o)+'" oninput="SP_TQ['+qi+'].options['+oi+']=this.value"></div>').join('')+
-    '</div>'
-  ).join('')||'<p class="muted" style="font-size:13px;margin-bottom:8px;">No questions.</p>';
-}
-function renderSpAsgn(cur){
-  const staff=DB.users.filter(u=>u.role==='staff');
-  $('sp-asgn').innerHTML=staff.map(u=>
-    '<label style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;background:#f8fafc;border:1px solid var(--border);margin-bottom:6px;">'+
-    '<input type="checkbox" id="sasg-'+u.id+'" '+(cur.includes(u.id)?'checked':'')+' style="width:18px;height:18px;accent-color:var(--blue);">'+
-    '<div class="av" style="width:30px;height:30px;font-size:12px;">'+u.name[0]+'</div>'+
-    '<span style="font-size:14px;font-weight:600;">'+esc(u.name)+'</span></label>'
-  ).join('')||'<p class="muted" style="font-size:13px;">No staff users yet.</p>';
-}
-function saveSpeedTest(){
-  const name=$('sp-n').value.trim();
-  if(!name){alert('Speed test name required.');return;}
-  if(!SP_TQ.length){alert('Add at least one question.');return;}
-  for(const q of SP_TQ){if(!q.question.trim()||q.options.some(o=>!o.trim())){alert('Fill all question fields.');return;}}
-  const asgnd=DB.users.filter(u=>u.role==='staff'&&$('sasg-'+u.id)?.checked).map(u=>u.id);
-  if(!DB.speedTests) DB.speedTests=[];
-  const st={id:ESP||nuid(),name,desc:$('sp-d').value.trim(),passPercent:parseInt($('sp-p').value)||60,timer:parseInt($('sp-tk').value)||10,assignedUsers:asgnd,questions:SP_TQ};
-  if(ESP){const i=DB.speedTests.findIndex(x=>x.id===ESP);DB.speedTests[i]=st;}else DB.speedTests.push(st);
-  sDB();closeM('m-sp');renderAdmSp();
-  alert('Speed test saved!');
-}
-function delSpeedTest(stid){
-  if(!confirm('Delete this speed test?')) return;
-  DB.speedTests=(DB.speedTests||[]).filter(x=>x.id!==stid);
-  sDB();renderAdmSp();
 }
 
 // ═══════════════════════
@@ -1752,7 +1242,7 @@ function saveUser(){
 }
 function showUE(m){$('mu-err').textContent=m;$('mu-err').classList.remove('hidden');}
 function delUser(id){
-  if(!confirm('Delete this user?')) return;
+  if(!confirm('Delete this user?'))return;
   DB.users=DB.users.filter(u=>u.id!==id);sDB();renderAdmUs();
 }
 
@@ -1765,64 +1255,47 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
 // INIT
 // ═══════════════════════
 (async function init(){
-  const firebaseOK=initFirebase();
+  // Initialise Firebase
+  const firebaseOK = initFirebase();
 
-  // Splash screen
-  const splash=document.createElement('div');
-  splash.innerHTML='<div style="font-family:\'Sora\',sans-serif;font-size:30px;font-weight:800;color:#fff;letter-spacing:1px;margin-bottom:8px;">KIDZA</div>'+
-    '<div style="color:rgba(255,255,255,.75);font-size:13px;margin-bottom:20px;">'+(firebaseOK?'Syncing across devices\u2026':'Loading\u2026')+'</div>'+
-    '<div style="width:60px;height:4px;border-radius:50px;background:rgba(255,255,255,.3);overflow:hidden;"><div style="height:100%;background:#fff;border-radius:50px;animation:syncbar 1.1s ease-in-out infinite;"></div></div>';
-  splash.style.cssText='position:fixed;inset:0;background:#1a56db;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;';
+  // Show splash while loading
+  const splash = document.createElement('div');
+  splash.id = 'sync-splash';
+  splash.innerHTML = `
+    <div style="font-family:'Sora',sans-serif;font-size:30px;font-weight:800;color:#fff;letter-spacing:1px;margin-bottom:8px;">KIDZA</div>
+    <div style="color:rgba(255,255,255,.75);font-size:13px;margin-bottom:20px;">${firebaseOK ? 'Syncing across devices…' : 'Loading…'}</div>
+    <div style="width:60px;height:4px;border-radius:50px;background:rgba(255,255,255,.3);overflow:hidden;">
+      <div style="height:100%;background:#fff;border-radius:50px;animation:syncbar 1.1s ease-in-out infinite;"></div>
+    </div>`;
+  splash.style.cssText = 'position:fixed;inset:0;background:#1a56db;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;';
   document.body.appendChild(splash);
-  const style=document.createElement('style');
-  style.textContent='@keyframes syncbar{0%{width:0%;margin-left:0}50%{width:100%;margin-left:0}100%{width:0%;margin-left:100%}}';
+  const style = document.createElement('style');
+  style.textContent = '@keyframes syncbar{0%{width:0%;margin-left:0}50%{width:100%;margin-left:0}100%{width:0%;margin-left:100%}}';
   document.head.appendChild(style);
 
   await lDB();
   splash.remove();
 
+  // Set up realtime sync status badge + listener (added)
   if(firebaseOK){
-    setSyncStatus(navigator.onLine===false?'offline':'online',navigator.onLine===false?'Offline':'Online');
+    setSyncStatus(navigator.onLine===false?'offline':'online', navigator.onLine===false?'Offline':'Online');
     listenForChanges();
   }else{
     setSyncStatus('offline','Offline');
   }
 
+  // Show Firebase setup banner if not yet configured
   if(!FIREBASE_CONFIGURED){
-    const banner=document.createElement('div');
-    banner.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#92400e;color:#fff;font-size:12px;padding:10px 14px;z-index:8000;text-align:center;line-height:1.5;';
-    banner.innerHTML="\u26a0\uFE0F <b>Offline mode</b> \u2014 data is device-only. <a href='#' onclick='this.parentElement.style.display=\"none\"' style='color:#fcd34d;text-decoration:underline;'>Dismiss</a>";
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#92400e;color:#fff;font-size:12px;padding:10px 14px;z-index:8000;text-align:center;line-height:1.5;';
+    banner.innerHTML = "⚠️ <b>Offline mode</b> — data is device-only. <a href='#' onclick='this.parentElement.style.display=\"none\"' style='color:#fcd34d;text-decoration:underline;'>Dismiss</a>";
     document.body.appendChild(banner);
   }
 
-  // Apply stored logo
-  applyLogoUrl(DB.logoUrl||'');
-
-  // Admin logo button (injected after sync button)
-  const syncBtnEl=$('sync-btn');
-  if(syncBtnEl&&syncBtnEl.parentElement){
-    const logoBtn=document.createElement('button');
-    logoBtn.className='btn btn-ghost btn-sm';
-    logoBtn.textContent='\uD83D\uDDBC Logo';
-    logoBtn.onclick=openLogoSetting;
-    syncBtnEl.parentElement.insertBefore(logoBtn,syncBtnEl.nextSibling);
-  }
-
   if(restoreS()){
-    checkAbandonedQuiz();
-    applyLogoUrl(DB.logoUrl||'');
-    if(CUR.user.role==='admin'){
-      NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');
-    }else{
-      NS.length=0;NS.push('s-home');goHome();
-      const resume=loadResume();
-      if(resume&&resume.uid===CUR.user.id&&resume.screen){
-        setTimeout(()=>tryResume(resume),350);
-      }
-    }
-  }else{
-    showScreen('s-login');
-  }
+    if(CUR.user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
+    else{NS.length=0;NS.push('s-home');goHome();}
+  }else{showScreen('s-login');}
 })();
 </script>
 </body>
