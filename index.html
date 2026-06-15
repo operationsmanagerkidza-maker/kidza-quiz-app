@@ -184,8 +184,11 @@ tr:hover td{background:#f8fafc;}
 <!-- LOGIN -->
 <div class="screen active" id="s-login">
   <div class="app-header" style="padding-bottom:40px;">
-    <div class="hd-brand">KIDZA</div>
-    <div class="hd-sub">Staff Training Portal</div>
+    <div style="position:relative;z-index:1;text-align:center;">
+      <img id="brand-logo-login" src="" alt="Kidza" style="max-height:64px;max-width:180px;object-fit:contain;display:none;" onerror="this.style.display='none'">
+      <div id="brand-fallback-login" class="hd-brand" style="display:block;"></div>
+    </div>
+    <div class="hd-sub" style="text-align:center;">Staff Training Portal</div>
   </div>
   <div class="card" style="margin-top:-24px;position:relative;z-index:2;">
     <div class="ctr mb2"><div class="pg-title">Welcome Back</div><div class="pg-sub">Sign in to continue your training</div></div>
@@ -205,7 +208,10 @@ tr:hover td{background:#f8fafc;}
 <div class="screen" id="s-home">
   <div class="app-header">
     <div class="hd-row">
-      <div><div class="hd-brand">KIDZA</div><div class="hd-sub" id="h-sub">Staff Portal</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img id="brand-logo-home" src="" alt="Kidza" style="max-height:40px;max-width:120px;object-fit:contain;display:none;" onerror="this.style.display='none'">
+        <div id="brand-fallback-home" style="display:block;"><div class="hd-sub" id="h-sub" style="color:#fff;font-size:15px;font-weight:700;"></div></div>
+      </div>
       <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
     </div>
   </div>
@@ -246,17 +252,11 @@ tr:hover td{background:#f8fafc;}
   <div class="back-bar"><button class="back-btn" onclick="navBack()">&#8592;</button><span class="back-title">Select Quiz Mode</span></div>
   <div class="sp"></div>
   <div class="card">
-    <div class="pg-title mb1">Choose Quiz Mode</div>
+    <div class="pg-title mb1">Knowledge Quiz</div>
     <div class="pg-sub mb2" id="qt-cname"></div>
-    <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Knowledge</div>
     <div class="qtype-card" onclick="openInst('knowledge')">
       <div class="qtype-icon qtk">&#129504;</div>
-      <div><div class="qtype-title">Knowledge Quiz</div><div class="qtype-desc">Standard — focus on accuracy</div></div>
-    </div>
-    <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-top:14px;margin-bottom:8px;">Speed</div>
-    <div class="qtype-card" style="opacity:.45;pointer-events:none;">
-      <div class="qtype-icon qts">&#9889;</div>
-      <div><div class="qtype-title">Speed Quiz</div><div class="qtype-desc">Coming soon</div></div>
+      <div><div class="qtype-title">Knowledge Quiz</div><div class="qtype-desc">2 attempts · Best score recorded · Answers shown after 2nd attempt</div></div>
     </div>
     <div class="alert al-info mt2" id="qt-info"></div>
   </div>
@@ -347,7 +347,10 @@ tr:hover td{background:#f8fafc;}
 <div class="screen" id="s-admin">
   <div class="app-header">
     <div class="hd-row">
-      <div><div class="hd-brand">KIDZA Admin</div><div class="hd-sub" id="adm-sub">Management</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img id="brand-logo-admin" src="" alt="Kidza" style="max-height:40px;max-width:120px;object-fit:contain;display:none;" onerror="this.style.display='none'">
+        <div id="brand-fallback-admin"><div class="hd-sub" style="color:#fff;font-size:13px;" id="adm-sub">Management</div></div>
+      </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-ghost btn-sm" id="sync-btn" onclick="syncNow()">↻ Sync</button>
         <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
@@ -360,6 +363,8 @@ tr:hover td{background:#f8fafc;}
       <button class="tab-btn" onclick="admTab('co')">Courses</button>
       <button class="tab-btn" onclick="admTab('us')">Users</button>
       <button class="tab-btn" onclick="admTab('re')">Results</button>
+      <button class="tab-btn" onclick="admTab('st')">⚡Speed</button>
+      <button class="tab-btn" onclick="admTab('pw')">🔑 Pwd</button>
     </div>
     <!-- OVERVIEW -->
     <div id="adm-ov">
@@ -392,6 +397,26 @@ tr:hover td{background:#f8fafc;}
       </div>
       <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--mid);">LEADERBOARD</div>
       <div id="adm-lb"></div>
+    </div>
+    <!-- SPEED TESTS (standalone) -->
+    <div id="adm-st" class="hidden">
+      <button class="btn btn-blue btn-full mb2" onclick="openSTModal(null)">+ New Speed Test</button>
+      <div id="adm-st-list"></div>
+    </div>
+    <!-- PASSWORD GUIDE (admin only) -->
+    <div id="adm-pw" class="hidden">
+      <div class="pg-title mb1" style="font-size:16px;">🔑 Forgot Password Guide</div>
+      <div class="alert al-info mb2">This section is visible to Admin only. Staff do not see any password reset option on the login screen.</div>
+      <div class="inst-step"><div class="inst-num">1</div><div style="font-size:14px;">Go to the <b>Users</b> tab above.</div></div>
+      <div class="inst-step"><div class="inst-num">2</div><div style="font-size:14px;">Find the staff member who forgot their password and tap <b>Edit</b>.</div></div>
+      <div class="inst-step"><div class="inst-num">3</div><div style="font-size:14px;">Enter a new password in the <b>Password</b> field and tap <b>Save User</b>.</div></div>
+      <div class="inst-step"><div class="inst-num">4</div><div style="font-size:14px;">Inform the staff member of their new password. They can log in immediately.</div></div>
+      <div class="sep"></div>
+      <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--mid);">CHANGE YOUR OWN ADMIN PASSWORD</div>
+      <div class="iw"><span class="lbl">New Admin Password</span><input type="password" id="adm-new-pw" placeholder="Enter new password"></div>
+      <div class="iw"><span class="lbl">Confirm Password</span><input type="password" id="adm-new-pw2" placeholder="Confirm new password"></div>
+      <div id="adm-pw-msg" class="hidden"></div>
+      <button class="btn btn-blue btn-full" onclick="changeAdminPw()">Update My Password</button>
     </div>
   </div>
   <div class="sp"></div>
@@ -496,23 +521,23 @@ const DB_DEFAULT = {
     {id:'u1',name:'TEST',username:'test',password:'1234',role:'staff'},
     {id:'u2',name:'Rajagopal',username:'9629816727',password:'1234',role:'staff'},
     {id:'u3',name:'Rajadurai',username:'9751088431',password:'1234',role:'staff'},
-    {id:'u1',name:'Tamilarsan',username:'8838405191',password:'1234',role:'staff'},
-    {id:'u1',name:'Manjula',username:'8012185613',password:'1234',role:'staff'},
-    {id:'u1',name:'Prasanth',username:'8838820294',password:'1234',role:'staff'},
-    {id:'u1',name:'Prabha',username:'8508463900',password:'1234',role:'staff'},
-    {id:'u1',name:'Surya',username:'8098493506',password:'1234',role:'staff'},
-    {id:'u1',name:'Swathi',username:'9789405578',password:'1234',role:'staff'},
-    {id:'u1',name:'Yuvarajan',username:'9787686585',password:'1234',role:'staff'},
-    {id:'u1',name:'Saranya',username:'7868061065',password:'1234',role:'staff'},
-    {id:'u1',name:'Veera',username:'9345486979',password:'1234',role:'staff'},
-    {id:'u1',name:'Philip Arun',username:'8072019655',password:'1234',role:'staff'},
-    {id:'u1',name:'Dhanajeyan',username:'8220268887',password:'1234',role:'staff'},
-    {id:'u1',name:'Kavya',username:'7418714690',password:'1234',role:'staff'},
-    {id:'u1',name:'Malathi',username:'9025431213',password:'1234',role:'staff'},
-    {id:'u1',name:'Narmatha',username:'9597166849',password:'1234',role:'staff'},
-    {id:'u1',name:'Priyadharsini',username:'8667540181',password:'1234',role:'staff'},
-    {id:'u1',name:'Tharik',username:'9025937706',password:'1234',role:'staff'},
-    {id:'u1',name:'Nila',username:'8825710851',password:'1234',role:'staff'}
+    {id:'u4',name:'Tamilarsan',username:'8838405191',password:'1234',role:'staff'},
+    {id:'u5',name:'Manjula',username:'8012185613',password:'1234',role:'staff'},
+    {id:'u6',name:'Prasanth',username:'8838820294',password:'1234',role:'staff'},
+    {id:'u7',name:'Prabha',username:'8508463900',password:'1234',role:'staff'},
+    {id:'u8',name:'Surya',username:'8098493506',password:'1234',role:'staff'},
+    {id:'u9',name:'Swathi',username:'9789405578',password:'1234',role:'staff'},
+    {id:'u10',name:'Yuvarajan',username:'9787686585',password:'1234',role:'staff'},
+    {id:'u11',name:'Saranya',username:'7868061065',password:'1234',role:'staff'},
+    {id:'u12',name:'Veera',username:'9345486979',password:'1234',role:'staff'},
+    {id:'u13',name:'Philip Arun',username:'8072019655',password:'1234',role:'staff'},
+    {id:'u14',name:'Dhanajeyan',username:'8220268887',password:'1234',role:'staff'},
+    {id:'u15',name:'Kavya',username:'7418714690',password:'1234',role:'staff'},
+    {id:'u16',name:'Malathi',username:'9025431213',password:'1234',role:'staff'},
+    {id:'u17',name:'Narmatha',username:'9597166849',password:'1234',role:'staff'},
+    {id:'u18',name:'Priyadharsini',username:'8667540181',password:'1234',role:'staff'},
+    {id:'u19',name:'Tharik',username:'9025937706',password:'1234',role:'staff'},
+    {id:'u20',name:'Nila',username:'8825710851',password:'1234',role:'staff'}
   ],
   courses:[{
     id:'c1',name:'Product Knowledge',desc:'Learn about Kidza products, categories and certifications.',
@@ -528,6 +553,30 @@ const DB_DEFAULT = {
 };
 
 let DB = JSON.parse(JSON.stringify(DB_DEFAULT));
+
+// ── BRAND LOGO — paste your logo URL here (leave empty to hide) ──
+let BRAND_LOGO_URL = '';  // e.g. 'https://yoursite.com/logo.png'
+
+function applyBrandLogo(){
+  const url = BRAND_LOGO_URL || (DB.brandLogo || '');
+  const ids = [
+    ['brand-logo-login','brand-fallback-login'],
+    ['brand-logo-home','brand-fallback-home'],
+    ['brand-logo-admin','brand-fallback-admin']
+  ];
+  ids.forEach(([imgId, fbId])=>{
+    const img = $(imgId), fb = $(fbId);
+    if(!img) return;
+    if(url){
+      img.src = url;
+      img.style.display = 'block';
+      if(fb) fb.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      if(fb) fb.style.display = 'block';
+    }
+  });
+}
 
 // ── Initialise Firebase (only if configured) ──
 function initFirebase(){
@@ -1056,8 +1105,8 @@ function renderAdmin(){
   admTab('ov');
 }
 function admTab(t){
-  ['ov','co','us','re'].forEach(x=>$('adm-'+x).classList.toggle('hidden',x!==t));
-  document.querySelectorAll('#adm-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',['ov','co','us','re'][i]===t));
+  ['ov','co','us','re','pw'].forEach(x=>$('adm-'+x).classList.toggle('hidden',x!==t));
+  document.querySelectorAll('#adm-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',['ov','co','us','re','pw'][i]===t));
   if(t==='ov')renderAdmOv();
   if(t==='co')renderAdmCo();
   if(t==='us')renderAdmUs();
@@ -1113,7 +1162,7 @@ function renderAdmRe(){
     <td>${r.score}/${r.total} (${r.pct}%)</td>
     <td><span class="badge bd-blue">${r.mode==='speed'?'Speed':'Know.'}</span></td>
     <td><span class="badge ${r.passed?'bd-pass':'bd-fail'}">${r.passed?'PASS':'FAIL'}</span></td>
-    <td><button class="btn btn-warn btn-xs" onclick="reassign('${r.uid}','${r.cid}')">Reset</button></td>
+    <td style="white-space:nowrap;"><button class="btn btn-warn btn-xs" onclick="reassign('${r.uid}','${r.cid}')">Reset</button> <button class="btn btn-danger btn-xs" onclick="delAttempt('${r.uid}','${r.cid}',${r.attempt-1})">Del</button></td>
   </tr>`).join('')||'<tr><td colspan="7" class="muted ctr">No results.</td></tr>';
   // Leaderboard in admin
   const sc={};
@@ -1138,6 +1187,37 @@ function reassign(uid,cid){
   if(c&&c.materials)c.materials.forEach(m=>delete DB.matProg[uid+'_'+cid+'_'+m.id]);
   DB.results=DB.results.filter(r=>!(r.uid===uid&&r.cid===cid));
   sDB();alert('Reset done. User can attempt again.');renderAdmRe();
+}
+function delAttempt(uid,cid,attIdx){
+  if(!confirm('Delete this single attempt/score? This cannot be undone.'))return;
+  const k=uid+'_'+cid;
+  if(DB.attempts[k]&&DB.attempts[k][attIdx]!==undefined){
+    DB.attempts[k].splice(attIdx,1);
+    if(!DB.attempts[k].length) delete DB.attempts[k];
+  }
+  // Remove matching result entry (by attempt number = attIdx+1)
+  let removed=false;
+  DB.results=DB.results.filter(r=>{
+    if(r.uid===uid&&r.cid===cid&&r.attempt===(attIdx+1)&&!removed){removed=true;return false;}
+    return true;
+  });
+  // Re-number remaining results for this user+course
+  let cnt=1;
+  DB.results.forEach(r=>{if(r.uid===uid&&r.cid===cid)r.attempt=cnt++;});
+  sDB();renderAdmRe();
+}
+function changeAdminPw(){
+  const np=$('adm-new-pw').value, np2=$('adm-new-pw2').value;
+  const msg=$('adm-pw-msg');
+  if(!np||!np2){msg.className='alert al-err';msg.textContent='Please fill both fields.';msg.classList.remove('hidden');return;}
+  if(np!==np2){msg.className='alert al-err';msg.textContent='Passwords do not match.';msg.classList.remove('hidden');return;}
+  if(np.length<4){msg.className='alert al-err';msg.textContent='Password must be at least 4 characters.';msg.classList.remove('hidden');return;}
+  const ai=DB.users.findIndex(u=>u.id===CUR.user.id);
+  if(ai<0){msg.className='alert al-err';msg.textContent='Admin user not found.';msg.classList.remove('hidden');return;}
+  DB.users[ai].password=np;CUR.user.password=np;
+  sDB();$('adm-new-pw').value='';$('adm-new-pw2').value='';
+  msg.className='alert al-ok';msg.textContent='Password updated successfully!';msg.classList.remove('hidden');
+  setTimeout(()=>msg.classList.add('hidden'),3000);
 }
 function exportCSV(){
   if(!DB.results.length){alert('No results.');return;}
