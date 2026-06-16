@@ -228,6 +228,12 @@ tr:hover td{background:#f8fafc;}
   <div class="card">
     <button class="btn btn-outline btn-full" onclick="goLb()">🏆 Leaderboard</button>
   </div>
+  <div class="card" id="home-speedtests-card" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="pg-title" style="font-size:18px;margin:0;">⚡ Speed Tests</div>
+    </div>
+    <div id="home-speedtests"></div>
+  </div>
   <div class="sp"></div>
 </div>
 
@@ -484,6 +490,66 @@ tr:hover td{background:#f8fafc;}
   </div>
 </div>
 
+<!-- SPEED TEST MODAL -->
+<div class="modal-ov hidden" id="m-st">
+  <div class="modal-box">
+    <div class="modal-hnd"></div>
+    <div class="modal-ttl" id="m-st-ttl">New Speed Test</div>
+    <div class="iw"><span class="lbl">Test Name</span><input id="mst-n" placeholder="Speed test name"></div>
+    <div class="iw"><span class="lbl">Description</span><textarea id="mst-d" placeholder="Brief description..." style="min-height:50px;"></textarea></div>
+    <div class="row mb2" style="flex-wrap:wrap;gap:10px;">
+      <div style="flex:1;min-width:80px;"><span class="lbl">Pass %</span><input type="number" id="mst-p" value="60" min="1" max="100"></div>
+      <div style="flex:1;min-width:80px;"><span class="lbl">Timer (s)</span><input type="number" id="mst-t" value="10" min="3"></div>
+    </div>
+    <div class="sep"></div>
+    <div style="font-weight:700;font-size:13px;margin-bottom:8px;">Questions</div>
+    <div id="mst-qs"></div>
+    <button class="btn btn-outline btn-full btn-sm mb2" onclick="addSTQ()">+ Add Question</button>
+    <div class="sep"></div>
+    <div style="font-weight:700;font-size:13px;margin-bottom:8px;">Assign to Users</div>
+    <div id="mst-asgn"></div>
+    <div class="row mt2">
+      <button class="btn btn-blue btn-full" onclick="saveSpeedTest()">Save Speed Test</button>
+      <button class="btn btn-outline btn-full" onclick="closeM('m-st')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SPEED TEST SCREEN (staff) -->
+<div class="screen" id="s-speedtest">
+  <div class="app-header" style="padding:44px 20px 20px;">
+    <div class="hd-row">
+      <div><div style="font-size:12px;color:rgba(255,255,255,.65);">⚡ Speed Test</div><div style="font-family:var(--display);font-weight:700;color:#fff;font-size:16px;" id="st-name"></div></div>
+      <div class="timer-pill" id="st-timer">&#9201; <span id="st-tsec">10</span>s</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:-14px;position:relative;z-index:2;">
+    <div class="prog-bar"><div class="prog-fill" id="st-prog"></div></div>
+    <b id="st-cnt" style="font-size:13px;color:var(--mid);display:block;margin-bottom:14px;"></b>
+    <div style="font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:18px;line-height:1.5;" id="st-q"></div>
+    <div id="st-opts"></div>
+    <button class="btn btn-blue btn-full mt2 hidden" id="st-next" onclick="nextSTQ()">Next</button>
+  </div>
+</div>
+
+<!-- SPEED TEST RESULT -->
+<div class="screen" id="s-stresult">
+  <div class="back-bar"><button class="back-btn" onclick="goHomeFromResult()">&#8592;</button><span class="back-title">Speed Test Result</span></div>
+  <div class="sp"></div>
+  <div class="card ctr">
+    <div class="pg-title mb1" id="str-hd">Speed Test Complete ⚡</div>
+    <div class="score-ring"><h1 id="str-sc">0</h1><small id="str-tot">/ 0</small></div>
+    <div class="mb1">Percentage: <b style="color:var(--blue);" id="str-pct"></b></div>
+    <div class="mb1" id="str-status"></div>
+  </div>
+  <div class="card">
+    <div class="pg-title mb2" style="font-size:16px;">Answer Review</div>
+    <div id="str-review"></div>
+  </div>
+  <div class="card"><button class="btn btn-blue btn-full" onclick="goHomeFromResult()">Back to Home</button></div>
+  <div class="sp"></div>
+</div>
+
 <script>
 // ═══════════════════════
 // DB + SESSION  (Firebase Realtime Database — syncs across all devices)
@@ -549,7 +615,7 @@ const DB_DEFAULT = {
       {id:'q3',question:'Which age group uses newborn diapers?',options:['0-3 Months','1-2 Years','3-5 Years','5+ Years'],answer:0}
     ]
   }],
-  results:[],matProg:{},attempts:{}
+  results:[],matProg:{},attempts:{},speedTests:[],speedResults:[]
 };
 
 let DB = JSON.parse(JSON.stringify(DB_DEFAULT));
@@ -608,7 +674,7 @@ function listenForChanges(){
   fbDB.ref('kidza/db').on('value', snap=>{
     if(!snap.exists()) return;
     const d=snap.val();
-    DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}},d);
+    DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{},speedTests:[],speedResults:[]},d);
     try{localStorage.setItem(LOCAL_KEY,JSON.stringify(DB));}catch(e){}
     setSyncStatus('online','Online');
     refreshCurrentScreen();
@@ -659,8 +725,7 @@ async function lDB(){
       const snap = await fbDB.ref('kidza/db').get();
       if(snap.exists()){
         const d = snap.val();
-        DB = Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}}, d);
-        // Also update local cache
+        DB = Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{},speedTests:[],speedResults:[]}, d);
         try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); }catch(e){}
         return;
       }
@@ -669,7 +734,7 @@ async function lDB(){
   // Fallback: localStorage
   try{
     const s = localStorage.getItem(LOCAL_KEY);
-    if(s){ const d=JSON.parse(s); DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{}},d); return; }
+    if(s){ const d=JSON.parse(s); DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{},speedTests:[],speedResults:[]},d); return; }
   }catch(e){}
   // First run: use defaults and push to Firebase
   DB = JSON.parse(JSON.stringify(DB_DEFAULT));
@@ -761,6 +826,29 @@ function navTo(id){navigateTo(id);}
 // Hardware / browser back button (also used by MIT App Inventor WebViewer)
 window.addEventListener('popstate',function(){navigateBack();});
 
+// ── Double back-tap to exit (MIT App Inventor) ──
+let _lastBackTime=0;
+function handleMITBack(){
+  const now=Date.now();
+  const cur=NS[NS.length-1];
+  if(cur==='s-home'||cur==='s-admin'){
+    if(now-_lastBackTime<1800){sendToMIT('EXIT');}
+    else{_lastBackTime=now;sendToMIT('SHOW_EXIT_TOAST');}
+  } else { navigateBack(); }
+}
+// MIT App Inventor calls this via WebViewer.WebViewString
+window.onMITBack = handleMITBack;
+
+// ── Session resume: remember last screen (non-test) ──
+const RESUME_KEY='kidza_resume';
+function saveLastScreen(screenId, extra){
+  try{ localStorage.setItem(RESUME_KEY, JSON.stringify({screen:screenId,extra,uid:CUR.user?CUR.user.id:null})); }catch(e){}
+}
+function loadLastScreen(){
+  try{ const s=localStorage.getItem(RESUME_KEY); return s?JSON.parse(s):null; }catch(e){ return null; }
+}
+function clearLastScreen(){ try{ localStorage.removeItem(RESUME_KEY); }catch(e){} }
+
 // Notification
 function askNotif(){if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}
 function pushNotif(t,b){if('Notification' in window&&Notification.permission==='granted')new Notification(t,{body:b});}
@@ -841,7 +929,23 @@ function goHome(){
         ${badge}</div>`;
     }).join('');
   }
+  // Speed Tests assigned to user
+  const myST=(DB.speedTests||[]).filter(st=>(st.assignedUsers||[]).includes(u.id));
+  const stCard=$('home-speedtests-card');
+  if(myST.length){
+    stCard.style.display='';
+    $('home-speedtests').innerHTML=myST.map(st=>`
+      <div class="item-row" onclick="openSpeedTest('${st.id}')">
+        <div class="item-icon" style="background:#fff7ed;">&#9889;</div>
+        <div class="item-info"><div class="item-title">${esc(st.name)}</div>
+          <div class="item-sub">${st.questions?st.questions.length:0} Q &middot; ${st.timer||10}s per Q</div></div>
+        <span class="badge bd-blue">Go</span>
+      </div>`).join('');
+  } else { stCard.style.display='none'; }
   showScreen('s-home');
+  // Save last screen for resume (not during test)
+  saveLastScreen('s-home',null);
+  applyBrandLogo();
 }
 
 function allMatsDone(uid,cid){
@@ -879,6 +983,7 @@ function openCourse(cid){
   else if(!md){$('cd-quiz').innerHTML=`<div class="alert al-warn">Complete all materials first.</div>`;}
   else{$('cd-quiz').innerHTML=`<button class="btn btn-blue btn-full" onclick="openQType('${cid}')">Take Quiz (Attempt ${a.length+1}/2)</button>`;}
   navTo('s-course');
+  saveLastScreen('s-course',{cid});
   sendToMIT('COURSE_OPENED'); // MIT App Inventor bridge event
 }
 
@@ -974,13 +1079,31 @@ function openInst(mode){
 let QS={cid:null,mode:null,cur:0,answers:[],ti:null,tl:0,qOrder:[]};
 const LT=['A','B','C','D','E'];
 function shuffleArr(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+// Seeded shuffle — deterministic per uid+cid+attempt so different users always get different order
+function seededShuffle(arr,seed){
+  const a=[...arr];let s=seed;
+  for(let i=a.length-1;i>0;i--){
+    s=(s*1664525+1013904223)&0xffffffff;const j=Math.abs(s)%(i+1);[a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function userSeed(uid,cid,attNum){
+  let h=0;const str=uid+cid+attNum+Date.now().toString(36);
+  for(let i=0;i<str.length;i++){h=(Math.imul(31,h)+str.charCodeAt(i))|0;}
+  return h;
+}
 function startQuiz(){
   const c=DB.courses.find(x=>x.id===CID),k=CUR.user.id+'_'+c.id,a=DB.attempts[k]||[];
-  const qOrder=shuffleArr(c.questions.map((_,i)=>i));
-  QS={cid:CID,mode:QMODE,cur:0,answers:[],ti:null,tl:0,qOrder};
+  const attNum=a.length+1;
+  // Each attempt gets unique shuffle per user — seeded by uid+cid+attempt+time
+  const seed=userSeed(CUR.user.id,CID,attNum);
+  const qOrder=seededShuffle(c.questions.map((_,i)=>i),seed);
+  QS={cid:CID,mode:QMODE,cur:0,answers:[],ti:null,tl:0,qOrder,attNum};
   $('qz-name').textContent=CUR.user.name;
-  $('qz-pips').innerHTML=[0,1].map(i=>'<div class="pip'+(i<a.length?' used':'')+'"></div>').join('')+'<span style="font-size:11px;color:rgba(255,255,255,.65);margin-left:4px;">Att.'+(a.length+1)+'</span>';
-  navTo('s-quiz');loadQ();
+  $('qz-pips').innerHTML=[0,1].map(i=>'<div class="pip'+(i<a.length?' used':'')+'"></div>').join('')+'<span style="font-size:11px;color:rgba(255,255,255,.65);margin-left:4px;">Att.'+attNum+'</span>';
+  navTo('s-quiz');
+  clearLastScreen(); // entering test — clear resume so accidental close counts as attempt
+  loadQ();
   sendToMIT('QUIZ_STARTED'); // MIT App Inventor bridge event
 }
 function loadQ(){
@@ -1028,20 +1151,29 @@ function finishQ(){
   if(!DB.attempts[k])DB.attempts[k]=[];
   DB.attempts[k].push({score:sc,total:tot,pct,passed,mode:QS.mode,date:new Date().toLocaleString()});
   const atts=DB.attempts[k];
+  const bp=Math.max(...atts.map(a=>a.pct));
   DB.results.push({uid:CUR.user.id,name:CUR.user.name,cid:c.id,cname:c.name,score:sc,total:tot,pct,passed,mode:QS.mode,attempt:atts.length,date:new Date().toLocaleString()});
   sDB();
   $('res-sc').textContent=sc;$('res-tot').textContent='/ '+tot;$('res-pct').textContent=pct+'%';
-  $('res-hd').textContent=passed?'Quiz Completed!':'Quiz Completed';
+  $('res-hd').textContent='Quiz Completed!';
   $('res-status').innerHTML=passed?'<span class="badge bd-pass" style="font-size:13px;padding:6px 16px;">PASSED</span>':'<span class="badge bd-fail" style="font-size:13px;padding:6px 16px;">FAILED</span>';
-  const rem=2-atts.length,bp=Math.max(...atts.map(a=>a.pct));
-  $('res-rem').textContent=rem>0?rem+' attempt(s) remaining · Best: '+bp+'%':'No attempts remaining · Final: '+bp+'%';
-  $('res-review').innerHTML=QS.answers.map((a,i)=>{
-    const ok=a.sel===a.ans,cls=a.sel===-1?'rev-skip':ok?'rev-ok':'rev-ng',icon=a.sel===-1?'Skipped':ok?'Correct':'Wrong';
-    return '<div class="rev-item '+cls+'"><b>'+icon+' Q'+(i+1)+'.</b> '+esc(a.q)+'<br><br><span>Your answer: <b>'+(a.sel>=0?LT[a.sel]+'. '+esc(a.opts[a.sel]):'Not answered')+'</b></span><br><span>Correct: <b style="color:var(--success)">'+LT[a.ans]+'. '+esc(a.opts[a.ans])+'</b></span></div>';
-  }).join('');
+  const rem=2-atts.length;
+  if(rem>0){
+    // First attempt — do NOT show answers yet
+    $('res-rem').textContent='1 attempt used · Best so far: '+bp+'% · 1 attempt remaining · Answers revealed after 2nd attempt';
+    $('res-review').innerHTML='<div class="alert al-info">Your score this round: '+pct+'%. Complete your 2nd attempt to see all answers and your best score.</div>';
+  } else {
+    // Second (final) attempt — show answers and best score
+    $('res-rem').textContent='Both attempts used · Final Best Score: '+bp+'%';
+    $('res-review').innerHTML=QS.answers.map((a,i)=>{
+      const ok=a.sel===a.ans,cls=a.sel===-1?'rev-skip':ok?'rev-ok':'rev-ng',icon=a.sel===-1?'Skipped':ok?'Correct':'Wrong';
+      return '<div class="rev-item '+cls+'"><b>'+icon+' Q'+(i+1)+'.</b> '+esc(a.q)+'<br><br><span>Your answer: <b>'+(a.sel>=0?LT[a.sel]+'. '+esc(a.opts[a.sel]):'Not answered')+'</b></span><br><span>Correct: <b style="color:var(--success)">'+LT[a.ans]+'. '+esc(a.opts[a.ans])+'</b></span></div>';
+    }).join('');
+  }
   pushNotif('Kidza Quiz Complete','You scored '+pct+'% on '+c.name);
   sendToMIT('QUIZ_COMPLETED'); // MIT App Inventor bridge event
-  if(passed)showCg(sc,tot,pct);else{NS.push('s-result');showScreen('s-result');}
+  saveLastScreen('s-home',null); // resume to home after test
+  if(passed&&rem<=0)showCg(sc,tot,bp);else{NS.push('s-result');showScreen('s-result');}
 }
 
 // ═══════════════════════
@@ -1105,12 +1237,13 @@ function renderAdmin(){
   admTab('ov');
 }
 function admTab(t){
-  ['ov','co','us','re','pw'].forEach(x=>$('adm-'+x).classList.toggle('hidden',x!==t));
-  document.querySelectorAll('#adm-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',['ov','co','us','re','pw'][i]===t));
+  ['ov','co','us','re','st','pw'].forEach(x=>$('adm-'+x).classList.toggle('hidden',x!==t));
+  document.querySelectorAll('#adm-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',['ov','co','us','re','st','pw'][i]===t));
   if(t==='ov')renderAdmOv();
   if(t==='co')renderAdmCo();
   if(t==='us')renderAdmUs();
   if(t==='re')renderAdmRe();
+  if(t==='st')renderAdmST();
 }
 
 const CHS={};
@@ -1327,6 +1460,133 @@ function delUser(id){
 }
 
 // ═══════════════════════
+// SPEED TEST (standalone — admin creates, staff takes)
+// ═══════════════════════
+let EST=null,STQ_ARR=[];
+function openSTModal(id){
+  EST=id;
+  if(id){
+    const st=(DB.speedTests||[]).find(x=>x.id===id);
+    $('m-st-ttl').textContent='Edit Speed Test';
+    $('mst-n').value=st.name;$('mst-d').value=st.desc||'';
+    $('mst-p').value=st.passPercent||60;$('mst-t').value=st.timer||10;
+    STQ_ARR=JSON.parse(JSON.stringify(st.questions||[]));
+    renderSTAsign(st.assignedUsers||[]);
+  } else {
+    $('m-st-ttl').textContent='New Speed Test';
+    $('mst-n').value='';$('mst-d').value='';$('mst-p').value=60;$('mst-t').value=10;
+    STQ_ARR=[];renderSTAsign([]);
+  }
+  renderSTQs();openM('m-st');
+}
+function addSTQ(){STQ_ARR.push({id:nuid(),question:'',options:['','','',''],answer:0});renderSTQs();}
+function renderSTQs(){
+  $('mst-qs').innerHTML=STQ_ARR.map((q,qi)=>`
+    <div class="qb"><div class="qb-h"><b style="font-size:12px;">Q${qi+1}</b><button class="btn btn-danger btn-xs" onclick="STQ_ARR.splice(${qi},1);renderSTQs()">Remove</button></div>
+      <input placeholder="Question text" value="${esc(q.question)}" oninput="STQ_ARR[${qi}].question=this.value" style="margin-bottom:10px;">
+      ${q.options.map((o,oi)=>'<div class="opt-row"><input type="radio" name="stca'+qi+'" '+(q.answer===oi?'checked':'')+' onchange="STQ_ARR['+qi+'].answer='+oi+'" title="Mark correct"><div class="opt-letter" style="flex-shrink:0;background:#f1f5f9;color:var(--mid);">'+LT[oi]+'</div><input type="text" placeholder="Option '+LT[oi]+'" value="'+esc(o)+'" oninput="STQ_ARR['+qi+'].options['+oi+']=this.value"></div>').join('')}
+    </div>`).join('')||'<p class="muted" style="font-size:13px;margin-bottom:8px;">No questions.</p>';
+}
+function renderSTAsign(cur){
+  const staff=DB.users.filter(u=>u.role==='staff');
+  $('mst-asgn').innerHTML=staff.map(u=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;background:#f8fafc;border:1px solid var(--border);margin-bottom:6px;">
+      <input type="checkbox" id="stag-${u.id}" ${cur.includes(u.id)?'checked':''} style="width:18px;height:18px;accent-color:var(--blue);">
+      <div class="av" style="width:30px;height:30px;font-size:12px;">${u.name[0]}</div>
+      <span style="font-size:14px;font-weight:600;">${esc(u.name)}</span>
+    </label>`).join('')||'<p class="muted" style="font-size:13px;">No staff yet.</p>';
+}
+function saveSpeedTest(){
+  const name=$('mst-n').value.trim();
+  if(!name){alert('Test name required.');return;}
+  if(!STQ_ARR.length){alert('Add at least one question.');return;}
+  const asgnd=DB.users.filter(u=>u.role==='staff'&&$('stag-'+u.id)?.checked).map(u=>u.id);
+  const st={id:EST||nuid(),name,desc:$('mst-d').value.trim(),passPercent:parseInt($('mst-p').value)||60,timer:parseInt($('mst-t').value)||10,assignedUsers:asgnd,questions:STQ_ARR};
+  if(!DB.speedTests)DB.speedTests=[];
+  if(EST){const i=DB.speedTests.findIndex(x=>x.id===EST);DB.speedTests[i]=st;}
+  else DB.speedTests.push(st);
+  sDB();closeM('m-st');renderAdmST();alert('Speed Test saved!');
+}
+function delSpeedTest(id){
+  if(!confirm('Delete this speed test?'))return;
+  DB.speedTests=(DB.speedTests||[]).filter(x=>x.id!==id);
+  DB.speedResults=(DB.speedResults||[]).filter(x=>x.stid!==id);
+  sDB();renderAdmST();
+}
+function renderAdmST(){
+  const list=$('adm-st-list');
+  if(!list)return;
+  list.innerHTML=(DB.speedTests||[]).map(st=>`
+    <div class="item-row" style="cursor:default;flex-wrap:wrap;gap:8px;">
+      <div class="item-icon" style="background:#fff7ed;">&#9889;</div>
+      <div class="item-info"><div class="item-title">${esc(st.name)}</div><div class="item-sub">${(st.questions||[]).length} Q &middot; ${st.timer}s &middot; ${(st.assignedUsers||[]).length} Users</div></div>
+      <div class="row"><button class="btn btn-outline btn-xs" onclick="openSTModal('${st.id}')">Edit</button><button class="btn btn-danger btn-xs" onclick="delSpeedTest('${st.id}')">Del</button></div>
+    </div>`).join('')||'<p class="muted">No speed tests yet.</p>';
+}
+
+// Staff: open and take a speed test
+let STS={stid:null,cur:0,answers:[],ti:null,tl:0,qOrder:[]};
+function openSpeedTest(stid){
+  const st=(DB.speedTests||[]).find(x=>x.id===stid);
+  if(!st){alert('Speed test not found.');return;}
+  STS={stid,cur:0,answers:[],ti:null,tl:0,qOrder:shuffleArr((st.questions||[]).map((_,i)=>i))};
+  $('st-name').textContent=st.name;
+  clearLastScreen(); // clear resume during speed test
+  navTo('s-speedtest');
+  loadSTQ();
+}
+function loadSTQ(){
+  const st=(DB.speedTests||[]).find(x=>x.id===STS.stid);
+  if(!st)return;
+  const q=st.questions[STS.qOrder[STS.cur]];
+  $('st-prog').style.width=(STS.cur/st.questions.length*100)+'%';
+  $('st-cnt').textContent='Q '+(STS.cur+1)+' / '+st.questions.length;
+  $('st-q').textContent=q.question;
+  $('st-opts').innerHTML=q.options.map((o,i)=>'<div class="opt-card" id="sto'+i+'" onclick="selSTOpt('+i+')"><div class="opt-letter">'+LT[i]+'</div><div class="opt-text">'+esc(o)+'</div></div>').join('');
+  $('st-next').classList.add('hidden');
+  startST(st.timer||10);
+}
+function startST(s){STS.tl=s;upST();STS.ti=setInterval(()=>{STS.tl--;upST();if(STS.tl<=0){clearInterval(STS.ti);autoST();}},1000);}
+function upST(){$('st-tsec').textContent=STS.tl;$('st-timer').classList.toggle('urgent',STS.tl<=3);}
+function selSTOpt(i){
+  clearInterval(STS.ti);
+  const st=(DB.speedTests||[]).find(x=>x.id===STS.stid);
+  const q=st.questions[STS.qOrder[STS.cur]];
+  document.querySelectorAll('#st-opts .opt-card').forEach(o=>o.style.pointerEvents='none');
+  $('sto'+i).classList.add('sel');
+  STS.answers.push({q:q.question,sel:i,ans:q.answer,opts:q.options});
+  $('st-next').classList.remove('hidden');
+}
+function autoST(){
+  const st=(DB.speedTests||[]).find(x=>x.id===STS.stid);
+  const q=st.questions[STS.qOrder[STS.cur]];
+  STS.answers.push({q:q.question,sel:-1,ans:q.answer,opts:q.options});
+  nextSTQ();
+}
+function nextSTQ(){
+  const st=(DB.speedTests||[]).find(x=>x.id===STS.stid);
+  STS.cur++;
+  if(STS.cur>=st.questions.length)finishST();else loadSTQ();
+}
+function finishST(){
+  clearInterval(STS.ti);
+  const st=(DB.speedTests||[]).find(x=>x.id===STS.stid);
+  let sc=0;STS.answers.forEach(a=>{if(a.sel===a.ans)sc++;});
+  const tot=st.questions.length,pct=Math.round(sc/tot*100),passed=pct>=(st.passPercent||60);
+  if(!DB.speedResults)DB.speedResults=[];
+  DB.speedResults.push({uid:CUR.user.id,name:CUR.user.name,stid:st.id,stname:st.name,score:sc,total:tot,pct,passed,date:new Date().toLocaleString()});
+  sDB();
+  $('str-sc').textContent=sc;$('str-tot').textContent='/ '+tot;$('str-pct').textContent=pct+'%';
+  $('str-status').innerHTML=passed?'<span class="badge bd-pass" style="font-size:13px;padding:6px 16px;">PASSED</span>':'<span class="badge bd-fail" style="font-size:13px;padding:6px 16px;">FAILED</span>';
+  $('str-review').innerHTML=STS.answers.map((a,i)=>{
+    const ok=a.sel===a.ans,cls=a.sel===-1?'rev-skip':ok?'rev-ok':'rev-ng',icon=a.sel===-1?'Skipped':ok?'Correct':'Wrong';
+    return '<div class="rev-item '+cls+'"><b>'+icon+' Q'+(i+1)+'.</b> '+esc(a.q)+'<br><br><span>Your answer: <b>'+(a.sel>=0?LT[a.sel]+'. '+esc(a.opts[a.sel]):'Not answered')+'</b></span><br><span>Correct: <b style="color:var(--success)">'+LT[a.ans]+'. '+esc(a.opts[a.ans])+'</b></span></div>';
+  }).join('');
+  saveLastScreen('s-home',null);
+  NS.push('s-stresult');showScreen('s-stresult');
+}
+
+// ═══════════════════════
 // KEYBOARD
 // ═══════════════════════
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classList.contains('active'))doLogin();});
@@ -1342,7 +1602,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
   const splash = document.createElement('div');
   splash.id = 'sync-splash';
   splash.innerHTML = `
-    <div style="font-family:'Sora',sans-serif;font-size:30px;font-weight:800;color:#fff;letter-spacing:1px;margin-bottom:8px;">KIDZA</div>
+    <div style="margin-bottom:8px;">
+      <img src="${BRAND_LOGO_URL||''}" alt="" style="max-height:70px;max-width:180px;object-fit:contain;${BRAND_LOGO_URL?'':'display:none;'}">
+      ${BRAND_LOGO_URL?'':'<div style="font-family:\'Sora\',sans-serif;font-size:30px;font-weight:800;color:#fff;letter-spacing:1px;">KIDZA</div>'}
+    </div>
     <div style="color:rgba(255,255,255,.75);font-size:13px;margin-bottom:20px;">${firebaseOK ? 'Syncing across devices…' : 'Loading…'}</div>
     <div style="width:60px;height:4px;border-radius:50px;background:rgba(255,255,255,.3);overflow:hidden;">
       <div style="height:100%;background:#fff;border-radius:50px;animation:syncbar 1.1s ease-in-out infinite;"></div>
@@ -1373,9 +1636,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
   }
 
   if(restoreS()){
-    if(CUR.user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
-    else{NS.length=0;NS.push('s-home');goHome();}
-  }else{showScreen('s-login');}
+    if(CUR.user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');applyBrandLogo();}
+    else{
+      // Try to resume last screen (non-test)
+      const resume=loadLastScreen();
+      if(resume&&resume.uid===CUR.user.id&&resume.screen&&resume.screen!=='s-home'){
+        NS.length=0;NS.push('s-home');
+        if(resume.screen==='s-course'&&resume.extra&&resume.extra.cid){
+          goHome();openCourse(resume.extra.cid);
+        } else { goHome(); }
+      } else { NS.length=0;NS.push('s-home');goHome(); }
+    }
+  }else{showScreen('s-login');applyBrandLogo();}
 })();
 </script>
 </body>
