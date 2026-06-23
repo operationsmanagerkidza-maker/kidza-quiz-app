@@ -1043,7 +1043,7 @@ function viewMat(cid,mid){
   navTo('s-mat');
 }
 function markMatDone(){
-  if(!confirm('Mark complete? You will not be able to re-view.'))return;
+  //if(!confirm('Mark complete? You will not be able to re-view.'))return;
   DB.matProg[CUR.user.id+'_'+VM.cid+'_'+VM.mid]=true;sDB();
   sendToMIT('MATERIAL_COMPLETED'); // MIT App Inventor bridge event
   $('mat-done-area').innerHTML='<div class="alert al-ok">Marked complete!</div>';
