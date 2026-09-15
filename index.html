@@ -35,6 +35,17 @@ html,body{max-width:100vw;}
 }
 /* ── SYNC STATUS BADGE (added) ── */
 #sync-status{position:fixed;top:8px;right:8px;z-index:7000;font-size:11px;font-weight:700;padding:5px 12px;border-radius:50px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.12);transition:.25s;}
+#toast-container{position:fixed;bottom:0;left:0;right:0;z-index:9500;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 16px max(16px,env(safe-area-inset-bottom));pointer-events:none;}
+.toast{pointer-events:auto;max-width:440px;width:100%;border-radius:16px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.22);opacity:0;transform:translateY(24px) scale(.97);transition:all .32s cubic-bezier(.34,1.56,.64,1);}
+.toast-show{opacity:1;transform:translateY(0) scale(1);}
+.toast-msg{font-size:13.5px;font-weight:700;line-height:1.5;}
+.toast-success{background:#dcfce7;color:var(--success);border:1.5px solid #bbf7d0;}
+.toast-danger{background:#fee2e2;color:var(--danger);border:1.5px solid #fecaca;}
+.toast-info{background:var(--blue-light);color:var(--blue2);border:1.5px solid var(--blue-muted);}
+.toast-btns{display:flex;gap:8px;margin-top:10px;}
+.toast-btn{flex:1;padding:9px;border-radius:10px;border:1.5px solid rgba(0,0,0,.08);font-weight:700;font-size:13px;cursor:pointer;background:rgba(255,255,255,.7);color:inherit;transition:transform .15s ease;}
+.toast-btn:active{transform:scale(.95);}
+.toast-btn-primary{background:var(--danger);border-color:var(--danger);color:#fff;}
 #sync-status .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
 #sync-status.online{background:#dcfce7;color:var(--success);}
 #sync-status.online .dot{background:var(--success);}
@@ -52,7 +63,11 @@ body{padding-bottom:env(safe-area-inset-bottom);}
 .app-header{padding-top:max(52px,env(safe-area-inset-top));}
 html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--black);overflow-x:hidden;}
 .screen{display:none;min-height:100vh;padding-bottom:24px;}
-.screen.active{display:block;animation:fadeUp .28s ease both;}
+.screen.active{display:block;}
+.screen.active.dir-fwd{animation:screenInFwd .34s cubic-bezier(.22,1,.36,1) both;}
+.screen.active.dir-back{animation:screenInBack .34s cubic-bezier(.22,1,.36,1) both;}
+@keyframes screenInFwd{from{opacity:0;transform:translateX(28px) scale(.99);}to{opacity:1;transform:translateX(0) scale(1);}}
+@keyframes screenInBack{from{opacity:0;transform:translateX(-28px) scale(.99);}to{opacity:1;transform:translateX(0) scale(1);}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .app-header{background:linear-gradient(135deg,var(--blue2) 0%,var(--blue) 100%);padding:52px 20px 24px;border-radius:0 0 28px 28px;position:relative;overflow:hidden;}
 .app-header::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);}
@@ -166,6 +181,11 @@ tr:hover td{background:#f8fafc;}
    screens (more reliable than the old padding-bottom % hack). */
 .video-wrap{position:relative;width:100%;height:0;padding-bottom:56.25%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;max-width:100%;}
 .video-wrap video,.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;display:block;}
+.video-wrap video{object-fit:contain;background:#000;}
+.video-wrap.fs-active{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;padding-bottom:0!important;border-radius:0!important;z-index:9400;max-width:none;}
+body.fs-lock{overflow:hidden;}
+#fs-exit-btn{display:none;position:fixed;top:max(16px,env(safe-area-inset-top));right:16px;z-index:9500;background:rgba(0,0,0,.65);color:#fff;border:1.5px solid rgba(255,255,255,.35);border-radius:50px;padding:10px 16px;font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;}
+#fs-exit-btn.show{display:block;}
 .vp-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#0f172a;padding:10px 12px;border-radius:0 0 14px 14px;margin-top:-4px;}
 .vp-btn{background:rgba(255,255,255,.14);border:none;color:#fff;width:32px;height:32px;min-width:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;flex-shrink:0;transition:transform .15s ease,background .15s ease;}
 .vp-btn:active{transform:scale(.9);background:rgba(255,255,255,.24);}
@@ -208,6 +228,13 @@ tr:hover td{background:#f8fafc;}
 .hidden{display:none!important;}
 .ctr{text-align:center;}
 .sep{border:none;border-top:1px solid var(--border);margin:14px 0;}
+.fb-row{margin-bottom:18px;}
+.fb-row:last-of-type{margin-bottom:0;}
+.fb-label{font-weight:700;font-size:13px;margin-bottom:10px;color:var(--dark);}
+.fb-smileys{display:flex;gap:6px;justify-content:space-between;}
+.fb-emoji{flex:1;text-align:center;font-size:26px;padding:8px 0;border-radius:12px;cursor:pointer;transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .18s ease,opacity .18s ease;filter:grayscale(70%);opacity:.45;border:1.5px solid transparent;}
+.fb-emoji:active{transform:scale(.92);}
+.fb-emoji.sel{filter:none;opacity:1;background:var(--blue-light);border-color:var(--blue-muted);transform:scale(1.15);}
 .muted{color:var(--muted);}
 .mb1{margin-bottom:10px;}.mb2{margin-bottom:18px;}.mt1{margin-top:10px;}.mt2{margin-top:18px;}
 .sp{height:14px;}
@@ -216,6 +243,7 @@ tr:hover td{background:#f8fafc;}
 <body>
 <!-- SYNC STATUS BADGE (added) -->
 <div id="sync-status" class="hidden"><span class="dot"></span><span id="sync-status-text">Online</span></div>
+<div id="toast-container"></div>
 
 <!-- LOGIN -->
 <div class="screen active" id="s-login">
@@ -280,7 +308,10 @@ tr:hover td{background:#f8fafc;}
     <div id="home-courses"></div>
   </div>
   <div class="card">
-    <button class="btn btn-outline btn-full" onclick="goLb()">🏆 Leaderboard</button>
+    <div class="row">
+      <button class="btn btn-outline btn-full" onclick="goLb()">🏆 Leaderboard</button>
+      <button class="btn btn-outline btn-full" onclick="goKnowledge()">💡 Knowledge Sharing</button>
+    </div>
   </div>
   <div class="card" id="home-speedtests-card" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -324,14 +355,14 @@ tr:hover td{background:#f8fafc;}
 
 <!-- INSTRUCTIONS -->
 <div class="screen" id="s-inst">
-  <div class="back-bar"><button class="back-btn" onclick="showScreen('s-qtype')">&#8592;</button><span class="back-title">Instructions</span></div>
+  <div class="back-bar"><button class="back-btn" onclick="navBack()">&#8592;</button><span class="back-title">Instructions</span></div>
   <div class="sp"></div>
   <div class="card">
     <div class="ctr mb2"><div style="font-size:48px;">&#128203;</div><div class="pg-title mt1" id="inst-ttl"></div><div class="pg-sub" id="inst-sub"></div></div>
     <div id="inst-list"></div>
     <div id="inst-warn" class="hidden mt1"></div>
     <button class="btn btn-blue btn-full mt2" onclick="startQuiz()">Start Quiz</button>
-    <button class="btn btn-outline btn-full mt1" onclick="showScreen('s-qtype')">Back</button>
+    <button class="btn btn-outline btn-full mt1" onclick="navBack()">Back</button>
   </div>
   <div class="sp"></div>
 </div>
@@ -372,6 +403,7 @@ tr:hover td{background:#f8fafc;}
     <div class="pg-title mb2" style="font-size:16px;">Answer Review</div>
     <div id="res-review"></div>
   </div>
+  <div class="card" id="res-fb-area"></div>
   <div class="card"><button class="btn btn-blue btn-full" onclick="goHomeFromResult()">Back to Home</button></div>
   <div class="sp"></div>
 </div>
@@ -393,6 +425,23 @@ tr:hover td{background:#f8fafc;}
       <select id="lb-stsel" onchange="renderLb()"></select>
     </div>
     <div id="lb-list"></div>
+  </div>
+  <div class="sp"></div>
+</div>
+
+<!-- KNOWLEDGE SHARING -->
+<div class="screen" id="s-knowledge">
+  <div class="back-bar"><button class="back-btn" onclick="navBack()">&#8592;</button><span class="back-title">Knowledge Sharing</span></div>
+  <div class="sp"></div>
+  <div class="card">
+    <div class="pg-title mb1">💡 Share an Idea</div>
+    <div class="pg-sub mb2">Got a suggestion to help grow the Kidza brand? New product ideas, customer feedback, process improvements — anything goes.</div>
+    <textarea id="ks-text" placeholder="Type your idea or input here..." style="min-height:100px;"></textarea>
+    <button class="btn btn-blue btn-full mt2" onclick="submitKnowledgeShare()">Submit Idea</button>
+  </div>
+  <div class="card">
+    <div class="pg-title mb2" style="font-size:16px;">Team Ideas Board</div>
+    <div id="ks-list"></div>
   </div>
   <div class="sp"></div>
 </div>
@@ -429,6 +478,7 @@ tr:hover td{background:#f8fafc;}
       <button class="tab-btn" onclick="admTab('us')">Users</button>
       <button class="tab-btn" onclick="admTab('re')">Results</button>
       <button class="tab-btn" onclick="admTab('st')">⚡Speed</button>
+      <button class="tab-btn" onclick="admTab('ks')">💡 Ideas</button>
       <button class="tab-btn" onclick="admTab('pw')">🔑 Pwd</button>
     </div>
     <!-- OVERVIEW -->
@@ -492,6 +542,12 @@ tr:hover td{background:#f8fafc;}
       </div>
       <select id="adm-st-lbsel" onchange="renderAdmSTLb()" class="mb2"></select>
       <div id="adm-st-lb"></div>
+    </div>
+    <!-- KNOWLEDGE SHARING / IDEAS (admin review) -->
+    <div id="adm-ks" class="hidden">
+      <div class="pg-title mb1" style="font-size:16px;">💡 Team Ideas for Brand Development</div>
+      <div class="alert al-info mb2">Staff submissions from the Knowledge Sharing tab. Review and remove anything not relevant.</div>
+      <div id="adm-ks-list"></div>
     </div>
     <!-- PASSWORD GUIDE (admin only) -->
     <div id="adm-pw" class="hidden">
@@ -631,6 +687,7 @@ tr:hover td{background:#f8fafc;}
     <div class="pg-title mb2" style="font-size:16px;">Answer Review</div>
     <div id="str-review"></div>
   </div>
+  <div class="card" id="str-fb-area"></div>
   <div class="card"><button class="btn btn-blue btn-full" onclick="goHomeFromResult()">Back to Home</button></div>
   <div class="sp"></div>
 </div>
@@ -732,7 +789,7 @@ const DB_DEFAULT = {
       {id:'q3',question:'Which age group uses newborn diapers?',options:['0-3 Months','1-2 Years','3-5 Years','5+ Years'],answer:0}
     ]
   }],
-  results:[],matProg:{},attempts:{},speedTests:[],speedResults:[]
+  results:[],matProg:{},attempts:{},speedTests:[],speedResults:[],feedback:[],knowledgeShares:[],extraAttempts:{}
 };
 
 let DB = JSON.parse(JSON.stringify(DB_DEFAULT));
@@ -791,7 +848,7 @@ function listenForChanges(){
   fbDB.ref('kidza/db').on('value', snap=>{
     if(!snap.exists()) return;
     const d=snap.val();
-    DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{},speedTests:[],speedResults:[]},d);
+    DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{},speedTests:[],speedResults:[],feedback:[],knowledgeShares:[],extraAttempts:{}},d);
     try{localStorage.setItem(LOCAL_KEY,JSON.stringify(DB));}catch(e){}
     setSyncStatus('online','Online');
     refreshCurrentScreen();
@@ -842,7 +899,7 @@ async function lDB(){
       const snap = await fbDB.ref('kidza/db').get();
       if(snap.exists()){
         const d = snap.val();
-        DB = Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{},speedTests:[],speedResults:[]}, d);
+        DB = Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{},speedTests:[],speedResults:[],feedback:[],knowledgeShares:[],extraAttempts:{}}, d);
         try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(DB)); }catch(e){}
         return;
       }
@@ -851,7 +908,7 @@ async function lDB(){
   // Fallback: localStorage
   try{
     const s = localStorage.getItem(LOCAL_KEY);
-    if(s){ const d=JSON.parse(s); DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{},speedTests:[],speedResults:[]},d); return; }
+    if(s){ const d=JSON.parse(s); DB=Object.assign({users:[],courses:[],results:[],matProg:{},attempts:{},speedTests:[],speedResults:[],feedback:[],knowledgeShares:[],extraAttempts:{}},d); return; }
   }catch(e){}
   // First run: use defaults and push to Firebase
   DB = JSON.parse(JSON.stringify(DB_DEFAULT));
@@ -860,11 +917,31 @@ async function lDB(){
 
 // ── Session (remember-me is per-device by design) ──
 let CUR={user:null};
+const CREDS_KEY='kidza_creds';
 function saveS(uid){try{localStorage.setItem(SK,uid);}catch(e){}}
 function clearS(){try{localStorage.removeItem(SK);}catch(e){}}
+function saveCreds(username,password){try{localStorage.setItem(CREDS_KEY,JSON.stringify({username,password}));}catch(e){}}
+function loadCreds(){try{const s=localStorage.getItem(CREDS_KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+function clearCreds(){try{localStorage.removeItem(CREDS_KEY);}catch(e){}}
 function restoreS(){
   try{const uid=localStorage.getItem(SK);if(uid){const u=DB.users.find(x=>x.id===uid);if(u){CUR.user=u;return true;}}}catch(e){}
+  // Fallback: if the saved user id no longer resolves (e.g. DB was reloaded before
+  // this ran), try the remembered username/password directly instead of forcing
+  // the person to re-type their credentials.
+  const creds=loadCreds();
+  if(creds){
+    const u=DB.users.find(x=>x.username.toLowerCase()===creds.username.toLowerCase()&&x.password===creds.password);
+    if(u){ CUR.user=u; saveS(u.id); return true; }
+  }
   return false;
+}
+function prefillLoginForm(){
+  const creds=loadCreds();
+  if(creds){
+    $('l-user').value=creds.username;
+    $('l-pass').value=creds.password;
+    $('l-rem').checked=true;
+  }
 }
 
 // ═══════════════════════
@@ -873,9 +950,11 @@ function restoreS(){
 function nuid(){return 'i'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function $(i){return document.getElementById(i);}
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  $(id).classList.add('active');window.scrollTo(0,0);
+function showScreen(id, direction){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active','dir-fwd','dir-back'));
+  const el=$(id);
+  el.classList.add('active', direction==='back'?'dir-back':'dir-fwd');
+  window.scrollTo(0,0);
 }
 function closeM(id){$(id).classList.add('hidden');}
 function openM(id){$(id).classList.remove('hidden');}
@@ -893,46 +972,80 @@ function sendToMIT(message){
 }
 
 // ═══════════════════════
-// NAVIGATION MANAGER (added — centralized screen history stack)
-// Replaces ad-hoc NS array logic. Old helper names (navTo/navPush/navBack)
-// are kept as thin aliases so all existing onclick="" calls keep working.
+// TOAST SYSTEM — bottom-of-screen notifications (login success, exit confirm, etc.)
 // ═══════════════════════
-const NS=[]; // screen history stack — kept for backward compatibility with existing code (admin init etc.)
-const ROOT_SCREENS=['s-login','s-home','s-admin']; // screens where "back" should exit (or do nothing on login)
+function showToast(msg, type, opts){
+  opts=opts||{};
+  const container=$('toast-container');
+  if(!container) return null;
+  const el=document.createElement('div');
+  el.className='toast toast-'+(type||'info');
+  const msgEl=document.createElement('div');
+  msgEl.className='toast-msg';
+  msgEl.innerHTML=msg;
+  el.appendChild(msgEl);
+  if(opts.buttons&&opts.buttons.length){
+    const row=document.createElement('div');
+    row.className='toast-btns';
+    opts.buttons.forEach(b=>{
+      const btn=document.createElement('button');
+      btn.className='toast-btn'+(b.primary?' toast-btn-primary':'');
+      btn.textContent=b.label;
+      btn.onclick=()=>{ removeToast(el); if(b.onClick) b.onClick(); };
+      row.appendChild(btn);
+    });
+    el.appendChild(row);
+  }
+  container.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('toast-show'));
+  if(opts.duration!==0){
+    el._timer=setTimeout(()=>removeToast(el), opts.duration||2500);
+  }
+  return el;
+}
+function removeToast(el){
+  if(!el||!el.parentNode) return;
+  clearTimeout(el._timer);
+  el.classList.remove('toast-show');
+  setTimeout(()=>{ if(el.parentNode) el.remove(); },280);
+}
 
+// ═══════════════════════
+// NAVIGATION MANAGER — robust single-tap back button handling.
+// Uses a "history guard" pattern: every forward navigation pushes exactly one
+// history entry, and every back press (hardware, gesture, or in-app button)
+// is re-armed immediately after handling so the NEXT back press also works —
+// this keeps navigation reliable even after many screens deep (Course →
+// Material → Quiz → Result, etc.) without ever needing more than one tap.
+// ═══════════════════════
+const NS=[]; // logical screen history stack
+const ROOT_SCREENS=['s-login','s-home','s-admin'];
+
+function pushGuard(){
+  try{ history.pushState({app:true}, ''); }catch(e){}
+}
 function navigateTo(screenId){
-  // Prevent duplicate consecutive history entries / navigation loops
-  if(NS[NS.length-1]===screenId) { showScreen(screenId); return; }
+  if(NS[NS.length-1]===screenId){ showScreen(screenId,'fwd'); return; }
   NS.push(screenId);
-  try{ history.pushState({screen:screenId}, document.title); }catch(e){}
-  showScreen(screenId);
+  pushGuard();
+  showScreen(screenId,'fwd');
 }
-
 function navigateBack(){
-  const current=NS[NS.length-1];
-  if(NS.length>1){
-    NS.pop();
-    const prev=NS[NS.length-1];
-    showScreen(prev);
-    return;
-  }
-  // Only one (or zero) screens in stack — we're at a root screen
-  if(current==='s-home'||current==='s-admin'){
-    // Home/Admin back → notify MIT App Inventor to close the app
-    sendToMIT('EXIT');
-    return;
-  }
-  if(current==='s-login'||!current){
-    // Nothing to go back to from login
-    return;
-  }
-  // Fallback: go to home
-  goHome();
+  if(_fsActiveEl){ exitFakeFullscreen(); return; }
+  // Programmatic back (used by in-app back buttons) — routes through the
+  // browser History API so hardware back and in-app back always agree.
+  if(NS.length>1){ history.back(); }
+  else { handleRootBack(); }
 }
-
+function resetNavTo(screenId){
+  NS.length=0;
+  NS.push(screenId);
+  pushGuard();
+  showScreen(screenId,'back');
+}
 function clearNavigation(){
   NS.length=0;
-  try{ history.replaceState({},document.title); }catch(e){}
+  try{ history.replaceState({},''); }catch(e){}
 }
 
 // Backward-compatible aliases used throughout the existing codebase
@@ -940,20 +1053,37 @@ function navPush(id){navigateTo(id);}
 function navBack(){navigateBack();}
 function navTo(id){navigateTo(id);}
 
-// Hardware / browser back button (also used by MIT App Inventor WebViewer)
-window.addEventListener('popstate',function(){navigateBack();});
+// Hardware / browser back button (also fires for MIT App Inventor's WebViewer,
+// which is a standard Android WebView and supports the History API normally)
+window.addEventListener('popstate',function(){
+  // If a video is in our fake-fullscreen mode, back should exit that first.
+  if(_fsActiveEl){ exitFakeFullscreen(); pushGuard(); return; }
+  if(NS.length>1){
+    NS.pop();
+    showScreen(NS[NS.length-1],'back');
+    pushGuard();
+  } else {
+    handleRootBack();
+    pushGuard();
+  }
+});
 
-// ── Double back-tap to exit (MIT App Inventor) ──
-let _lastBackTime=0;
-function handleMITBack(){
-  const now=Date.now();
+// ── Exit confirmation (root screens only) ──
+function handleRootBack(){
   const cur=NS[NS.length-1];
   if(cur==='s-home'||cur==='s-admin'){
-    if(now-_lastBackTime<1800){sendToMIT('EXIT');}
-    else{_lastBackTime=now;sendToMIT('SHOW_EXIT_TOAST');}
-  } else { navigateBack(); }
+    showToast('⚠️ Press back again to exit the app', 'danger', {
+      duration:4500,
+      buttons:[
+        {label:'No', onClick:()=>{}},
+        {label:'Yes, Exit', primary:true, onClick:()=>sendToMIT('EXIT')}
+      ]
+    });
+  }
+  // s-login or empty stack: nothing to confirm, just stay put
 }
-// MIT App Inventor calls this via WebViewer.WebViewString
+// MIT App Inventor can also call this directly via WebViewer.WebViewString if wired in Blocks
+function handleMITBack(){ navigateBack(); }
 window.onMITBack = handleMITBack;
 
 // ── Session resume: remember last screen (non-test) ──
@@ -986,11 +1116,12 @@ async function doLogin(){
   if(!user){$('l-err').textContent='Invalid username or password.';$('l-err').classList.remove('hidden');sendToMIT('LOGIN_FAILED');return;}
   $('l-err').classList.add('hidden');
   CUR.user=user;
-  if(rem)saveS(user.id);
+  if(rem){ saveS(user.id); saveCreds(user.username,pw); } else { clearS(); clearCreds(); }
   askNotif();
   sendToMIT('LOGIN_SUCCESS'); // MIT App Inventor bridge event
-  if(user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');}
-  else{NS.length=0;NS.push('s-home');goHome();}
+  showToast('✅ Login Successful!','success',{duration:1800});
+  if(user.role==='admin'){resetNavTo('s-admin');renderAdmin();}
+  else{resetNavTo('s-home');goHome();}
 }
 async function syncNow(){
   const btn=$('sync-btn');
@@ -1007,7 +1138,7 @@ async function syncNow(){
   if(btn){btn.textContent='✓ Done';setTimeout(()=>{btn.textContent='↻ Sync';btn.disabled=false;},1500);}
   renderAdmin();
 }
-function doLogout(){sendToMIT('LOGOUT');clearInterval(liveBannerTimer);clearS();CUR.user=null;$('l-user').value='';$('l-pass').value='';$('l-rem').checked=false;clearNavigation();showScreen('s-login');}
+function doLogout(){sendToMIT('LOGOUT');clearInterval(liveBannerTimer);clearS();clearCreds();CUR.user=null;$('l-user').value='';$('l-pass').value='';$('l-rem').checked=false;resetNavTo('s-login');}
 
 // ═══════════════════════
 // HOME
@@ -1132,7 +1263,7 @@ function allMatsDone(uid,cid){
 // COURSE
 // ═══════════════════════
 let CID=null;
-function openCourse(cid){
+function renderCourseDetail(cid){
   CID=cid;
   const c=DB.courses.find(x=>x.id===cid),u=CUR.user;
   $('cd-bar').textContent=c.name;
@@ -1162,6 +1293,9 @@ function openCourse(cid){
     quizHtml+=`<button class="btn btn-full mt1" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;" onclick="generateCertificate(CUR.user.name,'${esc(c.name).replace(/'/g,"\\'")}',new Date().toLocaleDateString())">🎓 View Certificate</button>`;
   }
   $('cd-quiz').innerHTML=quizHtml;
+}
+function openCourse(cid){
+  renderCourseDetail(cid);
   navTo('s-course');
   saveLastScreen('s-course',{cid});
   sendToMIT('COURSE_OPENED'); // MIT App Inventor bridge event
@@ -1246,7 +1380,7 @@ function markMatDone(){
     DB.matProg[CUR.user.id+'_'+VM.cid+'_'+VM.mid]=true;sDB();
     sendToMIT('MATERIAL_COMPLETED'); // MIT App Inventor bridge event
     $('mat-done-area').innerHTML='<div class="alert" style="background:#fee2e2;color:var(--danger);border:1.5px solid #fecaca;font-weight:800;">✅ Marked Complete! This material is now locked.</div>';
-    setTimeout(()=>openCourse(VM.cid),900);
+    setTimeout(()=>{ renderCourseDetail(VM.cid); navBack(); },900);
   });
 }
 function showConfirm(msg, onYes){
@@ -1257,7 +1391,7 @@ function showConfirm(msg, onYes){
   freshBtn.onclick=()=>{closeM('m-confirm');onYes();};
   openM('m-confirm');
 }
-function backFromMat(){if(CID)openCourse(CID);else navBack();}
+function backFromMat(){navBack();}
 
 // ═══════════════════════
 // CUSTOM VIDEO PLAYER — full controls (play/pause, seek, volume, speed, fullscreen)
@@ -1302,20 +1436,46 @@ function vpSetSpeed(mid,val){
   const video=$('vp-video-'+mid);
   if(video) video.playbackRate=parseFloat(val);
 }
+// ── Fullscreen: uses a CSS-based "fake fullscreen" (fixed, full-viewport
+// overlay) as the PRIMARY mechanism. Many embedded WebViews (including MIT App
+// Inventor's WebViewer) don't implement the browser's native Fullscreen API,
+// so relying on requestFullscreen() alone silently does nothing there. This
+// approach works everywhere since it's just CSS positioning + JS. ──
+let _fsActiveEl=null;
+function enterFakeFullscreen(el){
+  if(!el) return;
+  exitFakeFullscreen(); // only one at a time
+  el.classList.add('fs-active');
+  document.body.classList.add('fs-lock');
+  _fsActiveEl=el;
+  if(!$('fs-exit-btn')){
+    const btn=document.createElement('button');
+    btn.id='fs-exit-btn';
+    btn.textContent='✕ Exit Full Screen';
+    btn.onclick=()=>exitFakeFullscreen();
+    document.body.appendChild(btn);
+  }
+  $('fs-exit-btn').classList.add('show');
+  // Also try the native API as a bonus (harmless if unsupported/blocked)
+  try{
+    if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+    else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  }catch(e){}
+}
+function exitFakeFullscreen(){
+  if(_fsActiveEl){ _fsActiveEl.classList.remove('fs-active'); _fsActiveEl=null; }
+  document.body.classList.remove('fs-lock');
+  const btn=$('fs-exit-btn');
+  if(btn) btn.classList.remove('show');
+  try{ if(document.exitFullscreen&&document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+}
 function vpFullscreen(mid){
-  const video=$('vp-video-'+mid);
-  if(!video) return;
-  if(video.requestFullscreen) video.requestFullscreen();
-  else if(video.webkitRequestFullscreen) video.webkitRequestFullscreen();
-  else if(video.webkitEnterFullscreen) video.webkitEnterFullscreen(); // iOS Safari native fullscreen
+  const wrap=$('vp-video-'+mid);
+  enterFakeFullscreen(wrap ? wrap.closest('.video-wrap') : null);
 }
 function requestFullscreenEl(id){
   const el=$(id);
-  if(!el) return;
-  if(el.requestFullscreen) el.requestFullscreen();
-  else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-  else if(el.mozRequestFullScreen) el.mozRequestFullScreen();
-  else if(el.msRequestFullscreen) el.msRequestFullscreen();
+  enterFakeFullscreen(el ? el.closest('.video-wrap') || el : null);
 }
 
 // ═══════════════════════
@@ -1501,7 +1661,8 @@ function finishQ(){
   pushNotif('Kidza Quiz Complete','You scored '+pct+'% on '+c.name);
   sendToMIT('QUIZ_COMPLETED'); // MIT App Inventor bridge event
   saveLastScreen('s-home',null); // resume to home after test
-  if(passed&&rem<=0)showCg(sc,tot,bp);else{NS.push('s-result');showScreen('s-result');}
+  renderFeedbackCard('res-fb-area','knowledge',c.id,c.name);
+  if(passed&&rem<=0)showCg(sc,tot,bp);else{navigateTo('s-result');}
 }
 
 // ═══════════════════════
@@ -1551,16 +1712,92 @@ function showCg(sc,tot,pct){
   const cols=['#1a56db','#fbbf24','#34d399','#f472b6','#60a5fa','#e53935'];
   for(let i=0;i<30;i++){const p=document.createElement('div');p.className='confetti-p';p.style.cssText='left:'+Math.random()*100+'%;background:'+cols[i%6]+';animation-delay:'+Math.random()*1.2+'s;animation-duration:'+(2.2+Math.random()*1.5)+'s;';box.appendChild(p);}
   $('cg-ov').classList.remove('hidden');
-  NS.push('s-result');showScreen('s-result');
+  navigateTo('s-result');
 }
 function closeCg(){$('cg-ov').classList.add('hidden');}
-function goHomeFromResult(){NS.length=0;NS.push('s-home');goHome();}
+function goHomeFromResult(){resetNavTo('s-home');goHome();}
+
+// ═══════════════════════
+// SMILEY FEEDBACK — shown after each test (knowledge quiz or speed test)
+// ═══════════════════════
+let FB={initiative:0,quality:0,appAccess:0};
+const FB_QUESTIONS=[
+  {key:'initiative',label:'Your Initiative & Effort'},
+  {key:'quality',label:'Training Quality'},
+  {key:'appAccess',label:'App Access & Experience'}
+];
+const FB_EMOJIS=['😠','😕','😐','🙂','😄'];
+function renderFeedbackCard(areaId, testType, testRef, testName){
+  FB={initiative:0,quality:0,appAccess:0};
+  const area=$(areaId);
+  if(!area) return;
+  area.innerHTML=`
+    <div class="pg-title mb2" style="font-size:16px;">Rate Your Experience</div>
+    ${FB_QUESTIONS.map(q=>`
+      <div class="fb-row">
+        <div class="fb-label">${q.label}</div>
+        <div class="fb-smileys" id="fb-row-${q.key}">
+          ${FB_EMOJIS.map((e,i)=>`<span class="fb-emoji" onclick="pickFb('${q.key}',${i+1})">${e}</span>`).join('')}
+        </div>
+      </div>`).join('')}
+    <button class="btn btn-blue btn-full mt1" onclick="submitFeedback('${areaId}','${testType}','${testRef}','${esc(testName).replace(/'/g,"\\'")}')">Submit Feedback</button>
+  `;
+}
+function pickFb(key,val){
+  FB[key]=val;
+  const row=$('fb-row-'+key);
+  if(!row) return;
+  Array.from(row.children).forEach((el,i)=>el.classList.toggle('sel', i+1===val));
+}
+function submitFeedback(areaId,testType,testRef,testName){
+  if(!FB.initiative||!FB.quality||!FB.appAccess){
+    showToast('Please rate all 3 questions before submitting.','danger',{duration:2500});
+    return;
+  }
+  if(!DB.feedback) DB.feedback=[];
+  DB.feedback.push({
+    uid:CUR.user.id,name:CUR.user.name,testType,testRef,testName,
+    initiative:FB.initiative,quality:FB.quality,appAccess:FB.appAccess,
+    date:new Date().toLocaleString()
+  });
+  sDB();
+  const area=$(areaId);
+  if(area) area.innerHTML='<div class="alert al-ok" style="margin-bottom:0;">🙏 Thanks for your feedback!</div>';
+  showToast('✅ Feedback submitted — thank you!','success',{duration:2000});
+}
 
 // ═══════════════════════
 // LEADERBOARD
 // ═══════════════════════
 let lbTab='all';
 function goLb(){navTo('s-lb');renderLb();}
+
+// ═══════════════════════
+// KNOWLEDGE SHARING — staff can submit ideas/input for brand development
+// ═══════════════════════
+function goKnowledge(){ navTo('s-knowledge'); renderKnowledgeList(); }
+function submitKnowledgeShare(){
+  const text=$('ks-text').value.trim();
+  if(!text){ showToast('Please write something before submitting.','danger',{duration:2200}); return; }
+  if(!DB.knowledgeShares) DB.knowledgeShares=[];
+  DB.knowledgeShares.push({id:nuid(),uid:CUR.user.id,name:CUR.user.name,text,date:new Date().toLocaleString()});
+  sDB();
+  $('ks-text').value='';
+  showToast('✅ Idea submitted — thank you for contributing!','success',{duration:2200});
+  renderKnowledgeList();
+}
+function renderKnowledgeList(){
+  const list=(DB.knowledgeShares||[]).slice().reverse();
+  $('ks-list').innerHTML = list.length ? list.map(k=>`
+    <div class="item-row" style="cursor:default;align-items:flex-start;">
+      <div class="av" style="flex-shrink:0;">${k.name[0].toUpperCase()}</div>
+      <div class="item-info">
+        <div class="item-title">${esc(k.name)}</div>
+        <div style="font-size:13px;color:var(--dark);margin:4px 0;line-height:1.6;">${esc(k.text)}</div>
+        <div class="item-sub">${k.date}</div>
+      </div>
+    </div>`).join('') : '<p class="muted ctr" style="padding:16px;">No ideas shared yet — be the first!</p>';
+}
 function switchLbTab(tab){
   lbTab=tab;
   $('lb-cfilter').classList.toggle('hidden',tab!=='course');
@@ -1621,13 +1858,14 @@ function renderAdmin(){
   admTab('ov');
 }
 function admTab(t){
-  ['ov','co','us','re','st','pw'].forEach(x=>$('adm-'+x).classList.toggle('hidden',x!==t));
-  document.querySelectorAll('#adm-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',['ov','co','us','re','st','pw'][i]===t));
+  ['ov','co','us','re','st','ks','pw'].forEach(x=>$('adm-'+x).classList.toggle('hidden',x!==t));
+  document.querySelectorAll('#adm-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',['ov','co','us','re','st','ks','pw'][i]===t));
   if(t==='ov')renderAdmOv();
   if(t==='co')renderAdmCo();
   if(t==='us')renderAdmUs();
   if(t==='re')renderAdmRe();
   if(t==='st')renderAdmST();
+  if(t==='ks')renderAdmKS();
 }
 
 const CHS={};
@@ -2122,6 +2360,28 @@ function clearSpeedTestHistory(){
   sDB();renderAdmSTLb();
 }
 
+// ═══════════════════════
+// ADMIN — Knowledge Sharing / Ideas moderation
+// ═══════════════════════
+function renderAdmKS(){
+  const list=(DB.knowledgeShares||[]).slice().reverse();
+  $('adm-ks-list').innerHTML = list.length ? list.map(k=>`
+    <div class="item-row" style="cursor:default;align-items:flex-start;">
+      <div class="av" style="flex-shrink:0;">${k.name[0].toUpperCase()}</div>
+      <div class="item-info">
+        <div class="item-title">${esc(k.name)}</div>
+        <div style="font-size:13px;color:var(--dark);margin:4px 0;line-height:1.6;">${esc(k.text)}</div>
+        <div class="item-sub">${k.date}</div>
+      </div>
+      <button class="btn btn-danger btn-xs" onclick="delKnowledgeShare('${k.id}')">Del</button>
+    </div>`).join('') : '<p class="muted ctr" style="padding:16px;">No ideas submitted yet.</p>';
+}
+function delKnowledgeShare(id){
+  if(!confirm('Delete this submission?'))return;
+  DB.knowledgeShares=(DB.knowledgeShares||[]).filter(k=>k.id!==id);
+  sDB();renderAdmKS();
+}
+
 // Staff: open and take a speed test
 let STS={stid:null,cur:0,answers:[],ti:null,tl:0,qOrder:[],startTime:0,curMulti:[]};
 function openSpeedTest(stid){
@@ -2217,7 +2477,8 @@ function finishST(){
     return '<div class="rev-item '+cls+'"><b>'+icon+' Q'+(i+1)+'.</b> '+esc(a.q)+'<br><br><span>Your answer: <b>'+formatAnsDisplay(a,'sel')+'</b></span><br><span>Correct: <b style="color:var(--success)">'+formatAnsDisplay(a,'ans')+'</b></span></div>';
   }).join('');
   saveLastScreen('s-home',null);
-  NS.push('s-stresult');showScreen('s-stresult');
+  renderFeedbackCard('str-fb-area','speed',st.id,st.name);
+  navigateTo('s-stresult');
 }
 
 // ═══════════════════════
@@ -2330,25 +2591,49 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
   // Initialise Firebase
   const firebaseOK = initFirebase();
 
-  // Show splash while loading
+  // Show an innovative animated splash while loading
   const splash = document.createElement('div');
   splash.id = 'sync-splash';
   splash.innerHTML = `
-    <div style="margin-bottom:8px;">
-      <img src="${BRAND_LOGO_URL||''}" alt="" style="max-height:70px;max-width:180px;object-fit:contain;${BRAND_LOGO_URL?'':'display:none;'}">
-      ${BRAND_LOGO_URL?'':'<div style="font-family:\'Sora\',sans-serif;font-size:30px;font-weight:800;color:#fff;letter-spacing:1px;">KIDZA</div>'}
+    <div class="splash-ring-wrap">
+      <div class="splash-ring r1"></div>
+      <div class="splash-ring r2"></div>
+      <div class="splash-logo-box">
+        ${BRAND_LOGO_URL?`<img src="${BRAND_LOGO_URL}" alt="" style="max-height:52px;max-width:130px;object-fit:contain;">`:'<div style="font-family:\'Sora\',sans-serif;font-size:24px;font-weight:800;color:#fff;letter-spacing:1px;">KIDZA</div>'}
+      </div>
     </div>
-    <div style="color:rgba(255,255,255,.75);font-size:13px;margin-bottom:20px;">${firebaseOK ? 'Syncing across devices…' : 'Loading…'}</div>
-    <div style="width:60px;height:4px;border-radius:50px;background:rgba(255,255,255,.3);overflow:hidden;">
-      <div style="height:100%;background:#fff;border-radius:50px;animation:syncbar 1.1s ease-in-out infinite;"></div>
-    </div>`;
-  splash.style.cssText = 'position:fixed;inset:0;background:#1a56db;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;';
+    <div id="splash-status" style="color:rgba(255,255,255,.8);font-size:13px;font-weight:600;margin-top:26px;letter-spacing:.3px;">Getting things ready…</div>
+    <div class="splash-dots"><span></span><span></span><span></span></div>`;
+  splash.style.cssText = 'position:fixed;inset:0;background:linear-gradient(150deg,#1e40af 0%,#1a56db 55%,#3b82f6 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;';
   document.body.appendChild(splash);
   const style = document.createElement('style');
-  style.textContent = '@keyframes syncbar{0%{width:0%;margin-left:0}50%{width:100%;margin-left:0}100%{width:0%;margin-left:100%}}';
+  style.textContent = `
+    .splash-ring-wrap{position:relative;width:128px;height:128px;display:flex;align-items:center;justify-content:center;}
+    .splash-ring{position:absolute;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);animation:splashPulse 2.2s cubic-bezier(.4,0,.2,1) infinite;}
+    .splash-ring.r1{width:100%;height:100%;}
+    .splash-ring.r2{width:100%;height:100%;animation-delay:1.1s;}
+    @keyframes splashPulse{0%{transform:scale(.55);opacity:1;}100%{transform:scale(1.15);opacity:0;}}
+    .splash-logo-box{width:88px;height:88px;border-radius:50%;background:#fff;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;animation:splashBob 1.8s ease-in-out infinite;overflow:hidden;padding:8px;}
+    @keyframes splashBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+    .splash-dots{display:flex;gap:6px;margin-top:16px;}
+    .splash-dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.85);animation:splashDot 1.2s ease-in-out infinite;}
+    .splash-dots span:nth-child(2){animation-delay:.15s;}
+    .splash-dots span:nth-child(3){animation-delay:.3s;}
+    @keyframes splashDot{0%,80%,100%{opacity:.25;transform:scale(.8);}40%{opacity:1;transform:scale(1);}}
+  `;
   document.head.appendChild(style);
+  const splashMsgs = firebaseOK
+    ? ['Getting things ready…','Syncing your courses…','Almost there…']
+    : ['Getting things ready…','Loading your data…','Almost there…'];
+  let splashIdx=0;
+  const splashTimer=setInterval(()=>{
+    splashIdx=(splashIdx+1)%splashMsgs.length;
+    const el=$('splash-status');
+    if(el) el.textContent=splashMsgs[splashIdx];
+  },1100);
 
   await lDB();
+  clearInterval(splashTimer);
   splash.remove();
 
   // Set up realtime sync status badge + listener (added)
@@ -2368,18 +2653,16 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('s-login').classLi
   }
 
   if(restoreS()){
-    if(CUR.user.role==='admin'){NS.length=0;NS.push('s-admin');renderAdmin();showScreen('s-admin');applyBrandLogo();}
+    if(CUR.user.role==='admin'){resetNavTo('s-admin');renderAdmin();applyBrandLogo();}
     else{
       // Try to resume last screen (non-test)
       const resume=loadLastScreen();
-      if(resume&&resume.uid===CUR.user.id&&resume.screen&&resume.screen!=='s-home'){
-        NS.length=0;NS.push('s-home');
-        if(resume.screen==='s-course'&&resume.extra&&resume.extra.cid){
-          goHome();openCourse(resume.extra.cid);
-        } else { goHome(); }
-      } else { NS.length=0;NS.push('s-home');goHome(); }
+      resetNavTo('s-home');
+      if(resume&&resume.uid===CUR.user.id&&resume.screen==='s-course'&&resume.extra&&resume.extra.cid){
+        goHome();openCourse(resume.extra.cid);
+      } else { goHome(); }
     }
-  }else{showScreen('s-login');applyBrandLogo();}
+  }else{resetNavTo('s-login');prefillLoginForm();applyBrandLogo();}
 })();
 </script>
 </body>
